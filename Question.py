@@ -5,14 +5,12 @@
 
 class Question:
     
-    def __init__(self, database, numAtt, numRel, seed):
+    def __init__(self, database, seed):
         # get the attributes and their types from SQL, as well as the relations
         self.opperators = ['=', '<', '>', '<=', '>=', 'is', 'is not']
         self.aggregateFunctions = ['count()', 'max()', 'min()', 'avg()', '']
         self.condition = ['where', '']
         self.db = database
-        self.numAttributes = numAtt
-        self.numRelations = numRel
         self.seed = seed
 
  
