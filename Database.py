@@ -16,10 +16,18 @@ class Database:
         )
         print(database)
         # get the attributes and their types from SQL, as well as the relations
-        self.attributes = [['att1','datatype'],['att2','datatype']]
-        self.relations = ['relation1', 'relation2']
+        
+        # pseudo code (wip)
+        for relation in database:
+            array=["name of relation"]
+            for attribute in relation:
+                array.append([attribute,'datatype'])
+            self.relation.append(array)
+        
+        
+        #self.relations = [['relation1',['att1','datatype']], ['relation2',['att1','datatype']]]
     
-    
+
     def numAttributes(self):
         return len(self.attributes)
     
