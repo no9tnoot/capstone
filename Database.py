@@ -6,6 +6,20 @@ from array import *
 
 import mysql.connector # python3 --version, and then # pip3.8 install mysql-connector-python
 
+database = mysql.connector.connect(
+    host="localhost",
+    user="root",
+    password="mySQL_sew1",
+    database="sakila"
+)
+# myCursor = database.cursor()
+
+# myCursor.execute("SELECT * FROM CITY")
+# mySQLoutput = myCursor.fetchall()
+
+# for i in mySQLoutput:
+#   print(i)
+
 
 class Database:
     
