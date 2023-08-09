@@ -107,8 +107,6 @@ class Database:
 
 
 # testing (delete me)
-new = Database()
-
-print(new.numRelations())
-
-print(new.getRelation(0).getAttribute(0).getDataType())
+# new = Database()
+# print(new.numRelations())
+# print(new.getRelation(0).getAttribute(0).getDataType())
