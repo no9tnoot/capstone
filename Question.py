@@ -40,7 +40,7 @@ class Question:
 
 
     def isNumeric(self, attrType):
-         if attrType == 'bit' or 'tinyint' or 'smallint' or 'mediumint' or 'int' or 'integer' or 'bigint' or 'float' or 'double' or 'decimal' or 'dec':
+         if attrType == 'bit' or attrType == 'tinyint' or attrType == 'smallint' or attrType == 'mediumint' or attrType == 'int' or attrType == 'integer' or attrType == 'bigint' or attrType == 'float' or attrType == 'double' or attrType == 'decimal' or attrType == 'dec':
               print("Numeric: " + attrType)
               return True
          else:
@@ -71,6 +71,7 @@ class Question:
                     
                     #if no numeric attributes in relation, select a new relation
                     elif i == relation.getNumAttributes()-1:
+                         #I'm not confident this will work...
                          self.setRel(attTypeNeeded)
                     
                 
@@ -83,15 +84,18 @@ class Question:
             attribute = relation.getAttribute(attribute)
             #Must include option for where attribute given is *, but then must be 
 
-            return attribute #del
 
-            # # if the chosen action is a condition
-            # if attTypeNeeded == 'cond':
-            #     return attribute
+            #remove excess characters from datatype eg. smallint unsigned -> smallint, binary(4) -> binary
+            attrType = self.simplifyDatatype(attribute.getDataType())
+
+            #if numeric, return relation
+            if self.isNumeric(attrType):
+                    return attribute
             
-            # # if the chosen action is an aggregate fn or operator
-            # else:
-            #     # ensure attribute is numeric
+            #if no numeric attributes in relation, select a new relation
+            else:
+                    attribute = self.setAttr(relation, attTypeNeeded)
+                    return attribute
 
      
     def questionBuilder(self):
@@ -99,7 +103,7 @@ class Question:
         aggOrCond = random.choice(['agg', 'cond'])
         #select relation from database
         relation = self.setRel(aggOrCond)
-        # print("Relation: " + relation.name)
+        print("Relation: " + relation.name)
 
         #If the random selection is an aggregate fn
         if aggOrCond == 'agg':
@@ -109,7 +113,7 @@ class Question:
 
             #select attribute from relation
             attr = self.setAttr(relation, aggOrCond)
-            # print("Attribute: " + attr.name)
+            print("Attribute: " + attr.name)
 
             print("SELECT " + aggType + attr.name + ") FROM " + relation.name)
 
