@@ -19,20 +19,61 @@ class Question:
         self.questionBuilder()
 
 
+    #remove excess characters from datatype 
+    #e.g. smallint unsigned -> smallint, binary(4) -> binary
+    def simplifyDatatype(self, attrType):
+         #if contains a space, split at space
+            if " " in attrType:
+                    attrType = attrType.split(" ")
+
+            #if contains a bracket, split at bracket
+            elif "(" in attrType:
+                    attrType = attrType.split("(")
+
+            #ensure attrType will come out of this if else statement as an array
+            else:
+                    attrType = attrType.split()
+         
+            #return simplified datatype
+            return attrType[0]
+            
+
+
+    def isNumeric(self, attrType):
+         if attrType == 'bit' or 'tinyint' or 'smallint' or 'mediumint' or 'int' or 'integer' or 'bigint' or 'float' or 'double' or 'decimal' or 'dec':
+              print("Numeric: " + attrType)
+              return True
+         else:
+              return False
+
+
     def setRel(self, attTypeNeeded):
             #select random relation from database
             relation = random.randrange(0, newDB.numRelations()-1, 1)
             relation = newDB.getRelation(relation)
-            
-            return relation #del
 
-            # # if the chosen action is a condition
-            # if attTypeNeeded == 'cond':
-            #     return relation
+            # if the chosen action is a condition
+            if attTypeNeeded == 'cond':
+                return relation
             
-            # # if the chosen action is an aggregate fn or operator
-            # else:
-            #     # ensure relation contains at least one numeric attribute
+            # if the chosen action is an aggregate fn or operator
+            # ensure relation contains at least one numeric attribute
+            else:
+                #iterate through attributes, looking for numeric
+                for i in range(relation.getNumAttributes()):   
+                    
+                    #remove excess characters from datatype eg. smallint unsigned -> smallint, binary(4) -> binary
+                    attrType = self.simplifyDatatype(relation.getAttribute(i).getDataType())
+
+                    #if numeric, return relation
+                    if self.isNumeric(attrType):
+                         return relation
+                    
+                    #if no numeric attributes in relation, select a new relation
+                    elif i == relation.getNumAttributes()-1:
+                         self.setRel(attTypeNeeded)
+                    
+                
     
     # For questions where 2+ attributes are chosen from one relation, must include logic to prevent the 
     # attribute being selected twice

@@ -107,6 +107,10 @@ class Database:
 
 
 # testing (delete me)
-# new = Database()
-# print(new.numRelations())
-# print(new.getRelation(0).getAttribute(0).getDataType())
+new = Database(db_name='sakila')
+print(new.numRelations())
+dataType = new.getRelation(0).getAttribute(0).getDataType()
+#dataType = dataType.split(" ")
+#print(dataType[0])
+if " " in dataType:
+    print(dataType)
