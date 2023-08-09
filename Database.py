@@ -63,17 +63,17 @@ class Database:
     def __init__(self, host='localhost', user='root', pword='mySQL_sew1', db_name = 'classicmodels2022'):
         
         self.relations = []  # initialise empty array of relations
-        self.loadRelations(db_name)
+        self.loadRelations(host, user, pword, db_name)
         
         
     """ Get the attributes and their types from SQL, as well as the relations"""
-    def loadRelations(self, db_name):
+    def loadRelations(self, h, usr, pw, db):
         # connect to sql database
         database = mysql.connector.connect(
-            host="localhost",
-            user="root",
-            password="mySQL_sew1",
-            database=db_name
+            host=h,
+            user=usr,
+            password=pw,
+            database=db
         )
         
         cursor = database.cursor()  # Create a cursor to interact with the database
