@@ -26,7 +26,7 @@ class Session:
         return int(datetime.datetime.now().strftime("%Y%m%d%H%M%S"))
     
     #generate seed from date, for tests
-    def genSeed():
+    def genTestSeed():
         return int(datetime.date.now().strftime("%Y%m%d"))
     
     
