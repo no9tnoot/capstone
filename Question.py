@@ -38,8 +38,8 @@ class Question:
 
         # return simplified datatype
         return attrType[0]
-
-"""Functionality now handled in Database class - pull from the database.numericRelations array
+    """
+    Functionality now handled in Database class - pull from the database.numericRelations array
     # Returns true if the datatype is numeric (not a string/date/time)
 
     def isNumeric(self, attrType):
@@ -50,7 +50,8 @@ class Question:
 
         else:
             return False
-"""
+    """
+
 
     # Randomly selects a relation from the loaded database
 
