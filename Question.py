@@ -54,23 +54,32 @@ class Question:
     ''' For questions where 2+ attributes are chosen from one relation, must include logic to prevent the
         attribute being selected twice'''
 
-    def setAttr(self, relation, attTypeNeeded, aggOrCondType):
-        # select random attribute from relation
-        attribute = random.randrange(0, relation.getNumAttributes()-1, 1)
-        attribute = relation.getAttribute(attribute)
+    def setAttr(self, relation, attTypeNeeded, aggOrCondType, attNum):
 
-        '''Must include option for where attribute given is *. This happens:
-            - for conditions
-            - for counts '''
+        # Randomly select attribute from relation
 
-        # if numeric, return attribute
-        if attribute.numeric or attTypeNeeded == 'cond' or aggOrCondType == 'count(':
-            return attribute
 
-        # else, recurse until select numeric attribute
+        # if condition or count, include * as an option
+        '''decided to include * in this way as it will allow it to appear with reasonable frequency'''
+        if attTypeNeeded == 'cond' or aggOrCondType == 'count(':
+            # Randomly select attribute from relation -> doesn't have to be numeric
+            attribute = random.randrange(0, relation.getNumAttributes()-1, 1)
+            attribute = relation.getAttribute(attribute)
+            
+            # Choose between attribute and '*' if attNum is 1
+            if attNum == 1:
+                astOrAttr = random.choice(['*', 'attribute'])
+                if astOrAttr == '*':
+                    attribute = Database.Attribute('*', 'varchar(50)' , 'NO', '')
+        
         else:
-            attribute = self.setAttr(relation, attTypeNeeded, aggOrCondType)
-            return attribute
+            print(aggOrCondType + " -> ensuring numeric")
+            attribute = random.randrange(0, len(relation.numericAttributes)-1, 1)
+            attribute = relation.numericAttributes[attribute]
+        
+        return attribute
+
+
 
     def findNumRows(self, relation, attribute):
 
@@ -87,6 +96,9 @@ class Question:
         numRows = cursor.fetchall()
         return numRows[0][0]
 
+
+    # Find a value for an attribute that you will set in the where clause
+    # eg. WHERE attribute = 'attributeVal'
     def selectAttrVal(self, relation, attribute):
 
         database = mysql.connector.connect(
@@ -98,8 +110,8 @@ class Question:
 
         cursor = database.cursor()  # Create a cursor to interact with the database
 
-        cursor.execute("SELECT " + attribute + " FROM " +
-                       relation + ";")   # SQL: print the table names
+        cursor.execute("SELECT " + attribute.name + " FROM " +
+                       relation.name + ";")   # SQL: print the table names
         values = cursor.fetchall()       # get the output table names from SQL
 
         reqVal = random.randrange(0, len(values), 1)
@@ -125,10 +137,10 @@ class EasyQuestion(Question):
 
             # select relation from database
             relation = Question.setRel(self, aggOrCond, aggType)
-            # print("Relation: " + relation.name) # testing (delete me)
+            # print("Relation: " + relation) # testing (delete me)
 
             # select attribute from relation
-            attr = self.setAttr(relation, aggOrCond, aggType)
+            attr = self.setAttr(relation, aggOrCond, aggType, 1)
             # print("Attribute: " + attr.name) # testing (delete me)
 
             if aggType == '':
@@ -145,10 +157,10 @@ class EasyQuestion(Question):
             # print("Condition: " + condType) # testing (delete me)
 
             relation = Question.setRel(self, aggOrCond, condType)
-            # print("Relation: " + relation.name) # testing (delete me)
+            # print("Relation: " + relation) # testing (delete me)
 
             '''Should I overload this function so that it doesn't have to deal with the numeric checks?'''
-            attr_1 = self.setAttr(relation, aggOrCond, condType)
+            attr_1 = self.setAttr(relation, aggOrCond, condType, 1)
             # print("Attribute 1: " + attr_1.name) # testing (delete me)
 
             if condType == '':
@@ -156,7 +168,7 @@ class EasyQuestion(Question):
                       " FROM " + relation.name + ";")
 
             elif condType == 'order by':
-                attr_2 = self.setAttr(relation, aggOrCond, condType)
+                attr_2 = self.setAttr(relation, aggOrCond, condType, 2)
                 # print("Attribute 2: " + attr_2.name) # testing (delete me)
 
                 orderBy = random.choice(['ASC', 'DESC'])
@@ -174,7 +186,7 @@ class EasyQuestion(Question):
                 nullOrVal = random.choice(['null', 'val'])
                 # nullOrVal = 'null'
 
-                attr_2 = self.setAttr(relation, aggOrCond, condType)
+                attr_2 = self.setAttr(relation, aggOrCond, condType, 2)
                 # print("Attribute 2: " + attr_2.name) # testing (delete me)
 
                 # an attribute is not null
@@ -185,7 +197,7 @@ class EasyQuestion(Question):
 
                 else:
                     reqVal = Question.selectAttrVal(
-                        self, relation.name, attr_2.name)
+                        self, relation, attr_2)
                     print("SELECT " + attr_1.name + " FROM " + relation.name +
                           " WHERE " + attr_2.name + " = '" + str(reqVal) + "';")
 
