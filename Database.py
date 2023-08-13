@@ -18,7 +18,7 @@ class Attribute:
         self.dataType=dt
         self.null=null
         self.key=k
-        self.numeric = self.isNumeric()
+        self.numeric = self.isNumeric(self)
     
     def getName(self):
         return self.name
@@ -145,9 +145,9 @@ class Database:
 
 # testing (delete me)
 new = Database(db_name='classicmodels2022')
-print(new.numRelations())
-dataType = new.getRelation(1).getAttribute(0).getDataType()
-dataType = dataType.split(" ")
-print(dataType[0])
+#print(new.numRelations())
+#dataType = new.getRelation(1).getAttribute(0).getDataType()
+#dataType = dataType.split(" ")
+#print(dataType[0])
 #if " " in dataType:
 #    print(dataType)
