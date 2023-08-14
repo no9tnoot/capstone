@@ -15,7 +15,7 @@ class Attribute:
     
     def __init__(self, name, dt, null, k):
         self.name=name
-        self.dataType=dt
+        self.dataType=dt.decode()
         self.null=null
         self.key=k
         self.numeric = self.isNumeric(self)
@@ -27,7 +27,7 @@ class Attribute:
         return self.dataType
 
     # Sets numeric to True if the attribute is numeric (not a string/date/time/boolean)
-    def isNumeric(self, attrType):
+    def isNumeric(self):
         
         isNum = False
         
@@ -35,7 +35,7 @@ class Attribute:
         
         # search to see if the dataType contains one of the above strings - indicating numeric attribute
         for dt in numDataType:
-            if (dt in self.dataType.lower()):  # set the dataType to lower case to include all string cases in search
+            if dt in self.dataType.lower():  # set the dataType to lower case to include all string cases in search
                 isNum = True
         
         return isNum;
@@ -89,17 +89,21 @@ class Database:
         
         self.relations = []  # initialise empty array of relations
         self.numericRelations = [] # initialise empty array of relations that contain at least 1 numeric attribute
-        self.loadRelations(host, user, pword, db_name)
-        
+        self.host = host
+        self.user = user
+        self.pword = pword
+        self.db_name = db_name
+        self.loadRelations()
+            
         
     """ Get the attributes and their types from SQL, as well as the relations"""
-    def loadRelations(self, h, usr, pw, db):
+    def loadRelations(self):
         # connect to sql database
         database = mysql.connector.connect(
-            host=h,
-            user=usr,
-            password=pw,
-            database=db
+            host=self.host,
+            user=self.user,
+            password=self.pword,
+            database=self.db_name
         )
         
         cursor = database.cursor()  # Create a cursor to interact with the database
@@ -136,6 +140,7 @@ class Database:
     
     def getNumericRelation(self, i):
         return self.numericRelations[i]
+    
     
     
 
