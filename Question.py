@@ -126,8 +126,7 @@ class Question:
         #aggregates and attributes
         english[0] = ['Show'] + Question.block1(sql[0], sql[1])
     
-        #relation
-        english[1] = ' in the ' + sql[2] + ' table.'
+        english[1] = Question.block2(sql[2], sql[3], sql[4], sql[5])
 
         #test
         print(Question.englishToString(english))
@@ -157,7 +156,11 @@ class Question:
                     block1.append(' the values of ')
 
             #attribute/s
-            block1[x] += attributes[x]
+            if attributes[x] == '*':
+                block1[x] += 'all columns'
+            else:
+                block1[x] += attributes[x]
+
 
             if len(attributes) > 1:
                 if x >= len(attributes) - 2:
@@ -166,6 +169,29 @@ class Question:
                     block1[x] += ','
 
         return block1
+    
+    def block2(relation, condition, x, y):
+        block2 = []
+
+        #relation
+        block2.append(' in the ' + relation[0] + ' table')
+
+        match condition[0]:
+            case 'limit':
+                if y[0] == 1:
+                    block2.append(' but only show 1 row')
+                else:
+                    block2.append(' but only show ' + y[0] + ' rows')
+            case 'where':
+                block2.append(' but only for rows with an ' + x[0] + ' value of ' + y[0])
+            case 'order by':
+                if y[0] == 'desc':
+                    block2.append(' in descending order of ' + x[0] + ' value')
+                else:
+                    block2.append(' in ascending order of ' + x[0] + ' value')
+
+        block2.append('.')
+        return block2
 
 
 class EasyQuestion(Question):
@@ -271,5 +297,5 @@ newDB = Database.Database(db_name='classicmodels2022')
 # print(newDB.numRelations())
 newQ = EasyQuestion(newDB, 'seed')
 
-sql = [['',''],['city', 'country'], 'offices']
+sql = [[''],['*'], ['offices'],['where'],['country'],['Spain']]
 Question.englishQuestion(sql)
