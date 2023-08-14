@@ -18,7 +18,7 @@ class Attribute:
         self.dataType=dt.decode()
         self.null=null
         self.key=k
-        self.numeric = self.isNumeric(self)
+        self.numeric = Attribute.isNumeric(self)
     
     def getName(self):
         return self.name
@@ -38,7 +38,7 @@ class Attribute:
             if dt in self.dataType.lower():  # set the dataType to lower case to include all string cases in search
                 isNum = True
         
-        return isNum;
+        return isNum
 
 
 
