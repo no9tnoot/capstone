@@ -4,7 +4,6 @@
 import mysql.connector
 import Database
 import random
-import mysql.connector
 # val = random.random()
 # print(val)
 
@@ -196,7 +195,11 @@ class EasyQuestion(Question):
                     print("SELECT " + attr_1.name + " FROM " +
                           relation.name + " WHERE " + attr_2.name + " IS NOT NULL;")
 
-class EasyQuestion(Question):
+                else:
+                    reqVal = Question.selectAttrVal(
+                        self, relation, attr_2)
+                    print("SELECT " + attr_1.name + " FROM " + relation.name +
+                          " WHERE " + attr_2.name + " = '" + str(reqVal) + "';")
 
             else:
                 print("Invalid condition")
@@ -215,9 +218,6 @@ class DifficultQuestion(Question):
 
 
 # testing (delete me)
-newDB = Database.Database(db_name='sakila')
+newDB = Database.Database(db_name='classicmodels2022')
 # print(newDB.numRelations())
-newQ = Question(newDB, 'seed')
-
-sql = [['count'],['*'], 'offices']
-Question.englishQuestion(sql)
+newQ = EasyQuestion(newDB, 'seed')
