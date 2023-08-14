@@ -117,6 +117,55 @@ class Question:
         reqVal = random.randrange(0, len(values), 1)
         reqVal = values[reqVal][0]
         return reqVal
+    
+    #write the english question for the sql query
+    def englishQuestion(sql):
+        #2d array holds slots for each part of the question
+        english = ['','']
+
+        #aggregates and attributes
+        english[0] = ['Show'] + Question.block1(sql[0], sql[1])
+    
+        #relation
+        english[1] = ' in the ' + sql[2] + ' table.'
+
+        #test
+        print(Question.englishToString(english))
+
+    def englishToString(english):
+        question = ''
+        for block in english:
+            for string in block:
+                question += string
+        return question
+
+    def block1(aggregates, attributes):
+        #aggregate functions go in the first slot
+        block1 = []
+
+        for x in range(len(attributes)):
+            match aggregates[x]:
+                case 'count':
+                    block1.append(' how many rows there are in ')
+                case 'max':
+                    block1.append(' the greatest value of ')
+                case 'min':
+                    block1.append(' the smallest value of ')
+                case 'avg':
+                    block1.append(' the average value of ')
+                case _:
+                    block1.append(' the values of ')
+
+            #attribute/s
+            block1[x] += attributes[x]
+
+            if len(attributes) > 1:
+                if x == len(attributes) - 2:
+                    block1[x] += ' and'
+                else:
+                    block1[x] += ','
+
+        return block1
 
 
 class EasyQuestion(Question):
