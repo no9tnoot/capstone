@@ -160,7 +160,7 @@ class Question:
             block1[x] += attributes[x]
 
             if len(attributes) > 1:
-                if x == len(attributes) - 2:
+                if x >= len(attributes) - 2:
                     block1[x] += ' and'
                 else:
                     block1[x] += ','
@@ -270,3 +270,6 @@ class DifficultQuestion(Question):
 newDB = Database.Database(db_name='classicmodels2022')
 # print(newDB.numRelations())
 newQ = EasyQuestion(newDB, 'seed')
+
+sql = [['',''],['city', 'country'], 'offices']
+Question.englishQuestion(sql)
