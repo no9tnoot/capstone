@@ -15,7 +15,7 @@ class Attribute:
     
     def __init__(self, name, dt, null, k):
         self.name=name
-        self.dataType=dt
+        self.dataType=dt.decode()
         self.null=null
         self.key=k
         self.numeric = self.isNumeric()
@@ -35,7 +35,7 @@ class Attribute:
         
         # search to see if the dataType contains one of the above strings - indicating numeric attribute
         for dt in numDataType:
-            if (dt in self.dataType.lower()):  # set the dataType to lower case to include all string cases in search
+            if dt in self.dataType.lower():  # set the dataType to lower case to include all string cases in search
                 isNum = True
         
         return isNum;
