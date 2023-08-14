@@ -3,7 +3,7 @@
 # Session Class
 
 import Database
-import Quiz
+#import Quiz
 import datetime
 
 class Session:
@@ -32,5 +32,5 @@ class Session:
     
     #create a quiz with the chosen database, a distribution of easy/medium/hard questions, and whether it is a test or not
         #maybe change depending on how we want to implements tests
-    def genQuiz(self, database, distribution = [10, 10, 10], test = False):
-        Quiz.Quiz(self, database, distribution, test)
+    #def genQuiz(self, database, distribution = [10, 10, 10], test = False):
+        #Quiz.Quiz(self, database, distribution, test)
