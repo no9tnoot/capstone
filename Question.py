@@ -117,6 +117,81 @@ class Question:
         reqVal = random.randrange(0, len(values), 1)
         reqVal = values[reqVal][0]
         return reqVal
+    
+    #write the english question for the sql query
+    def englishQuestion(sql):
+        #2d array holds slots for each part of the question
+        english = ['','']
+
+        #aggregates and attributes
+        english[0] = ['Show'] + Question.block1(sql[0], sql[1])
+    
+        english[1] = Question.block2(sql[2], sql[3], sql[4], sql[5])
+
+        #test
+        print(Question.englishToString(english))
+
+    def englishToString(english):
+        question = ''
+        for block in english:
+            for string in block:
+                question += string
+        return question
+
+    def block1(aggregates, attributes):
+        #aggregate functions go in the first slot
+        block1 = []
+
+        for x in range(len(attributes)):
+            match aggregates[x]:
+                case 'count':
+                    block1.append(' how many rows there are in ')
+                case 'max':
+                    block1.append(' the greatest value of ')
+                case 'min':
+                    block1.append(' the smallest value of ')
+                case 'avg':
+                    block1.append(' the average value of ')
+                case _:
+                    block1.append(' the values of ')
+
+            #attribute/s
+            if attributes[x] == '*':
+                block1[x] += 'all columns'
+            else:
+                block1[x] += attributes[x]
+
+
+            if len(attributes) > 1:
+                if x >= len(attributes) - 2:
+                    block1[x] += ' and'
+                else:
+                    block1[x] += ','
+
+        return block1
+    
+    def block2(relation, condition, x, y):
+        block2 = []
+
+        #relation
+        block2.append(' in the ' + relation[0] + ' table')
+
+        match condition[0]:
+            case 'limit':
+                if y[0] == 1:
+                    block2.append(' but only show 1 row')
+                else:
+                    block2.append(' but only show ' + y[0] + ' rows')
+            case 'where':
+                block2.append(' but only for rows with an ' + x[0] + ' value of ' + y[0])
+            case 'order by':
+                if y[0] == 'desc':
+                    block2.append(' in descending order of ' + x[0] + ' value')
+                else:
+                    block2.append(' in ascending order of ' + x[0] + ' value')
+
+        block2.append('.')
+        return block2
 
 
 class EasyQuestion(Question):
@@ -221,3 +296,6 @@ class DifficultQuestion(Question):
 newDB = Database.Database(db_name='classicmodels2022')
 # print(newDB.numRelations())
 newQ = EasyQuestion(newDB, 'seed')
+
+sql = [[''],['*'], ['offices'],['where'],['country'],['Spain']]
+Question.englishQuestion(sql)
