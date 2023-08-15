@@ -5,6 +5,8 @@
 import Database
 #import Quiz
 import datetime
+import Question
+import Marker
 
 class Session:
 
@@ -12,6 +14,7 @@ class Session:
         self.database = self.loadDatabase()
         self.seed = Session.genSeed()
         self.user = user
+        self.marker = Marker.Marker(self.database)
     
     #create instance of database with default parameters
     def loadDatabase(self):
@@ -28,6 +31,9 @@ class Session:
     #generate seed from date, for tests
     def genTestSeed():
         return int(datetime.date.now().strftime("%Y%m%d"))
+    
+    def getQuestion(self):
+        return Question.EasyQuestion(self.database, self.seed)
     
     
     #create a quiz with the chosen database, a distribution of easy/medium/hard questions, and whether it is a test or not
