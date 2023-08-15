@@ -282,13 +282,15 @@ class EasyQuestion(Question):
                 # Send the relevant array to the English Question function
                 Question.englishQuestion([self.aggFns, self.conds, self.attrs, self.rels])
 
+            # If this is a "limit" condition
             elif condType == 'limit':
                 
                 numRows = Question.findNumRows(self, relation, attr_1) # get number of rows in relation -> numRows
                 lim = random.randrange(1, numRows, 1) # choose a random value between 1 
                 # and the total number of rows in the relation
-                '''Should we limit this more? Possibly so that it's easily countable and the student can 
-                see if they're right'''
+                
+                ''' ^ Should we limit this more? Possibly so that it's easily countable and the student
+                    can see if they're right'''
 
                 self.conds.append(lim) # add chosen limit to array instance variable
 
@@ -299,16 +301,19 @@ class EasyQuestion(Question):
                 # Send the relevant array to the English Question function
                 Question.englishQuestion([self.aggFns, self.conds, self.attrs, self.rels])
 
+            # If this is a "where" condition
             elif condType == 'where':
-                nullOrVal = random.choice(['null', 'val'])
+                nullOrVal = random.choice(['null', 'val']) # Choose between ensuring the attribute value 
+                # is not null and ensuring it has a given value
                 
-                self.conds.append(nullOrVal)
-                attr_2 = self.setAttr(relation, aggOrCond, condType, 2)
+                self.conds.append(nullOrVal) # add chosen nullOrVal value to array instance variable
                 
+                attr_2 = self.setAttr(relation, aggOrCond, condType, 2) # select a second random attribute 
+                # (can be the same as attr_1)
+                self.attrs.append(attr_2) # add chosen attribute to array instance variable
 
-                # an attribute is not null
+                # If null option chosen and attribute contains null values
                 if nullOrVal == 'null' and attr_2.null == 'YES':
-                    '''Should I first check if attribute 2 actually contains any nulls? That feels unneccesary?'''
                     
                     # Assign this string to the instance variable 'question' in the Question parent class
                     Question.question = ("SELECT " + attr_1.name + " FROM " +
@@ -317,10 +322,17 @@ class EasyQuestion(Question):
                     # Send the relevant array to the English Question function
                     Question.englishQuestion([self.aggFns, self.conds, self.attrs, self.rels])
 
+                # If value option chosen or attribute does not contain any nulls
                 else:
+                    # Change the value in the english question array to 'val'
+                    if nullOrVal == 'null':
+                        self.conds[1] = 'val'
+                    
+                    # Select a required value for the attribute
                     reqVal = Question.selectAttrVal(
                         self, relation, attr_2)
-                    self.conds.append(reqVal)
+                    
+                    self.conds.append(reqVal) # add chosen required value to array instance variable
 
                     # Assign this string to the instance variable 'question' in the Question parent class
                     Question.question = ("SELECT " + attr_1.name + " FROM " + relation.name +
