@@ -13,11 +13,11 @@ class Question:
     def __init__(self, database, seed):
         # get the attributes and their types from SQL, as well as the relations
         self.opperators = ['=', '<', '>', '<=', '>=', 'is', 'is not']
-        self.aggregateFunctions = ['count(', 'max(', 'min(', 'avg(', '']
+        self.aggregateFunctions = ['count(', 'max(', 'min(', 'avg(', 'sum(', '']
         self.condition = ['where', 'limit', 'order by', '']
         self.db = database
         self.seed = seed
-        EasyQuestion.easyBuilder(self)
+        self.question = EasyQuestion.easyBuilder(self)
 
     """
     Functionality now handled in Database class - pull from the database.numericRelations array
@@ -58,10 +58,9 @@ class Question:
 
         # Randomly select attribute from relation
 
-
         # if condition or count, include * as an option
         '''decided to include * in this way as it will allow it to appear with reasonable frequency'''
-        if attTypeNeeded == 'cond' or aggOrCondType == 'count(':
+        if attTypeNeeded == 'cond' or aggOrCondType == 'count(' or aggOrCondType == '':
             # Randomly select attribute from relation -> doesn't have to be numeric
             attribute = random.randrange(0, relation.getNumAttributes()-1, 1)
             attribute = relation.getAttribute(attribute)
@@ -73,7 +72,7 @@ class Question:
                     attribute = Database.Attribute('*', 'varchar(50)' , 'NO', '')
         
         else:
-            print(aggOrCondType + " -> ensuring numeric")
+            # print(aggOrCondType + " -> ensuring numeric")
             attribute = random.randrange(0, len(relation.numericAttributes)-1, 1)
             attribute = relation.numericAttributes[attribute]
         
@@ -146,6 +145,7 @@ class EasyQuestion(Question):
             if aggType == '':
                 print("SELECT " + aggType + attr.name +
                       " FROM " + relation.name + ";")
+                return [[aggType],[],[],[]]
             else:
                 print("SELECT " + aggType + attr.name +
                       ") FROM " + relation.name + ";")
