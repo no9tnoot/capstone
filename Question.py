@@ -25,17 +25,7 @@ class Question:
     # Returns true if the datatype is numeric (not a string/date/time)
     """
 
-    def isNumeric(self, attrType):
-
-        if attrType == 'bit' or attrType == 'tinyint' or attrType == 'smallint' or attrType == 'mediumint' or attrType == 'int' or attrType == 'integer' or attrType == 'bigint' or attrType == 'float' or attrType == 'double' or attrType == 'decimal' or attrType == 'dec':
-            # print("Numeric: " + attrType) # testing (delete me)
-            return True
-
-        else:
-            return False
-
     # Randomly selects a relation from the loaded database
-
     def setRel(self, attTypeNeeded, aggOrCondType):
 
         # select relation
@@ -55,34 +45,35 @@ class Question:
     ''' For questions where 2+ attributes are chosen from one relation, must include logic to prevent the
         attribute being selected twice'''
 
+    # Randomly selects an attribute from the chosen relation
     def setAttr(self, relation, attTypeNeeded, aggOrCondType, attNum):
-
-        # Randomly select attribute from relation
 
         # if condition or count, include * as an option
         '''decided to include * in this way as it will allow it to appear with reasonable frequency'''
         if attTypeNeeded == 'cond' or aggOrCondType == 'count(' or aggOrCondType == '':
+
             # Randomly select attribute from relation -> doesn't have to be numeric
             attribute = random.randrange(0, relation.getNumAttributes()-1, 1)
             attribute = relation.getAttribute(attribute)
             
             # Choose between attribute and '*' if attNum is 1
+            # (Ensures that 2nd attribute is never * -> select x where y='*' doesn't make sense)
             if attNum == 1:
                 astOrAttr = random.choice(['*', 'attribute'])
                 if astOrAttr == '*':
                     attribute = Database.Attribute('*', 'varchar(50)' , 'NO', '')
         
-        else:
-            # print(aggOrCondType + " -> ensuring numeric")
+        else: # * should not be an option
             attribute = random.randrange(0, len(relation.numericAttributes)-1, 1)
             attribute = relation.numericAttributes[attribute]
         
         return attribute
 
 
-
+    # Function to return the number of rows in the relation
     def findNumRows(self, relation, attribute):
 
+        # Connect to database
         database = mysql.connector.connect(
             host='localhost',
             user='root',
@@ -91,16 +82,20 @@ class Question:
         )
 
         cursor = database.cursor()  # Create a cursor to interact with the database
+        
         cursor.execute("SELECT count(" + attribute.name + ") FROM " +
                        relation.name + ";")   # SQL: print the table names
-        numRows = cursor.fetchall()
-        return numRows[0][0]
+       
+        numRows = cursor.fetchall() # get the output table names from SQL
+        
+        return numRows[0][0] #Return the number of rows
 
 
-    # Find a value for an attribute that you will set in the where clause
+    # Function to find a value for an attribute that you will set in the where clause
     # eg. WHERE attribute = 'attributeVal'
     def selectAttrVal(self, relation, attribute):
 
+        # Connect to database
         database = mysql.connector.connect(
             host='localhost',
             user='root',
@@ -112,10 +107,12 @@ class Question:
 
         cursor.execute("SELECT " + attribute.name + " FROM " +
                        relation.name + ";")   # SQL: print the table names
+        
         values = cursor.fetchall()       # get the output table names from SQL
 
-        reqVal = random.randrange(0, len(values), 1)
-        reqVal = values[reqVal][0]
+        reqVal = random.randrange(0, len(values)-1, 1) #Select a random value between 0 and the total number 
+        # of values -1
+        reqVal = values[reqVal][0] # Select the attribute value in this position
         return reqVal
     
     #write the english question for the sql query
