@@ -24,15 +24,6 @@ class Question:
     Functionality now handled in Database class - pull from the database.numericRelations array
     # Returns true if the datatype is numeric (not a string/date/time)
     """
-    # create array of correct format to pass to Question.englishQuestion
-    def createArray(self, aggs, conds, attrs, rels):
-        array = []
-        array.append(aggs)
-        array.append(conds)
-        array.append(attrs)
-        array.append(rels)
-        return array
-
 
     def isNumeric(self, attrType):
 
@@ -202,98 +193,141 @@ class Question:
         block2.append('.')
         return block2
 
-
+# Class to manage easy questions -> 1 aggregate function OR 1 condition
 class EasyQuestion(Question):
+    # Ordered list of aggregate functions used in the query
     aggFns = []
+
+    # Ordered list of conditions used in the query
     conds = []
+
+    # Ordered list of attributes used in the query
     attrs = []
+
+    # Ordered list of relations used in the query
     rels = []
 
-
+    # Constructor
     def __init__(self, database, seed):
         super().__init__(database, seed)
 
+    # Function to create SQL query and send the relevant information to the English Question functions
     def easyBuilder(self):
         # Randomly select either an aggregate fn or condition
         aggOrCond = random.choice(['agg', 'cond'])
 
         # If the random selection is an aggregate fn
         if aggOrCond == 'agg':
-            # select the type of aggregate function
-            aggType = random.choice(self.aggregateFunctions)
-            self.aggFns.append(aggType)
 
-            # select relation from database
-            relation = Question.setRel(self, aggOrCond, aggType)
-            self.rels.append(relation)
+            aggType = random.choice(self.aggregateFunctions) # select the type of aggregate function
+            self.aggFns.append(aggType) # add chosen aggregate function to array instance variable 
 
-            # select attribute from relation
-            attr = self.setAttr(relation, aggOrCond, aggType, 1)
-            self.attrs.append(attr)
+            relation = Question.setRel(self, aggOrCond, aggType) # select relation from database
+            self.rels.append(relation) # add chosen aggregate function to array instance variable 
 
+            attr = self.setAttr(relation, aggOrCond, aggType, 1) # select attribute from relation
+            self.attrs.append(attr) # add chosen aggregate function to array instance variable 
+
+            # If there is no aggregate function
             if aggType == '':
+                # Assign this string to the instance variable 'question' in the Question parent class
                 Question.question = ("SELECT " + aggType + attr.name +
                       " FROM " + relation.name + ";")
-                Question.createArray(self.aggFns, self.conds, self.attrs, self.rels)
+                
+                # Send the relevant array to the English Question function
+                Question.englishQuestion([self.aggFns, self.conds, self.attrs, self.rels])
+
             else:
+                # Assign this string to the instance variable 'question' in the Question parent class
                 Question.question = ("SELECT " + aggType + attr.name +
                       ") FROM " + relation.name + ";")
-                Question.createArray(self.aggFns, self.conds, self.attrs, self.rels)
+                
+                # Send the relevant array to the English Question function
+                Question.englishQuestion([self.aggFns, self.conds, self.attrs, self.rels])
 
-        # If the random selection is a condition, select a random column and random condition
+        # If the random selection is a condition
         elif aggOrCond == 'cond':
-            condType = random.choice(self.condition)
-            self.conds.append(condType)
+            condType = random.choice(self.condition) # select a random condition
+            self.conds.append(condType) # add chosen condition to array instance variable
 
-            relation = Question.setRel(self, aggOrCond, condType)
-            self.rels.append(relation)
+            relation = Question.setRel(self, aggOrCond, condType) # select a random relation
+            self.rels.append(relation) # add chosen relation to array instance variable
 
             '''Should I overload this function so that it doesn't have to deal with the numeric checks?'''
-            attr_1 = self.setAttr(relation, aggOrCond, condType, 1)
-            self.attrs.append(attr_1)
+            attr_1 = self.setAttr(relation, aggOrCond, condType, 1) # select a random attribute
+            self.attrs.append(attr_1) # add chosen attribute to array instance variable
 
+            # If there is no condition
             if condType == '':
+                # Assign this string to the instance variable 'question' in the Question parent class
                 Question.question = ("SELECT " + condType + attr_1.name +
                       " FROM " + relation.name + ";")
-                Question.createArray(self.aggFns, self.conds, self.attrs, self.rels)
+                
+                # Send the relevant array to the English Question function
+                Question.englishQuestion([self.aggFns, self.conds, self.attrs, self.rels])
 
+            # If this is an "order by" condition
             elif condType == 'order by':
-                attr_2 = self.setAttr(relation, aggOrCond, condType, 2)
-                self.attrs.append(attr_2)
+                attr_2 = self.setAttr(relation, aggOrCond, condType, 2) # select a second random attribute 
+                # (can be the same as attr_1)
+                self.attrs.append(attr_2) # add chosen attribute to array instance variable
 
-                orderBy = random.choice(['ASC', 'DESC'])
+                orderBy = random.choice(['ASC', 'DESC']) # choose between ascending or descending order
+                self.conds.append(orderBy) # add chosen order to array instance variable
+
+                # Assign this string to the instance variable 'question' in the Question parent class
                 Question.question = ("SELECT " + attr_1.name + " FROM " + relation.name +
                       " ORDER BY " + attr_2.name + ' ' + orderBy + ';')
-                Question.createArray(self.aggFns, self.conds, self.attrs, self.rels)
+                
+                # Send the relevant array to the English Question function
+                Question.englishQuestion([self.aggFns, self.conds, self.attrs, self.rels])
 
             elif condType == 'limit':
-                # get number of rows in relation -> numRows
-                numRows = Question.findNumRows(self, relation, attr_1)
-                lim = random.randrange(1, numRows, 1)
+                
+                numRows = Question.findNumRows(self, relation, attr_1) # get number of rows in relation -> numRows
+                lim = random.randrange(1, numRows, 1) # choose a random value between 1 
+                # and the total number of rows in the relation
+                '''Should we limit this more? Possibly so that it's easily countable and the student can 
+                see if they're right'''
+
+                self.conds.append(lim) # add chosen limit to array instance variable
+
+                # Assign this string to the instance variable 'question' in the Question parent class
                 Question.question = ("SELECT " + attr_1.name + " FROM " +
                       relation.name + " LIMIT " + str(lim) + ';')
-                Question.createArray(self.aggFns, self.conds, self.attrs, self.rels)
+                
+                # Send the relevant array to the English Question function
+                Question.englishQuestion([self.aggFns, self.conds, self.attrs, self.rels])
 
             elif condType == 'where':
                 nullOrVal = random.choice(['null', 'val'])
-                # nullOrVal = 'null'
-
+                
+                self.conds.append(nullOrVal)
                 attr_2 = self.setAttr(relation, aggOrCond, condType, 2)
-                # print("Attribute 2: " + attr_2.name) # testing (delete me)
+                
 
                 # an attribute is not null
                 if nullOrVal == 'null' and attr_2.null == 'YES':
                     '''Should I first check if attribute 2 actually contains any nulls? That feels unneccesary?'''
+                    
+                    # Assign this string to the instance variable 'question' in the Question parent class
                     Question.question = ("SELECT " + attr_1.name + " FROM " +
                           relation.name + " WHERE " + attr_2.name + " IS NOT NULL;")
-                    Question.createArray(self.aggFns, self.conds, self.attrs, self.rels)
+                    
+                    # Send the relevant array to the English Question function
+                    Question.englishQuestion([self.aggFns, self.conds, self.attrs, self.rels])
 
                 else:
                     reqVal = Question.selectAttrVal(
                         self, relation, attr_2)
+                    self.conds.append(reqVal)
+
+                    # Assign this string to the instance variable 'question' in the Question parent class
                     Question.question = ("SELECT " + attr_1.name + " FROM " + relation.name +
                           " WHERE " + attr_2.name + " = '" + str(reqVal) + "';")
-                    Question.createArray(self.aggFns, self.conds, self.attrs, self.rels)
+                    
+                    # Send the relevant array to the English Question function
+                    Question.englishQuestion([self.aggFns, self.conds, self.attrs, self.rels])
 
             else:
                 print("Invalid condition")
