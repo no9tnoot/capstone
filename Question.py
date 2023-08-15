@@ -17,12 +17,22 @@ class Question:
         self.condition = ['where', 'limit', 'order by', '']
         self.db = database
         self.seed = seed
-        self.question = EasyQuestion.easyBuilder(self)
+        self.question 
+        self.query
 
     """
     Functionality now handled in Database class - pull from the database.numericRelations array
     # Returns true if the datatype is numeric (not a string/date/time)
     """
+    # create array of correct format to pass to Question.englishQuestion
+    def createArray(self, aggs, conds, attrs, rels):
+        array = []
+        array.append(aggs)
+        array.append(conds)
+        array.append(attrs)
+        array.append(rels)
+        return array
+
 
     def isNumeric(self, attrType):
 
@@ -194,6 +204,11 @@ class Question:
 
 
 class EasyQuestion(Question):
+    aggFns = []
+    conds = []
+    attrs = []
+    rels = []
+
 
     def __init__(self, database, seed):
         super().__init__(database, seed)
@@ -201,61 +216,63 @@ class EasyQuestion(Question):
     def easyBuilder(self):
         # Randomly select either an aggregate fn or condition
         aggOrCond = random.choice(['agg', 'cond'])
-        # aggOrCond = 'cond'
 
         # If the random selection is an aggregate fn
         if aggOrCond == 'agg':
             # select the type of aggregate function
             aggType = random.choice(self.aggregateFunctions)
-            # print("Aggregate Function: " + aggType) # testing (delete me)
+            self.aggFns.append(aggType)
 
             # select relation from database
             relation = Question.setRel(self, aggOrCond, aggType)
-            # print("Relation: " + relation) # testing (delete me)
+            self.rels.append(relation)
 
             # select attribute from relation
             attr = self.setAttr(relation, aggOrCond, aggType, 1)
-            # print("Attribute: " + attr.name) # testing (delete me)
+            self.attrs.append(attr)
 
             if aggType == '':
-                print("SELECT " + aggType + attr.name +
+                Question.question = ("SELECT " + aggType + attr.name +
                       " FROM " + relation.name + ";")
-                return [[aggType],[],[],[]]
+                Question.createArray(self.aggFns, self.conds, self.attrs, self.rels)
             else:
-                print("SELECT " + aggType + attr.name +
+                Question.question = ("SELECT " + aggType + attr.name +
                       ") FROM " + relation.name + ";")
+                Question.createArray(self.aggFns, self.conds, self.attrs, self.rels)
 
         # If the random selection is a condition, select a random column and random condition
         elif aggOrCond == 'cond':
             condType = random.choice(self.condition)
-            # condType = "where"
-            # print("Condition: " + condType) # testing (delete me)
+            self.conds.append(condType)
 
             relation = Question.setRel(self, aggOrCond, condType)
-            # print("Relation: " + relation) # testing (delete me)
+            self.rels.append(relation)
 
             '''Should I overload this function so that it doesn't have to deal with the numeric checks?'''
             attr_1 = self.setAttr(relation, aggOrCond, condType, 1)
-            # print("Attribute 1: " + attr_1.name) # testing (delete me)
+            self.attrs.append(attr_1)
 
             if condType == '':
-                print("SELECT " + condType + attr_1.name +
+                Question.question = ("SELECT " + condType + attr_1.name +
                       " FROM " + relation.name + ";")
+                Question.createArray(self.aggFns, self.conds, self.attrs, self.rels)
 
             elif condType == 'order by':
                 attr_2 = self.setAttr(relation, aggOrCond, condType, 2)
-                # print("Attribute 2: " + attr_2.name) # testing (delete me)
+                self.attrs.append(attr_2)
 
                 orderBy = random.choice(['ASC', 'DESC'])
-                print("SELECT " + attr_1.name + " FROM " + relation.name +
+                Question.question = ("SELECT " + attr_1.name + " FROM " + relation.name +
                       " ORDER BY " + attr_2.name + ' ' + orderBy + ';')
+                Question.createArray(self.aggFns, self.conds, self.attrs, self.rels)
 
             elif condType == 'limit':
                 # get number of rows in relation -> numRows
                 numRows = Question.findNumRows(self, relation, attr_1)
                 lim = random.randrange(1, numRows, 1)
-                print("SELECT " + attr_1.name + " FROM " +
+                Question.question = ("SELECT " + attr_1.name + " FROM " +
                       relation.name + " LIMIT " + str(lim) + ';')
+                Question.createArray(self.aggFns, self.conds, self.attrs, self.rels)
 
             elif condType == 'where':
                 nullOrVal = random.choice(['null', 'val'])
@@ -267,14 +284,16 @@ class EasyQuestion(Question):
                 # an attribute is not null
                 if nullOrVal == 'null' and attr_2.null == 'YES':
                     '''Should I first check if attribute 2 actually contains any nulls? That feels unneccesary?'''
-                    print("SELECT " + attr_1.name + " FROM " +
+                    Question.question = ("SELECT " + attr_1.name + " FROM " +
                           relation.name + " WHERE " + attr_2.name + " IS NOT NULL;")
+                    Question.createArray(self.aggFns, self.conds, self.attrs, self.rels)
 
                 else:
                     reqVal = Question.selectAttrVal(
                         self, relation, attr_2)
-                    print("SELECT " + attr_1.name + " FROM " + relation.name +
+                    Question.question = ("SELECT " + attr_1.name + " FROM " + relation.name +
                           " WHERE " + attr_2.name + " = '" + str(reqVal) + "';")
+                    Question.createArray(self.aggFns, self.conds, self.attrs, self.rels)
 
             else:
                 print("Invalid condition")
