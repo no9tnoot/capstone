@@ -17,12 +17,12 @@ class Session:
         self.marker = Marker.Marker(self.database)
     
     #create instance of database with default parameters
-    def loadDatabase(self):
-        return Database.Database()
+    def loadDatabase(self, host='localhost', user='root', pword='mySQL_sew1', db_name = 'classicmodels2022'):
+        return Database.Database(host, user, pword, db_name)
     
     #create instance of database with default parameters
-    def loadDatabase(self, host, user, pword, db_name):
-        return Database.Database(host, user, pword, db_name)
+    #def loadDatabase(self, host, user, pword, db_name):
+        #return Database.Database(host, user, pword, db_name)
     
     #generate seed from datetime
     def genSeed():
@@ -32,7 +32,7 @@ class Session:
     def genTestSeed():
         return int(datetime.date.now().strftime("%Y%m%d"))
     
-    def getQuestion(self):
+    def genQuestion(self):
         return Question.EasyQuestion(self.database, self.seed)
     
     

@@ -17,8 +17,8 @@ class Question:
         self.condition = ['where', 'limit', 'order by', '']
         self.db = database
         self.seed = seed
-        self.question 
-        self.query
+        self.question = ''
+        self.query = ''
 
     """
     Functionality now handled in Database class - pull from the database.numericRelations array
@@ -29,8 +29,8 @@ class Question:
     def setRel(self, attTypeNeeded, aggOrCondType):
 
         # select relation
-        relation = random.randrange(0, newDB.numRelations()-1, 1)
-        relation = newDB.getRelation(relation)
+        relation = random.randrange(0, self.db.numRelations()-1, 1)
+        relation = self.db.getRelation(relation)
 
         # if the chosen relation contains numeric attributes, return it
         # if the chosen action is a condition, a count, or nothing, just return the relation
@@ -121,9 +121,10 @@ class Question:
         english = ['','']
 
         #aggregates and attributes
-        english[0] = ['Show'] + Question.block1(sql[0], sql[1])
-    
-        english[1] = Question.block2(sql[2], sql[3], sql[4], sql[5])
+        english[0] = ['Show'] + Question.block1(sql[0], sql[2][0])
+
+        #relation, condition, attr2, #operator, compare to          self.aggFns, self.conds, self.attrs, self.rels
+        english[1] = Question.block2(sql[3], sql[1], sql[2][1], sql[1][1])
 
         #test
         print(Question.englishToString(english))
@@ -189,6 +190,12 @@ class Question:
 
         block2.append('.')
         return block2
+    
+    def getQuestion(self):
+        return self.question
+    
+    def getQuery(self):
+        return self.query
 
 # Class to manage easy questions -> 1 aggregate function OR 1 condition
 class EasyQuestion(Question):
@@ -207,6 +214,7 @@ class EasyQuestion(Question):
     # Constructor
     def __init__(self, database, seed):
         super().__init__(database, seed)
+        self.easyBuilder()
 
     # Function to create SQL query and send the relevant information to the English Question functions
     def easyBuilder(self):
@@ -355,9 +363,9 @@ class DifficultQuestion(Question):
 
 
 # testing (delete me)
-newDB = Database.Database(db_name='classicmodels2022')
+#newDB = Database.Database(db_name='classicmodels2022')
 # print(newDB.numRelations())
-newQ = EasyQuestion(newDB, 'seed')
+#newQ = EasyQuestion(newDB, 'seed')
 
-sql = [[''],['*'], ['offices'],['where'],['country'],['Spain']]
-Question.englishQuestion(sql)
+#sql = [[''],['*'], ['offices'],['where'],['country'],['Spain']]
+#Question.englishQuestion(sql)
