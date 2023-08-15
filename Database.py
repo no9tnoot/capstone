@@ -76,6 +76,9 @@ class Relation:
         
     def getNumAttributes(self):
         return len(self.attributes)
+    
+    def getName(self):
+        return self.name
 
 
 

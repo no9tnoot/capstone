@@ -5,7 +5,7 @@
 import Database
 #import Quiz
 import datetime
-import Question
+import Question2
 import Marker
 
 class Session:
@@ -33,7 +33,7 @@ class Session:
         return int(datetime.date.now().strftime("%Y%m%d"))
     
     def genQuestion(self):
-        return Question.EasyQuestion(self.database, self.seed)
+        return Question2.EasyQuestion(self.database, self.seed)
     
     
     #create a quiz with the chosen database, a distribution of easy/medium/hard questions, and whether it is a test or not
