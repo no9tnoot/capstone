@@ -12,15 +12,15 @@ class UserInterface():
         print("Hello!")
         user = input("Please enter your student number:")
         self.session = Session.Session(user)
-        choice = input("To attempt a question, enter q, to exit, enter x:")
+        choice = input("To attempt a question, press enter. To exit, enter x:")
         
         # While not choosing to exit
         while (choice != 'x'):
-            if (choice=='q'):
+            if (choice==''):
                 self.askQuestion()
             else:
                 print("Invalid selection. Please try again.")
-            choice=input("To attempt a question, enter q, to exit, enter x:")
+            choice=input("To attempt a question, press enter. To exit, enter x:")
         #exit
         
     def askQuestion(self):
