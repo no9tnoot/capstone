@@ -127,7 +127,7 @@ class Question:
         english[0] = ['Show'] + Question.block1(sql[0], sql[1])
 
         #relation, condition, attr2, #operator, compare to          self.aggFns, self.conds, self.attrs, self.rels
-        english[1] = Question.block2(sql[3], sql[1][0], sql[1][2], sql[1][3])
+        english[1] = Question.block2(sql[3], sql[1])
 
         #test
         print(Question.englishToString(english))
@@ -139,7 +139,7 @@ class Question:
                 question += string
         return question
 
-    def block1(aggregates, attributes):
+    def block1(attributes, aggregates = ['']):
         #aggregate functions go in the first slot
         block1 = []
 
@@ -171,7 +171,7 @@ class Question:
 
         return block1
     
-    def block2(relation, condition, x, y):
+    def block2(relation, condition = ['','','']):
         block2 = []
 
         #relation
@@ -179,15 +179,15 @@ class Question:
 
         match condition[0]:
             case 'limit':
-                if y[0] == 1:
+                if condition[2] == 1:
                     block2.append(' but only show 1 row')
                 else:
-                    block2.append(' but only show ' + y[0] + ' rows')
+                    block2.append(' but only show ' + condition[2] + ' rows')
             case 'where':
-                block2.append(' but only for rows with an ' + x[0] + ' value of ' + y[0])
+                block2.append(' but only for rows with an ' + condition[1] + ' value of ' + condition[2])
             case 'order by':
-                if y[0] == 'desc':
-                    block2.append(' in descending order of ' + x[0] + ' value')
+                if condition[2] == 'desc':
+                    block2.append(' in descending order of ' + condition[1] + ' value')
                 else:
                     block2.append(' in ascending order of ' + x[0] + ' value')
 
