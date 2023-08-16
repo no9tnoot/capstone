@@ -24,6 +24,7 @@ class UserInterface():
         #exit
         
     def askQuestion(self):
+        #generate question
         self.question = self.session.genQuestion()
 
         # print the english question

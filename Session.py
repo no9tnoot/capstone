@@ -13,6 +13,7 @@ class Session:
     def __init__(self, user):
         self.details = []
         Session.readDatabaseDetails(self)
+        #load database with details read from file
         self.database = self.loadDatabase(self.details[0],self.details[1],self.details[2],self.details[3])
         self.seed = Session.genSeed()
         self.user = user
@@ -34,6 +35,7 @@ class Session:
     def genTestSeed():
         return int(datetime.date.now().strftime("%Y%m%d"))
     
+    #generate an easy question
     def genQuestion(self):
         return Question.EasyQuestion(self.database, self.seed)
     

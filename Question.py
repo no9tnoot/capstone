@@ -132,6 +132,7 @@ class Question:
         #test
         return(Question.englishToString(english))
 
+    #makes the array into a string
     def englishToString(english):
         question = ''
         for block in english:
@@ -143,6 +144,7 @@ class Question:
         #aggregate functions go in the first slot
         block1 = []
 
+        #text for attributes and aggregates. supports multiple of each
         for x in range(len(attributes)):
             match aggregates[x]:
                 case 'count(':
@@ -177,6 +179,7 @@ class Question:
         #relation
         block2.append(' in the ' + relation[0] + ' table')
 
+        #add text for conditions
         match condition[0]:
             case 'limit':
                 if condition[2] == 1:
@@ -194,9 +197,11 @@ class Question:
         block2.append('.')
         return block2
     
+    #return english question
     def getQuestion(self):
         return self.question
     
+    #return sql query
     def getQuery(self):
         return self.query
 
@@ -380,13 +385,6 @@ class EasyQuestion(Question):
                 print("Invalid condition")
         
         #print(self.question)
-
-    def getQuestion(self):
-        return self.question
-    
-    def getQuery(self):
-        return self.query
-
 
 class MediumQuestion(Question):
 
