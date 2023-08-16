@@ -17,8 +17,8 @@ class Question:
         self.condition = ['where', 'limit', 'order by', '']
         self.db = database
         self.seed = seed
-        self.question 
-        self.query
+        self.question = EasyQuestion.getQuestion(self)
+        self.query 
 
     """
     Functionality now handled in Database class - pull from the database.numericRelations array
@@ -120,6 +120,9 @@ class Question:
         #2d array holds slots for each part of the question
         english = ['','']
 
+        """Note to Peter: sql[0]->aggregate functions, sql[1]->conditions, sql[2]->attributes, 
+        sql[3]->relations"""
+
         #aggregates and attributes
         english[0] = ['Show'] + Question.block1(sql[0], sql[1])
     
@@ -192,6 +195,9 @@ class Question:
 
 # Class to manage easy questions -> 1 aggregate function OR 1 condition
 class EasyQuestion(Question):
+    query = ''
+    question = ''
+
     # Ordered list of aggregate functions used in the query
     aggFns = []
 
@@ -220,15 +226,15 @@ class EasyQuestion(Question):
             self.aggFns.append(aggType) # add chosen aggregate function to array instance variable 
 
             relation = Question.setRel(self, aggOrCond, aggType) # select relation from database
-            self.rels.append(relation) # add chosen aggregate function to array instance variable 
+            self.rels.append(relation.name) # add chosen aggregate function to array instance variable 
 
             attr = self.setAttr(relation, aggOrCond, aggType, 1) # select attribute from relation
-            self.attrs.append(attr) # add chosen aggregate function to array instance variable 
+            self.attrs.append(attr.name) # add chosen aggregate function to array instance variable 
 
             # If there is no aggregate function
             if aggType == '':
                 # Assign this string to the instance variable 'question' in the Question parent class
-                Question.question = ("SELECT " + aggType + attr.name +
+                self.question = ("SELECT " + aggType + attr.name +
                       " FROM " + relation.name + ";")
                 
                 # Send the relevant array to the English Question function
@@ -236,7 +242,7 @@ class EasyQuestion(Question):
 
             else:
                 # Assign this string to the instance variable 'question' in the Question parent class
-                Question.question = ("SELECT " + aggType + attr.name +
+                self.question = ("SELECT " + aggType + attr.name +
                       ") FROM " + relation.name + ";")
                 
                 # Send the relevant array to the English Question function
@@ -248,16 +254,16 @@ class EasyQuestion(Question):
             self.conds.append(condType) # add chosen condition to array instance variable
 
             relation = Question.setRel(self, aggOrCond, condType) # select a random relation
-            self.rels.append(relation) # add chosen relation to array instance variable
+            self.rels.append(relation.name) # add chosen relation to array instance variable
 
             '''Should I overload this function so that it doesn't have to deal with the numeric checks?'''
             attr_1 = self.setAttr(relation, aggOrCond, condType, 1) # select a random attribute
-            self.attrs.append(attr_1) # add chosen attribute to array instance variable
+            self.attrs.append(attr_1.name) # add chosen attribute to array instance variable
 
             # If there is no condition
             if condType == '':
                 # Assign this string to the instance variable 'question' in the Question parent class
-                Question.question = ("SELECT " + condType + attr_1.name +
+                self.question = ("SELECT " + condType + attr_1.name +
                       " FROM " + relation.name + ";")
                 
                 # Send the relevant array to the English Question function
@@ -267,13 +273,13 @@ class EasyQuestion(Question):
             elif condType == 'order by':
                 attr_2 = self.setAttr(relation, aggOrCond, condType, 2) # select a second random attribute 
                 # (can be the same as attr_1)
-                self.attrs.append(attr_2) # add chosen attribute to array instance variable
+                self.attrs.append(attr_2.name) # add chosen attribute to array instance variable
 
                 orderBy = random.choice(['ASC', 'DESC']) # choose between ascending or descending order
                 self.conds.append(orderBy) # add chosen order to array instance variable
 
                 # Assign this string to the instance variable 'question' in the Question parent class
-                Question.question = ("SELECT " + attr_1.name + " FROM " + relation.name +
+                self.question = ("SELECT " + attr_1.name + " FROM " + relation.name +
                       " ORDER BY " + attr_2.name + ' ' + orderBy + ';')
                 
                 # Send the relevant array to the English Question function
@@ -289,10 +295,10 @@ class EasyQuestion(Question):
                 ''' ^ Should we limit this more? Possibly so that it's easily countable and the student
                     can see if they're right'''
 
-                self.conds.append(lim) # add chosen limit to array instance variable
+                self.conds.append(str(lim)) # add chosen limit to array instance variable
 
                 # Assign this string to the instance variable 'question' in the Question parent class
-                Question.question = ("SELECT " + attr_1.name + " FROM " +
+                self.question = ("SELECT " + attr_1.name + " FROM " +
                       relation.name + " LIMIT " + str(lim) + ';')
                 
                 # Send the relevant array to the English Question function
@@ -307,13 +313,13 @@ class EasyQuestion(Question):
                 
                 attr_2 = self.setAttr(relation, aggOrCond, condType, 2) # select a second random attribute 
                 # (can be the same as attr_1)
-                self.attrs.append(attr_2) # add chosen attribute to array instance variable
+                self.attrs.append(attr_2.name) # add chosen attribute to array instance variable
 
                 # If null option chosen and attribute contains null values
                 if nullOrVal == 'null' and attr_2.null == 'YES':
                     
                     # Assign this string to the instance variable 'question' in the Question parent class
-                    Question.question = ("SELECT " + attr_1.name + " FROM " +
+                    self.question = ("SELECT " + attr_1.name + " FROM " +
                           relation.name + " WHERE " + attr_2.name + " IS NOT NULL;")
                     
                     # Send the relevant array to the English Question function
@@ -332,7 +338,7 @@ class EasyQuestion(Question):
                     self.conds.append(reqVal) # add chosen required value to array instance variable
 
                     # Assign this string to the instance variable 'question' in the Question parent class
-                    Question.question = ("SELECT " + attr_1.name + " FROM " + relation.name +
+                    self.question = ("SELECT " + attr_1.name + " FROM " + relation.name +
                           " WHERE " + attr_2.name + " = '" + str(reqVal) + "';")
                     
                     # Send the relevant array to the English Question function
@@ -340,6 +346,12 @@ class EasyQuestion(Question):
 
             else:
                 print("Invalid condition")
+        
+        print(self.question)
+
+    def getQuestion(self):
+        self.easyBuilder()
+        return self.question
 
 
 class MediumQuestion(Question):

@@ -15,7 +15,7 @@ class Attribute:
     
     def __init__(self, name, dt, null, k):
         self.name=name
-        self.dataType=dt.decode()
+        self.dataType = dt #.decode()
         self.null=null
         self.key=k
         self.numeric = Attribute.isNumeric(self)
