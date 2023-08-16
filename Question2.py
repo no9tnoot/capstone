@@ -168,7 +168,7 @@ class Question2:
 
         return block1
     
-    def block2(relation, x, operator, y, condition = ''):
+    def block2(relation, x, operator, y, condition = ['']):
         block2 = []
 
         #relation
