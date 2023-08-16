@@ -30,7 +30,7 @@ class UserInterface():
         print(self.question.getQuestion())
 
         # take user input
-        studenAns = input('SQL Query')
+        studenAns = input('SQL Query:')
 
         # pass both to session marker ( self.session.marker )
         modalAns = self.question.getQuery
