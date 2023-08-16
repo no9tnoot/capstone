@@ -8,7 +8,7 @@ import Question
 """ Class to display information to the user and get input from the user """
 class UserInterface():
     
-    def __init__(self):
+    def main(self):
         print("Hello!")
         user = input("Please enter your student number:")
         self.session = Session.Session(user)
@@ -47,7 +47,8 @@ class UserInterface():
     
         
         
-ui = UserInterface()            
+if __name__ == "__main__":
+    UserInterface.main()           
         
         
         
