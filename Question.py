@@ -184,7 +184,7 @@ class Question:
                 else:
                     block2.append(' but only show ' + condition[2] + ' rows')
             case 'where':
-                block2.append(' but only for rows with an ' + condition[1] + ' value of ' + condition[2])
+                block2.append(' but only for rows where ' + condition[1] + ' is equal to ' + condition[2])
             case 'order by':
                 if condition[2] == 'desc':
                     block2.append(' in descending order of ' + condition[1] + ' value')
