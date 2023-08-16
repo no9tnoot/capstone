@@ -38,8 +38,11 @@ class Marker:
         EXCEPT and cries if you put more than one column in a nested table and needs you to name every 
         derived table and everyone on the internet has differently complicated ideas that don't work"""
         
-        cursor.execute(studentQuery)
-        studentAnswer = cursor.fetchall()
+        try:
+            cursor.execute(studentQuery)
+            studentAnswer = cursor.fetchall()
+        except: 
+            studentAnswer = ""
         
         cursor.execute(modalQuery)
         modalAnswer = cursor.fetchall()
