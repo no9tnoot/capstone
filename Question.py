@@ -189,7 +189,7 @@ class Question:
                 if condition[2] == 'desc':
                     block2.append(' in descending order of ' + condition[1] + ' value')
                 else:
-                    block2.append(' in ascending order of ' + x[0] + ' value')
+                    block2.append(' in ascending order of ' + condition[1] + ' value')
 
         block2.append('.')
         return block2
