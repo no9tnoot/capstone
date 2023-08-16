@@ -1,0 +1,4 @@
+localhost
+root
+mySQL_sew1
+classicmodels2022

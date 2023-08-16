@@ -11,7 +11,9 @@ import Marker
 class Session:
 
     def __init__(self, user):
-        self.database = self.loadDatabase()
+        self.details = []
+        Session.readDatabaseDetails(self)
+        self.database = self.loadDatabase(self.details[0],self.details[1],self.details[2],self.details[3])
         self.seed = Session.genSeed()
         self.user = user
         self.marker = Marker.Marker(self.database)
@@ -37,6 +39,12 @@ class Session:
     
     def  markQuery(self, stuAns,  modalAns):
         return self.marker.markQuery(stuAns, modalAns)
+    
+    #reads line by line from file in order: host, user, password, database name
+    def readDatabaseDetails(self):
+        f = open('database_details.txt','r')
+        for x in f:
+            self.details.append(x.strip())
     
     
     #create a quiz with the chosen database, a distribution of easy/medium/hard questions, and whether it is a test or not
