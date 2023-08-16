@@ -15,7 +15,7 @@ class Attribute:
     
     def __init__(self, name, dt, null, k):
         self.name=name
-        if isinstance(dt, str):
+        if not isinstance(dt, str):
             dt=dt.decode()
         self.dataType=dt
         self.null=null
