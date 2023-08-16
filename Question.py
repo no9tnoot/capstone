@@ -281,7 +281,7 @@ class EasyQuestion(Question):
             elif condType == 'order by':
                 attr_2 = self.setAttr(relation, aggOrCond, condType, 2) # select a second random attribute 
                 # (can be the same as attr_1)
-                self.attrs.append(attr_2.name) # add chosen attribute to array instance variable
+                self.conds.append(attr_2.name) # add chosen attribute to array instance variable
 
                 orderBy = random.choice(['ASC', 'DESC']) # choose between ascending or descending order
                 self.conds.append(orderBy) # add chosen order to array instance variable
@@ -321,7 +321,7 @@ class EasyQuestion(Question):
                 
                 attr_2 = self.setAttr(relation, aggOrCond, condType, 2) # select a second random attribute 
                 # (can be the same as attr_1)
-                self.attrs.append(attr_2.name) # add chosen attribute to array instance variable
+                self.conds.append(attr_2.name) # add chosen attribute to array instance variable
 
                 # If null option chosen and attribute contains null values
                 if nullOrVal == 'null' and attr_2.null == 'YES':
