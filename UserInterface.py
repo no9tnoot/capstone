@@ -37,11 +37,12 @@ class UserInterface():
         result = self.session.markQuery(stuAns, modalAns)
 
         # return feedback (store it if we have a student object)
-        if result:
-            print('Correct')
+        if result[0]:
+            print('Correct.')
         else:
-            print('Incorrect')
-        print("Modal Query: ", modalAns)
+            print('Incorrect.', result[1]) # Display feedback on whether the entered query is valid (ran without error)
+        
+        print("Modal Query: ", modalAns) # display the modal answer (for prototype demo purposes)
     
         
         
