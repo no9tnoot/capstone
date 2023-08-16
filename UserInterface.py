@@ -30,11 +30,11 @@ class UserInterface():
         print(self.question.getQuestion())
 
         # take user input
-        studenAns = input('SQL Query:')
+        stuAns = input('SQL Query:')
 
         # pass both to session marker ( self.session.marker )
         modalAns = self.question.getQuery()
-        result = self.session.marker.markQuery(studenAns, modalAns)
+        result = self.session.markQuery(stuAns, modalAns)
 
         # return feedback (store it if we have a student object)
         if result:

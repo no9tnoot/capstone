@@ -202,24 +202,41 @@ class Question:
 
 # Class to manage easy questions -> 1 aggregate function OR 1 condition
 class EasyQuestion(Question):
-    query = ''
-    question = ''
+    # query = ''
+    # question = ''
 
-    # Ordered list of aggregate functions used in the query
-    aggFns = []
+    # # Ordered list of aggregate functions used in the query
+    # aggFns = []
 
-    # Ordered list of conditions used in the query
-    conds = []
+    # # Ordered list of conditions used in the query
+    # conds = []
 
-    # Ordered list of attributes used in the query
-    attrs = []
+    # # Ordered list of attributes used in the query
+    # attrs = []
 
-    # Ordered list of relations used in the query
-    rels = []
+    # # Ordered list of relations used in the query
+    # rels = []
 
     # Constructor
     def __init__(self, database, seed):
         super().__init__(database, seed)
+        
+
+        self.query = ''
+        self.question = ''
+
+        # Ordered list of aggregate functions used in the query
+        self.aggFns = []
+
+        # Ordered list of conditions used in the query
+        self.conds = []
+
+        # Ordered list of attributes used in the query
+        self.attrs = []
+
+        # Ordered list of relations used in the query
+        self.rels = []
+
         self.easyBuilder()
 
     # Function to create SQL query and send the relevant information to the English Question functions

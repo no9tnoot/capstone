@@ -35,6 +35,9 @@ class Session:
     def genQuestion(self):
         return Question.EasyQuestion(self.database, self.seed)
     
+    def  markQuery(self, stuAns,  modalAns):
+        return self.marker.markQuery(stuAns, modalAns)
+    
     
     #create a quiz with the chosen database, a distribution of easy/medium/hard questions, and whether it is a test or not
         #maybe change depending on how we want to implements tests
