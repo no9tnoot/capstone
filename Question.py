@@ -124,10 +124,10 @@ class Question:
         sql[3]->relations"""
 
         #aggregates and attributes
-        english[0] = ['Show'] + Question.block1(sql[0], sql[2][0])
+        english[0] = ['Show'] + Question.block1(sql[0], sql[1])
 
         #relation, condition, attr2, #operator, compare to          self.aggFns, self.conds, self.attrs, self.rels
-        english[1] = Question.block2(sql[3], sql[1], sql[2][1], sql[1][1])
+        english[1] = Question.block2(sql[3], sql[1][0], sql[1][2], sql[1][3])
 
         #test
         print(Question.englishToString(english))
