@@ -85,7 +85,7 @@ class Relation:
 """
 class Database:
     
-    def __init__(self, host='localhost', user='root', pword='mySQL_sew1', db_name = 'classicmodels2022'):
+    def __init__(self, host, user, pword, db_name):
         
         self.relations = []  # initialise empty array of relations
         self.numericRelations = [] # initialise empty array of relations that contain at least 1 numeric attribute
@@ -149,7 +149,7 @@ class Database:
 
 
 # testing (delete me)
-new = Database(db_name='classicmodels2022')
+#new = Database(db_name='classicmodels2022')
 #print(new.numRelations())
 #dataType = new.getRelation(1).getAttribute(0).getDataType()
 #dataType = dataType.split(" ")

@@ -6,7 +6,7 @@ import Session
 import Question
 
 """ Class to display information to the user and get input from the user """
-class UserInterface:
+class UserInterface():
     
     def __init__(self):
         print("Hello!")
@@ -24,15 +24,27 @@ class UserInterface:
         #exit
         
     def askQuestion(self):
-        question = self.session.genQuestion()
+        self.question = self.session.genQuestion()
+
         # print the english question
+        print(self.question.getQuestion())
+
         # take user input
+        studenAns = input('SQL Query')
+
         # pass both to session marker ( self.session.marker )
+        modalAns = self.question.getQuery
+        result = self.session.marker.markQuery(studenAns, modalAns)
+
         # return feedback (store it if we have a student object)
+        if result:
+            print('Correct')
+        else:
+            print('Incorrect')
     
         
         
-            
+ui = UserInterface()            
         
         
         

@@ -61,8 +61,8 @@ class Marker:
 
 
 
-db = Database.Database(db_name='classicmodels2022')
-marker = Marker(db)
-q1 = "SELECT * FROM CUSTOMERS"
-q2 = "SELECT * FROM CUSTOMERS WHERE CONTACTLASTNAME = 'SCHMITT';"
-print(marker.markQuery(q1, q2))
+#db = Database.Database(db_name='classicmodels2022')
+#marker = Marker(db)
+#q1 = "SELECT * FROM CUSTOMERS"
+#q2 = "SELECT * FROM CUSTOMERS WHERE CONTACTLASTNAME = 'SCHMITT';"
+#print(marker.markQuery(q1, q2))
