@@ -15,7 +15,9 @@ class Attribute:
     
     def __init__(self, name, dt, null, k):
         self.name=name
-        self.dataType=dt.decode()
+        if isinstance(dt, str):
+            dt=dt.decode()
+        self.dataType=dt
         self.null=null
         self.key=k
         self.numeric = Attribute.isNumeric(self)
@@ -149,10 +151,10 @@ class Database:
 
 
 # testing (delete me)
-#new = Database(db_name='classicmodels2022')
-#print(new.numRelations())
-#dataType = new.getRelation(1).getAttribute(0).getDataType()
-#dataType = dataType.split(" ")
-#print(dataType[0])
-#if " " in dataType:
-#    print(dataType)
+new = Database(db_name='classicmodels2022')
+print(new.numRelations())
+dataType = new.getRelation(1).getAttribute(0).getDataType()
+dataType = dataType.split(" ")
+print(dataType[0])
+if " " in dataType:
+    print(dataType)
