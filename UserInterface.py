@@ -33,7 +33,7 @@ class UserInterface():
         studenAns = input('SQL Query:')
 
         # pass both to session marker ( self.session.marker )
-        modalAns = self.question.getQuery
+        modalAns = self.question.getQuery()
         result = self.session.marker.markQuery(studenAns, modalAns)
 
         # return feedback (store it if we have a student object)
