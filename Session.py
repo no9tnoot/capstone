@@ -23,10 +23,6 @@ class Session:
     def loadDatabase(self, host='localhost', user='root', pword='mySQL_sew1', db_name = 'classicmodels2022'):
         return Database.Database(host, user, pword, db_name)
     
-    #create instance of database with default parameters
-    #def loadDatabase(self, host, user, pword, db_name):
-        #return Database.Database(host, user, pword, db_name)
-    
     #generate seed from datetime
     def genSeed():
         return int(datetime.datetime.now().strftime("%Y%m%d%H%M%S"))
@@ -47,9 +43,3 @@ class Session:
         f = open('database_details.txt','r')
         for x in f:
             self.details.append(x.strip())
-    
-    
-    #create a quiz with the chosen database, a distribution of easy/medium/hard questions, and whether it is a test or not
-        #maybe change depending on how we want to implements tests
-    #def genQuiz(self, database, distribution = [10, 10, 10], test = False):
-        #Quiz.Quiz(self, database, distribution, test)

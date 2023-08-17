@@ -142,19 +142,3 @@ class Database:
     
     def getNumericRelation(self, i):
         return self.numericRelations[i]
-    
-    
-    
-
-
-
-
-
-# testing (delete me)
-# new = Database(db_name='classicmodels2022')
-# print(new.numRelations())
-# dataType = new.getRelation(1).getAttribute(0).getDataType()
-# dataType = dataType.split(" ")
-# print(dataType[0])
-# if " " in dataType:
-#     print(dataType)

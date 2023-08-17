@@ -30,14 +30,6 @@ class Marker:
         studentQuery = self.removeSemiColon(studentQuery)
         modalQuery = self.removeSemiColon(modalQuery)
         
-        #instruction = "(SELECT * FROM (" + studentQuery + ") AS Q1 MINUS (" + modalAnswer + ") ) UNION ALL ( SELECT * FROM (" + modalAnswer + ") AS Q2 WHERE NOT EXISTS (" + studentQuery +") );"
-        
-        #print(instruction)
-        #cursor.execute(instruction)   # SQL: print the table names             
-        #result = cursor.fetchall()       # get the output table names from SQL
-        
-        #print(result)
-        
         """The below is a place holder for until I figure out mysql which can't do MINUS or 
         EXCEPT and gets angry if you put more than one column in a nested table and needs you to name every 
         derived table and everyone on the internet has differently complicated ideas that don't work"""
@@ -71,11 +63,3 @@ class Marker:
         if query.endswith(';'):  # if it ends with a semi-colon, remove it
             return query.rstrip(';') # 
         return query # if it doesn't end with a semi-colon, just return the query
-
-
-
-#db = Database.Database(db_name='classicmodels2022')
-#marker = Marker(db)
-#q1 = "SELECT * FROM CUSTOMERS"
-#q2 = "SELECT * FROM CUSTOMERS WHERE CONTACTLASTNAME = 'SCHMITT';"
-#print(marker.markQuery(q1, q2))

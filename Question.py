@@ -207,20 +207,6 @@ class Question:
 
 # Class to manage easy questions -> 1 aggregate function OR 1 condition
 class EasyQuestion(Question):
-    # query = ''
-    # question = ''
-
-    # # Ordered list of aggregate functions used in the query
-    # aggFns = []
-
-    # # Ordered list of conditions used in the query
-    # conds = []
-
-    # # Ordered list of attributes used in the query
-    # attrs = []
-
-    # # Ordered list of relations used in the query
-    # rels = []
 
     # Constructor
     def __init__(self, database, seed):
@@ -383,8 +369,6 @@ class EasyQuestion(Question):
 
             else:
                 print("Invalid condition")
-        
-        #print(self.question)
 
 class MediumQuestion(Question):
 
@@ -396,12 +380,3 @@ class DifficultQuestion(Question):
 
     def __init__(self):
         super().__init__()
-
-
-# testing (delete me)
-#newDB = Database.Database(db_name='classicmodels2022')
-# print(newDB.numRelations())
-#newQ = EasyQuestion(newDB, 'seed')
-
-#sql = [[''],['*'], ['offices'],['where'],['country'],['Spain']]
-#Question.englishQuestion(sql)
