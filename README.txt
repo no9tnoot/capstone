@@ -20,6 +20,11 @@ To run this prototype, the user must meet the following requirements:
 == Installation ==
 
 Ensure all code files are downloaded and stored in the same folder on your machine.
+The database_details.txt file can be updated to hold the relevant details for your SQL server connection in the format:
+'host'
+'user'
+'password'
+'database name'
 
 
 == Running ==
