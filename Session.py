@@ -27,13 +27,13 @@ class Session:
     #def loadDatabase(self, host, user, pword, db_name):
         #return Database.Database(host, user, pword, db_name)
     
-    # #generate seed from datetime
-    # def genSeed():
-    #     return int(datetime.datetime.now().strftime("%Y%m%d%H%M%S"))
+    #generate seed from datetime
+    def genSeed():
+        return int(datetime.datetime.now().strftime("%Y%m%d%H%M%S"))
     
-    # #generate seed from date, for tests
-    # def genTestSeed():
-    #     return int(datetime.date.now().strftime("%Y%m%d"))
+    #generate seed from date, for tests
+    def genTestSeed():
+        return int(datetime.date.now().strftime("%Y%m%d"))
     
     #generate an easy question
     def genQuestion(self):
