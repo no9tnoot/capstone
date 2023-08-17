@@ -75,10 +75,10 @@ class Question:
 
         # Connect to database
         database = mysql.connector.connect(
-            host='localhost',
-            user='root',
-            password='mySQL_sew1',
-            database='classicmodels2022'
+            host=self.db.host,
+            user=self.db.user,
+            password=self.db.pword,
+            database=self.db.db_name
         )
 
         cursor = database.cursor()  # Create a cursor to interact with the database
@@ -97,10 +97,10 @@ class Question:
 
         # Connect to database
         database = mysql.connector.connect(
-            host='localhost',
-            user='root',
-            password='mySQL_sew1',
-            database='classicmodels2022'
+            host=self.db.host,
+            user=self.db.user,
+            password=self.db.pword,
+            database=self.db.db_name
         )
 
         cursor = database.cursor()  # Create a cursor to interact with the database
