@@ -12,9 +12,10 @@ given query.
 
 To run this prototype, the user must meet the following requirements: 
 
- * Have the classicmodels2022 database running on a SQL server.
+ * Have the chosen database running on a SQL server.
  * Have installed the latest version of Python.
  * Know your mySQL password.
+ * Have mysql-connector-python installed.
 
 
 == Installation ==
