@@ -116,7 +116,7 @@ class Question:
         return reqVal
     
     #write the english question for the sql query
-    def englishQuestion(self, sql):
+    def englishQuestion(sql):
         #2d array holds slots for each part of the question
         english = ['','']
 
@@ -189,7 +189,7 @@ class Question:
             case 'where':
                 block2.append(' but only for rows where ' + condition[1] + ' is equal to ' + condition[2])
             case 'order by':
-                if condition[2] == 'desc':
+                if condition[2].lower() == 'desc':
                     block2.append(' in descending order of ' + condition[1] + ' value')
                 else:
                     block2.append(' in ascending order of ' + condition[1] + ' value')
@@ -257,7 +257,7 @@ class EasyQuestion(Question):
                       " FROM " + relation.name + ";")
                 
                 # Send the relevant array to the English Question function
-                self.question = self.englishQuestion([self.aggFns, self.conds, self.attrs, self.rels])
+                self.question = Question.englishQuestion([self.aggFns, self.conds, self.attrs, self.rels])
 
             else:
                 # Assign this string to the instance variable 'question' in the Question parent class
@@ -265,7 +265,7 @@ class EasyQuestion(Question):
                       ") FROM " + relation.name + ";")
                 
                 # Send the relevant array to the English Question function
-                self.question = self.englishQuestion([self.aggFns, self.conds, self.attrs, self.rels])
+                self.question = Question.englishQuestion([self.aggFns, self.conds, self.attrs, self.rels])
 
         # If the random selection is a condition
         elif aggOrCond == 'cond':
@@ -289,7 +289,7 @@ class EasyQuestion(Question):
                       " FROM " + relation.name + ";")
                 
                 # Send the relevant array to the English Question function
-                self.question = self.englishQuestion([self.aggFns, self.conds, self.attrs, self.rels])
+                self.question = Question.englishQuestion([self.aggFns, self.conds, self.attrs, self.rels])
 
             # If this is an "order by" condition
             elif condType == 'order by':
@@ -305,7 +305,7 @@ class EasyQuestion(Question):
                       " ORDER BY " + attr_2.name + ' ' + orderBy + ';')
                 
                 # Send the relevant array to the English Question function
-                self.question = self.englishQuestion([self.aggFns, self.conds, self.attrs, self.rels])
+                self.question = Question.englishQuestion([self.aggFns, self.conds, self.attrs, self.rels])
 
             # If this is a "limit" condition
             elif condType == 'limit':
@@ -325,7 +325,7 @@ class EasyQuestion(Question):
                       relation.name + " LIMIT " + str(lim) + ';')
                 
                 # Send the relevant array to the English Question function
-                self.question = self.englishQuestion([self.aggFns, self.conds, self.attrs, self.rels])
+                self.question = Question.englishQuestion([self.aggFns, self.conds, self.attrs, self.rels])
 
             # If this is a "where" condition
             elif condType == 'where':
@@ -365,7 +365,7 @@ class EasyQuestion(Question):
                         " WHERE " + attr_2.name + " = '" + str(reqVal) + "';")
                 
                 # Send the relevant array to the English Question function
-                self.question = self.englishQuestion([self.aggFns, self.conds, self.attrs, self.rels])
+                self.question = Question.englishQuestion([self.aggFns, self.conds, self.attrs, self.rels])
 
             else:
                 print("Invalid condition")
