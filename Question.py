@@ -54,7 +54,7 @@ class Question:
             if relation.numNumeric():
                 return relation
             else:
-                return self.setRel(self,True)
+                return self.setRel(True)
 
     ''' For questions where 2+ attributes are chosen from one relation, must include logic to prevent the
         attribute being selected twice'''
@@ -69,7 +69,7 @@ class Question:
             attribute = relation.getAttribute(i)
         
         else: # * should not be an option
-            i = random.randrange(0, relation.numNumeric() -1, 1)
+            i = random.randrange(0, relation.numNumeric(), 1)
             attribute = relation.getAttribute(i, True)
         
         return attribute
@@ -123,13 +123,6 @@ class Question:
     def setAgg(self):
         aggType = random.choice(self.aggregateFunctions) # select the type of aggregate function
         self.aggFns.append(aggType) # add chosen aggregate function to array instance variable
-        
-        if self.aggFns[0] == 'count(':
-            relation = Question.setRel(self) # select relation from database
-            self.rels.append(relation.name) # add chosen aggregate function to array instance variable
-        else:
-            relation = Question.setRel(self, True) # select relation that countains a numeric attribute from database
-            self.rels.append(relation.name) # add chosen aggregate function to array instance variable
     
     # takes aggregates, attributes, and AS names and put them into query form.
     def queryAggs(aggregates, attributes, asNames = ['']):
@@ -273,9 +266,9 @@ class EasyQuestion(Question):
         # If the random selection is an aggregate fn
         if aggOrCond == 'agg':
             self.setAgg()
-
-            # if non numeric attribute is needed, can choose *
             if self.aggFns[0] == 'count(':
+                relation = Question.setRel(self) # select relation from database
+                self.rels.append(relation.name) # add chosen aggregate function to array instance variable
                 astOrAttr = random.choice(['*', 'attribute'])
                 if astOrAttr == '*':
                     self.attrs.append('*')
@@ -283,11 +276,14 @@ class EasyQuestion(Question):
                     attr = self.setAttr(relation) # select attribute from relation
                     self.attrs.append(attr.name) # add chosen attribute function to array instance variable
             else:
+                relation = Question.setRel(self, True) # select relation that countains a numeric attribute from database
+                self.rels.append(relation.name) # add chosen aggregate function to array instance variable
                 attr = self.setAttr(relation, True) # select numeric attribute from relation
                 self.attrs.append(attr.name) # add chosen attribute function to array instance variable
+            self.asNames.append('')#placeholder
+
                 
-                #placeholder array for conds
-                self.conds.append('') 
+            self.conds = ['','','','']#placeholder
 
         # If the random selection is a condition
         elif aggOrCond == 'cond':
@@ -300,12 +296,14 @@ class EasyQuestion(Question):
             astOrAttr = random.choice(['*', 'attribute'])
             if astOrAttr == '*':
                 self.attrs.append('*')
+                self.aggFns.append('')
             else:
                 attr = self.setAttr(relation) # select attribute from relation
                 self.attrs.append(attr.name) # add chosen attribute function to array instance variable
+                self.aggFns.append('')
 
             #placeholder array for aggs
-            self.aggFns.append('')
+            #self.aggFns.append('')
 
             # If this is an "order by" condition
             if condType == 'order by':
@@ -320,7 +318,7 @@ class EasyQuestion(Question):
             # If this is a "limit" condition
             elif condType == 'limit':
                 
-                numRows = Question.findNumRows(self, relation, self.attrs[0]) # get number of rows in relation -> numRows
+                numRows = Question.findNumRows(self, relation, attr) # get number of rows in relation -> numRows
                 lim = random.randrange(1, min(10,numRows), 1) # max limit is 10 unless there are less than 10 rows
 
                 #self.conds.append('')
@@ -349,7 +347,15 @@ class EasyQuestion(Question):
                     self.conds.append(str(reqVal)) # add chosen required value to array instance variable
             else:
                 print("Invalid condition")
+            self.aggFns.append('')#placeholder
+            self.asNames.append('')#placeholder
         
+        elif aggOrCond == '':
+            relation = self.setRel()
+            self.rels.append(relation)
+            self.attrs.append(self.setAttr(relation))
+
+        self.rels += ['','']
         self.query = self.toQuery()
         
         # Send the relevant array to the English Question function
