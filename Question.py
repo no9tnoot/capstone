@@ -18,8 +18,23 @@ class Question:
         self.condition = ['where', 'limit', 'order by']
         self.db = database
         self.seed = seed
-        self.question = ''
         self.query = ''
+        self.question = ''
+
+        # Ordered list of aggregate functions used in the query
+        self.aggFns = []
+
+        # Ordered list of conditions used in the query
+        self.conds = []
+
+        # Ordered list of attributes used in the query
+        self.attrs = []
+
+        # Ordered list of relations used in the query
+        self.rels = []
+
+        #names for AS aggregates
+        self.asNames = []
 
     """
     Functionality now handled in Database class - pull from the database.numericRelations array
@@ -116,19 +131,47 @@ class Question:
             relation = Question.setRel(self, True) # select relation that countains a numeric attribute from database
             self.rels.append(relation.name) # add chosen aggregate function to array instance variable
     
-    def queryAggs(aggregates, attributes, aggNames = ['']):
+    # takes aggregates, attributes, and AS names and put them into query form.
+    def queryAggs(aggregates, attributes, asNames = ['']):
         aggs = ''
-        for x in len(attributes):
-            if aggregates[x] != '':
-                aggs += aggregates[x] + attributes[x] + ')'
+        if aggregates[0] != '':
+            aggs += aggregates[0] + attributes[0] + ')' + asNames[0]
+        else:
+            aggs += attributes[0]
+        
+        #if we have more than one attribute/aggregate
+        if len(attributes) > 1:
+            for x in range(1,len(attributes)-1):
+                if aggregates[x] != '':
+                    aggs += ', ' + aggregates[x] + attributes[x] + ')' + asNames[x]
+                else:
+                    aggs += ', ' + attributes[x]
+        return aggs
+    
+    # relation/s to query form. including joins
+    def queryRels(rel1, rel2, join):
+        if rel2 == '':
+            return rel1
+        else:
+            return rel1 + join + rel2
+
+    #conditions to query form. will add a few extra spaces in some cases but shouldn't matter too much 
+    # still need to implement AND/OR for extra conditions   
+    def queryConds(conds):
+        cond = conds[0] + ' ' + conds[1] + ' ' + conds[2] + ' ' + conds[3]
+        return cond
+
+    def toQuery(self):
+        q = 'SELECT '
+        q += Question.queryAggs(self.aggFns, self.attrs, self.asNames)
+        q += 'FROM' + Question.queryRels(self.rels[0], self.rels[1], self.rels[2])
+        q += Question.queryConds(self.conds)
+        return q
 
     #write the english question for the sql query
     def englishQuestion(sql):
         #2d array holds slots for each part of the question
         english = ['','']
-
-        """Note to Peter: sql[0]->aggregate functions, sql[1]->conditions, sql[2]->attributes, 
-        sql[3]->relations"""
 
         #aggregates and attributes
         english[0] = ['Show'] + Question.block1(sql[2], sql[0])
@@ -218,22 +261,6 @@ class EasyQuestion(Question):
     # Constructor
     def __init__(self, database, seed):
         super().__init__(database, seed)
-        
-
-        self.query = ''
-        self.question = ''
-
-        # Ordered list of aggregate functions used in the query
-        self.aggFns = []
-
-        # Ordered list of conditions used in the query
-        self.conds = []
-
-        # Ordered list of attributes used in the query
-        self.attrs = []
-
-        # Ordered list of relations used in the query
-        self.rels = []
 
         self.easyBuilder()
 
@@ -245,7 +272,7 @@ class EasyQuestion(Question):
 
         # If the random selection is an aggregate fn
         if aggOrCond == 'agg':
-            self.setAgg(self)
+            self.setAgg()
 
             # if non numeric attribute is needed, can choose *
             if self.aggFns[0] == 'count(':
