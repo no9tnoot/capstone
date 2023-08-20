@@ -1,8 +1,7 @@
 Formats for arrays sent to englishQuestion():
-    array = [[aggregate functions],[conditions],[attributes],[relations]]
+    array = [[aggregate functions],[attributes],[relations],[conditions]]
 
     conditions:
         order by:['order by', attribute_2, ASC] or ['order by', attribute_2, DESC]
-        where:['where', 'val', attribute_2, val_that_attr_2_must_equal] or 
-              ['where', 'null', attribute_2]
+        where:['where', attribute_2, operator,  val_that_attr_2_must_equal] or 
         limit:['limit', number_value_of_limit]
