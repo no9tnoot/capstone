@@ -13,7 +13,7 @@ class Question:
     def __init__(self, database, seed):
         # get the attributes and their types from SQL, as well as the relations
         self.opperators = ['=', '<', '>', '<=', '>=', 'is', 'is not']
-        self.aggregateFunctions = ['count(', 'max(', 'min(', 'avg(', 'sum(', '']
+        self.aggregateFunctions = ['count(', 'max(', 'min(', 'avg(', '']
         self.condition = ['where', 'limit', 'order by', '']
         self.db = database
         self.seed = seed
