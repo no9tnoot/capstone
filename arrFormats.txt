@@ -3,7 +3,7 @@ Formats for arrays sent to englishQuestion():
 
     conditions:
         order by:['order by', attribute_2, ASC] or ['order by', attribute_2, DESC]
-        where:['where', attribute_2, operator,  val_that_attr_2_must_equal] or 
+        where:['where', attribute_2, operator,  val_that_attr_2_must_equal] 
         limit:['limit', number_value_of_limit]
 
     relations:

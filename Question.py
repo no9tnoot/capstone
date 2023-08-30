@@ -125,7 +125,7 @@ class Question:
         self.aggFns.append(aggType) # add chosen aggregate function to array instance variable
     
     # takes aggregates, attributes, and AS names and put them into query form.
-    def queryAggs(aggregates, attributes, asNames = ['']):
+    def queryAggs(attributes, aggregates, asNames = ['']):
         aggs = ''
         if aggregates[0] != '':
             aggs += aggregates[0] + attributes[0] + ')' + asNames[0]
@@ -156,7 +156,7 @@ class Question:
 
     def toQuery(self):
         q = 'SELECT '
-        q += Question.queryAggs(self.aggFns, self.attrs, self.asNames)
+        q += Question.queryAggs(self.attrs, self.aggFns, self.asNames)
         q += 'FROM' + Question.queryRels(self.rels[0], self.rels[1], self.rels[2])
         q += Question.queryConds(self.conds)
         return q
@@ -164,13 +164,13 @@ class Question:
     #write the english question for the sql query
     def englishQuestion(sql):
         #2d array holds slots for each part of the question
-        english = ['','']
+        english = []
 
         #aggregates and attributes
-        english[0] = ['Show'] + Question.block1(sql[2], sql[0])
+        english.append(['Show'] + Question.block1(sql[1], sql[0]))
 
         #relation, condition, attr2, #operator, compare to          self.aggFns, self.conds, self.attrs, self.rels
-        english[1] = Question.block2(sql[3], sql[1])
+        english.append(Question.block2(sql[3], sql[4]))
 
         #test
         return(Question.englishToString(english))
@@ -225,12 +225,12 @@ class Question:
         #add text for conditions
         match condition[0]:
             case 'limit':
-                if condition[2] == 1:
+                if condition[1] == 1:
                     block2.append(' but only show 1 row')
                 else:
-                    block2.append(' but only show ' + condition[2] + ' rows')
+                    block2.append(' but only show ' + condition[1] + ' rows')
             case 'where':
-                block2.append(' but only for rows where ' + condition[1] + ' is equal to ' + condition[2])
+                block2.append(' but only for rows where ' + condition[1] + ' ' + condition[2] + ' ' + condition[3])
             case 'order by':
                 if condition[2].lower() == 'desc':
                     block2.append(' in descending order of ' + condition[1] + ' value')
