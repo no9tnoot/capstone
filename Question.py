@@ -20,10 +20,6 @@ class Question:
         self.question = ''
         self.query = ''
 
-    """
-    Functionality now handled in Database class - pull from the database.numericRelations array
-    # Returns true if the datatype is numeric (not a string/date/time)
-    """
 
     # Randomly selects a relation from the loaded database
     def setRel(self, attTypeNeeded, aggOrCondType):
