@@ -51,10 +51,11 @@ class Attribute:
 """
 class Relation:
     
-    def __init__(self, n):
+    def __init__(self, n, nrow):
         self.name = n
         self.attributes=[]
         self.numericAttributes=[]
+        self.numRows = nrow
     
     
     def addAttribute(self, attribute):
@@ -78,6 +79,9 @@ class Relation:
         
     def getNumAttributes(self):
         return len(self.attributes)
+    
+    def getNumRows(self):
+        return self.numRows
 
 
 
@@ -116,11 +120,16 @@ class Database:
         # create each relation object and store in relations[]
         for table in tables:
             
-            r = Relation(table[0])       # Create a relation for each table name
+            cursor.execute("SELECT count(*) FROM " + table[0] + ";")   # SQL: print the number of rows in table
+            nrows = cursor.fetchall()
+            nrows = nrows[0][0]
+            
+            r = Relation(table[0], nrows)       # Create a relation for each table name
             self.relations.append(r)     # store created relation in relations[]
             
             cursor.execute("SHOW COLUMNS FROM "+r.name+" ;") # get column details for relation r
             columns = cursor.fetchall()
+            
             
             #create each attribute object for relation r
             for column in columns:

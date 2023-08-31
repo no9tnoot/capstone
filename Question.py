@@ -70,27 +70,6 @@ class Question:
         return attribute
 
 
-    # Function to return the number of rows in the relation
-    def findNumRows(self, relation, attribute):
-
-        # Connect to database
-        database = mysql.connector.connect(
-            host=self.db.host,
-            user=self.db.user,
-            password=self.db.pword,
-            database=self.db.db_name
-        )
-
-        cursor = database.cursor()  # Create a cursor to interact with the database
-        
-        cursor.execute("SELECT count(" + attribute.name + ") FROM " +
-                       relation.name + ";")   # SQL: print the table names
-       
-        numRows = cursor.fetchall() # get the output table names from SQL
-        
-        return numRows[0][0] #Return the number of rows
-
-
     # Function to find a value for an attribute that you will set in the where clause
     # eg. WHERE attribute = 'attributeVal'
     def selectAttrVal(self, relation, attribute):
@@ -310,8 +289,7 @@ class EasyQuestion(Question):
             # If this is a "limit" condition
             elif condType == 'limit':
                 
-                numRows = Question.findNumRows(self, relation, attr_1) # get number of rows in relation -> numRows
-                lim = random.randrange(1, numRows, 1) # choose a random value between 1 
+                lim = random.randrange(1, relation.getNumRows(), 1) # choose a random value between 1 
                 # and the total number of rows in the relation
                 
                 ''' ^ Should we limit this more? Possibly so that it's easily countable and the student
