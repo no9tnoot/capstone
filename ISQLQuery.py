@@ -18,6 +18,21 @@ class ISQLQuery(ABC):
         self.seed = seed
         self.queryString = ""
         self.queryArray = []
+        
+         # Ordered list of aggregate functions used in the query
+        self.aggFns = []
+
+        # Ordered list of conditions used in the query
+        self.conds = []
+
+        # Ordered list of attributes used in the query
+        self.attrs = []
+
+        # Ordered list of relations used in the query
+        self.rels = []
+
+        #names for AS aggregates
+        self.asNames = []
     
     # Randomly selects a relation from the loaded database
     @abstractmethod
@@ -86,7 +101,49 @@ class ISQLQuery(ABC):
         
         return cursor.fetchall()       # return the 
 
+    """
+        Returns a random aggregate function
+    """
+    @abstractmethod
+    def setAgg(self):
+        aggType = random.choice(self.aggregateFunctions) # select the type of aggregate function
+        return aggType # add chosen aggregate function to array instance variable
     
+    @abstractmethod
+    def queryAggs(attributes, aggregates, asNames = ['']):
+        aggs = ''
+        if aggregates[0] != '':
+            aggs += aggregates[0] + attributes[0] + ')' + asNames[0]
+        else:
+            aggs += attributes[0]
+        
+        #if we have more than one attribute/aggregate
+        if len(attributes) > 1:
+            for x in range(1,len(attributes)-1):
+                if aggregates[x] != '':
+                    aggs += ', ' + aggregates[x] + attributes[x] + ')' + asNames[x]
+                else:
+                    aggs += ', ' + attributes[x]
+        return aggs
     
+    # relation/s to query form. including joins
+    @abstractmethod
+    def queryRels(rel1, rel2, join):
+        if rel2 == '':
+            return rel1
+        else:
+            return rel1 + join + rel2
+
+    #conditions to query form. will add a few extra spaces in some cases but shouldn't matter too much 
+    # still need to implement AND/OR for extra conditions   
+    def queryConds(conds):
+        cond = conds[0] + ' ' + conds[1] + ' ' + conds[2] + ' ' + conds[3]
+        return cond
     
-    
+    @abstractmethod
+    def toQuery(self):
+        q = 'SELECT '
+        q += Question.queryAggs(self.attrs, self.aggFns, self.asNames)
+        q += 'FROM' + Question.queryRels(self.rels[0], self.rels[1], self.rels[2])
+        q += Question.queryConds(self.conds)
+        return q
