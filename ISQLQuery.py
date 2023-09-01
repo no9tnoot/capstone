@@ -81,7 +81,9 @@ class ISQLQuery(ABC):
         
         return attribute
     
-    
+    """
+        Selects a possible value from an attribute.
+    """
     @abstractmethod
     def selectAttrVal(self, relation, attribute):
 
@@ -99,7 +101,7 @@ class ISQLQuery(ABC):
 
         cursor.execute("SELECT " + attribute.name + " FROM " + relation.name + "limit 1 offset " + reqVal + ";")   # SQL: print the table names
         
-        return cursor.fetchall()       # return the 
+        return cursor.fetchall()[0]       # return the 
 
     """
         Returns a random aggregate function
@@ -109,6 +111,10 @@ class ISQLQuery(ABC):
         aggType = random.choice(self.aggregateFunctions) # select the type of aggregate function
         return aggType # add chosen aggregate function to array instance variable
     
+    """
+        Formats attributes and aggregates into a readable string, 
+        e.g. "max(customerNumber), customerName"
+    """
     @abstractmethod
     def queryAggs(attributes, aggregates, asNames = ['']):
         aggs = ''
@@ -126,13 +132,7 @@ class ISQLQuery(ABC):
                     aggs += ', ' + attributes[x]
         return aggs
     
-    # relation/s to query form. including joins
-    @abstractmethod
-    def queryRels(rel1, rel2, join):
-        if rel2 == '':
-            return rel1
-        else:
-            return rel1 + join + rel2
+    
 
     #conditions to query form. will add a few extra spaces in some cases but shouldn't matter too much 
     # still need to implement AND/OR for extra conditions   
@@ -140,10 +140,4 @@ class ISQLQuery(ABC):
         cond = conds[0] + ' ' + conds[1] + ' ' + conds[2] + ' ' + conds[3]
         return cond
     
-    @abstractmethod
-    def toQuery(self):
-        q = 'SELECT '
-        q += Question.queryAggs(self.attrs, self.aggFns, self.asNames)
-        q += 'FROM' + Question.queryRels(self.rels[0], self.rels[1], self.rels[2])
-        q += Question.queryConds(self.conds)
-        return q
+    

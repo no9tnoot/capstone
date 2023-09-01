@@ -141,3 +141,12 @@ class EasySQLQuery(ISQLQuery):
             print("Invalid condition")
         self.aggFns.append('')#placeholder
         self.asNames.append('')#placeholder
+        
+        
+        
+    def toQuery(self):
+        q = 'SELECT '
+        q += Question.queryAggs(self.attrs, self.aggFns, self.asNames)
+        q += 'FROM' + Question.queryRels(self.rels[0], self.rels[1], self.rels[2])
+        q += Question.queryConds(self.conds)
+        return q
