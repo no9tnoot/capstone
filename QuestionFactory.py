@@ -6,6 +6,10 @@ import ISQLQuery
 import EasySQLQuery
 import MediumSQLQuery
 import HardSQLQuery
+import EasyEnglishQuery
+import MediumEnglishQuery
+import HardEnglishQuery
+import Question
 
 class QuestionFactory:
     
@@ -17,6 +21,15 @@ class QuestionFactory:
         match difficulty:
             case 'easy':
                 sqlQuery = EasySQLQuery()
-                engQuery = EasyEngQuery()
-                self.question = Question(sqlQuery, engQuery)
+                engQuery = EasyEnglishQuery()
+            
+            case 'medium':
+                sqlQuery = MediumSQLQuery()
+                engQuery = MediumEnglishQuery()
+            
+            case 'hard':
+                sqlQuery = HardSQLQuery()
+                engQuery = HardEnglishQuery()
+            
+        self.question = Question(sqlQuery, engQuery)
                 
