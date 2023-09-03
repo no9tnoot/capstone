@@ -8,6 +8,11 @@ import random
 class HardSQLQuery(ISQLQuery):
     
     
+    def __init__(self):
+        super.__init__(self)
+        #names for AS aggregates
+        self.asNames = []
+    
     
     """
         relation/s to query form. including joins

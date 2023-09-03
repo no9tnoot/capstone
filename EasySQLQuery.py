@@ -9,24 +9,6 @@ class EasySQLQuery(ISQLQuery):
     
     def __init__(database, seed):
         super().__init__(database, seed)
-    
-    # Randomly selects a relation from the loaded database
-    def setRel(self, attTypeNeeded, aggOrCondType):
-        super.setRel(self, attTypeNeeded, aggOrCondType)
-    
-    
-    # Randomly selects an attribute from the chosen relation
-    def setAttr(self, relation, attTypeNeeded, aggOrCondType, attNum):
-        super.setAttr(self, relation, attTypeNeeded, aggOrCondType, attNum)
-    
-    
-    def selectAttrVal(self, relation, attribute):
-        super.selectAttrVal(self, relation, attribute)
-        
-        
-    def setAgg(self):
-        super.setAgg(self)
-        
         
     def easyBuilder(self):
         # Randomly select either an aggregate fn or condition or neither
@@ -42,36 +24,52 @@ class EasySQLQuery(ISQLQuery):
                 self.createCond()
         
             case '':
-                relation = self.setRel()
-                self.rels.append(relation)
-                self.attrs.append(self.setAttr(relation))
+                self.createSimpleAttr()
+                
 
         self.rels += ['','']
         self.query = self.toQuery()
+    
+    
+    def createSimpleAttr(self):
+        relation = self.setRel() # get random relation
+        self.rels.append(relation)
         
-        # Send the relevant array to the English Question function
-        self.question = Question.englishQuestion([self.aggFns, self.attrs, self.rels, self.conds])
+        numAttr = random.choice(1,2) 
+        self.attrs.append(self.setAttr(relation))
+        while numAttr==2:
+            attr2 = self.setAttr(relation)
+            if (attr2 != self.attrs[0]):
+                self.attrs.append(attr2)
+                numAttr = 0
+    
+    
         
-        
+    """
+        Chooses an aggregate and a relation that fits that aggregate (i.e. numeric). 
+        Aggregate put in aggFns[0]
+        Relation put in rels[0]
+    """    
     def createAgg(self):
-        self.setAgg()
+        self.aggFns.append(self.setAgg())  # get a random aggreegate func and storing it in aggFns
+        
+        # If doing a count agg, account for *
         if self.aggFns[0] == 'count(':
-            relation = self.setRel(self) # select relation from database
-            self.rels.append(relation.name) # add chosen aggregate function to array instance variable
-            astOrAttr = random.choice(['*', 'attribute'])
-            if astOrAttr == '*':
-                self.attrs.append('*')
-            else:
-                attr = self.setAttr(relation) # select attribute from relation
-                self.attrs.append(attr.name) # add chosen attribute function to array instance variable
-        else:
-            relation = self.setRel(self, True) # select relation that countains a numeric attribute from database
-            self.rels.append(relation.name) # add chosen aggregate function to array instance variable
-            attr = self.setAttr(relation, True) # select numeric attribute from relation
-            self.attrs.append(attr.name) # add chosen attribute function to array instance variable
-        self.asNames.append('')#placeholder
-
+            relation = self.setRel(self) # select random relation from database
+            self.rels.append(relation.name) # add relation to rels array
             
+            # choose * or an attribute
+            astOrAttr = random.choice(['*', self.setAttr(relation).name]) 
+            self.attrs.append(astOrAttr) # add chosen attribute function / * to array instance variable
+        
+        # if not doing a count
+        else:
+            relation = self.setRel(self, numeric = True) # select relation that countains a numeric attribute from database
+            self.rels.append(relation.name) # add chosen relation function to rels
+            attr = self.setAttr(relation, numeric = True) # select numeric attribute from relation
+            self.attrs.append(attr.name) # add chosen attribute function to array instance variable
+        
+        ####PLEASE MAKE ME IRRELEVENT    
         self.conds = ['','','','']#placeholder
         
         

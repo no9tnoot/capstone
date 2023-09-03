@@ -9,11 +9,13 @@ import Database
 
 class ISQLQuery(ABC):
     
+    operators = ['=', '<', '>', '<=', '>=']
+    nullOperators = ['is', 'is not']
+    aggregateFunctions = ['count(', 'max(', 'min(', 'avg(', 'sum(']
+    condition = ['where', 'limit', 'order by']
+    
     @abstractmethod
     def __init__(self, database, seed):
-        self.opperators = ['=', '<', '>', '<=', '>=', 'is', 'is not']
-        self.aggregateFunctions = ['count(', 'max(', 'min(', 'avg(', '']
-        self.condition = ['where', 'limit', 'order by', '']
         self.db = database
         self.seed = seed
         self.queryString = ""
@@ -31,26 +33,23 @@ class ISQLQuery(ABC):
         # Ordered list of relations used in the query
         self.rels = []
 
-        #names for AS aggregates
-        self.asNames = []
+        
     
     # Randomly selects a relation from the loaded database
-    @abstractmethod
-    def setRel(self, attTypeNeeded, aggOrCondType):
+    # by default does not require relation to contain numeric attributes    @abstractmethod
+    def setRel(self, numeric = False):
 
         # select relation
         relation = random.randrange(0, self.db.numRelations()-1, 1)
         relation = self.db.getRelation(relation)
-
-        # if the chosen relation contains numeric attributes, return it
-        # if the chosen action is a condition, a count, or nothing, just return the relation
-        if relation.numNumeric() or attTypeNeeded == 'cond' or aggOrCondType == 'count(' or aggOrCondType == '':
+        if not numeric:
             return relation
-
-        # if the chosen relation is not appropriate, select a new relation
         else:
-            relation = self.setRel(attTypeNeeded, aggOrCondType)
-            return relation
+            if relation.numNumeric():
+                return relation
+            else:
+                return self.setRel(True)
+
 
     ''' For questions where 2+ attributes are chosen from one relation, must include logic to prevent the
         attribute being selected twice'''
@@ -135,9 +134,34 @@ class ISQLQuery(ABC):
     
 
     #conditions to query form. will add a few extra spaces in some cases but shouldn't matter too much 
-    # still need to implement AND/OR for extra conditions   
+    # still need to implement AND/OR for extra conditions  
+    @abstractmethod 
     def queryConds(conds):
         cond = conds[0] + ' ' + conds[1] + ' ' + conds[2] + ' ' + conds[3]
         return cond
     
+    """
+        relation/s to query form. including joins
+    """
+    @abstractmethod 
+    def queryRels(rel1, rel2, join):
+        if rel2 == '':
+            return rel1
+        else:
+            return rel1 + join + rel2
+    
+    #conditions to query form. will add a few extra spaces in some cases but shouldn't matter too much 
+    # still need to implement AND/OR for extra conditions   
+    @abstractmethod
+    def queryConds(conds):
+        cond = conds[0] + ' ' + conds[1] + ' ' + conds[2] + ' ' + conds[3]
+        return cond
+
+    @abstractmethod
+    def toQuery(self):
+        q = 'SELECT '
+        q += self.queryAggs(self.attrs, self.aggFns, self.asNames)
+        q += 'FROM' + self.queryRels(self.rels[0], self.rels[1], self.rels[2])
+        q += self.queryConds(self.conds)
+        return q
     
