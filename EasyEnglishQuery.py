@@ -13,6 +13,7 @@ class EasyEnglishQuery(IEnglishQuery):
         englishQuery += ' in the ' + sqlQuery['relation'] + ' table '
         englishQuery += self.translateCond(sqlQuery['condition'])
 
+    
     def attrsAndAggs(self, attrs, agg):
         engAttrs = self.translateAgg(agg)
         engAttrs += self.translateAttr(attrs[0])
