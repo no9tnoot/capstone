@@ -5,13 +5,14 @@
 import IEnglishQuery
 
 class EasyEnglishQuery(IEnglishQuery):
+    englishQuery = ''
     
     def __init__(self, sqlQuery):
         super().__init__(self, sqlQuery)
-        englishQuery = 'Show '
-        englishQuery += self.attrsAndAggs(sqlQuery['attributes'], sqlQuery['aggregates'])
-        englishQuery += ' in the ' + sqlQuery['relation'] + ' table '
-        englishQuery += self.translateCond(sqlQuery['condition'])
+        self.englishQuery = 'Show '
+        self.englishQuery += self.attrsAndAggs(sqlQuery['attributes'], sqlQuery['aggregates'])
+        self.englishQuery += ' in the ' + sqlQuery['relation'] + ' table '
+        self.englishQuery += self.translateCond(sqlQuery['condition'])
 
     
     def attrsAndAggs(self, attrs, agg):
@@ -20,3 +21,10 @@ class EasyEnglishQuery(IEnglishQuery):
         if len(attrs) == 2:
             endAttrs += ' and ' + self.translateAttrs(attrs[1])
         return engAttrs
+    
+    def getQuery(self):
+        return self.englishQuery
+    
+# test_dict = {'attributes': '*', 'aggregates': '', 'relation': 'offices'}
+# q = EasyEnglishQuery(test_dict)
+# print(q.getQuery())

@@ -48,16 +48,16 @@ class IEnglishQuery(ABC):
     @abstractmethod
     def translateCond(condition):
         engCond = ''
-        match condition[0]:
+        match condition['cond']:
             case 'limit':
-                if condition[1] == 1:
+                if condition['val2'] == 1:
                     engCond += ' but only show 1 row'
                 else:
-                    engCond += ' but only show ' + condition[1] + ' rows'
+                    engCond += ' but only show ' + condition['val2'] + ' rows'
             case 'where':
-                engCond += ' but only for rows where ' + condition[1] + ' ' + condition[2] + ' ' + condition[3]
+                engCond += ' but only for rows where ' + condition['val1'] + ' ' + condition['operator'] + ' ' + condition['val2']
             case 'order by':
-                if condition[2].lower() == 'desc':
-                    engCond += ' in descending order of ' + condition[1] + ' value'
+                if condition['operator'].lower() == 'desc':
+                    engCond += ' in descending order of ' + condition['val1'] + ' value'
                 else:
-                    engCond += ' in ascending order of ' + condition[1] + ' value'
+                    engCond += ' in ascending order of ' + condition['val1'] + ' value'
