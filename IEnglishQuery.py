@@ -7,7 +7,7 @@ from abc import ABC, abstractmethod
 class IEnglishQuery(ABC):
 
     def __init__(self,sqlQuery):
-        englishQuery = ''
+        self.englishQuery = ''
     
     @abstractmethod
     def englishToString(english):
@@ -61,3 +61,7 @@ class IEnglishQuery(ABC):
                     engCond += ' in descending order of ' + condition['val1'] + ' value'
                 else:
                     engCond += ' in ascending order of ' + condition['val1'] + ' value'
+
+    @abstractmethod
+    def getEnglishQuery(self):
+        return self.englishQuery

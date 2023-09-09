@@ -1,4 +1,4 @@
-Formats for arrays sent to englishQuestion():
+Formats for arrays sent to EasyEnglishQuery():
     array = [[aggregate functions],[attributes],[relations],[conditions]]
     dictionary = ['attributes', 'aggregates', 'relation', 'condition']
 
@@ -15,3 +15,5 @@ Formats for arrays sent to englishQuestion():
 
     relations:
         [relation1]
+
+Formats for arrays sent to MediumEnglishQuery():

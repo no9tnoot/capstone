@@ -2,10 +2,9 @@
 # 3 September 2023
 # EasyEnglishQuery
 
-import IEnglishQuery
+from IEnglishQuery import IEnglishQuery
 
 class EasyEnglishQuery(IEnglishQuery):
-    englishQuery = ''
     
     def __init__(self, sqlQuery):
         super().__init__(self, sqlQuery)
@@ -22,9 +21,6 @@ class EasyEnglishQuery(IEnglishQuery):
             endAttrs += ' and ' + self.translateAttrs(attrs[1])
         return engAttrs
     
-    def getQuery(self):
-        return self.englishQuery
-    
-# test_dict = {'attributes': '*', 'aggregates': '', 'relation': 'offices'}
-# q = EasyEnglishQuery(test_dict)
-# print(q.getQuery())
+test_dict = {'attributes': '*', 'aggregates': '', 'relation': 'offices'}
+q = EasyEnglishQuery(test_dict)
+print(q.getQuery())
