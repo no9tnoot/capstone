@@ -22,3 +22,10 @@ class HardSQLQuery(ISQLQuery):
             return rel1
         else:
             return rel1 + join + rel2
+        
+    def toQuery(self):
+        q = 'SELECT '
+        q += self.queryAggs(self.attrs, self.aggFns, self.asNames)
+        q += 'FROM' + self.queryRels(self.rels[0], self.rels[1], self.rels[2])
+        q += self.queryConds(self.conds)
+        return q

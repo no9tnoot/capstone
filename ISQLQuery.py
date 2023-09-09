@@ -13,6 +13,7 @@ class ISQLQuery(ABC):
     nullOperators = ['is', 'is not']
     aggregateFunctions = ['count(', 'max(', 'min(', 'avg(', 'sum(']
     condition = ['where', 'limit', 'order by']
+    wildcard = ['%','_', ]
     
     @abstractmethod
     def __init__(self, database, seed):
@@ -37,7 +38,7 @@ class ISQLQuery(ABC):
     
     # Randomly selects a relation from the loaded database
     # by default does not require relation to contain numeric attributes    @abstractmethod
-    def setRel(self, numeric = False):
+    def getRel(self, numeric = False):
 
         # select relation
         relation = random.randrange(0, self.db.numRelations()-1, 1)
@@ -48,7 +49,7 @@ class ISQLQuery(ABC):
             if relation.numNumeric():
                 return relation
             else:
-                return self.setRel(True)
+                return self.getRel(True)
 
 
     ''' For questions where 2+ attributes are chosen from one relation, must include logic to prevent the
@@ -57,7 +58,7 @@ class ISQLQuery(ABC):
     
     # Randomly selects an attribute from the chosen relation
     @abstractmethod
-    def setAttr(self, relation, attTypeNeeded, aggOrCondType, attNum):
+    def getAttr(self, relation, attTypeNeeded, aggOrCondType, attNum):
 
         # if condition or count, include * as an option
         '''decided to include * in this way as it will allow it to appear with reasonable frequency'''
@@ -132,14 +133,125 @@ class ISQLQuery(ABC):
         return aggs
     
     
-    
-    
     #conditions to query form. will add a few extra spaces in some cases but shouldn't matter too much 
     # still need to implement AND/OR for extra conditions   
     @abstractmethod
     def queryConds(conds):
         cond = conds[0] + ' ' + conds[1] + ' ' + conds[2] + ' ' + conds[3]
         return cond
+    
+    """
+        Create an attribute with neither a condition nor an aggregate function
+    """
+    def createSimple(self):
+        relation = self.getRel() # get random relation
+        self.rels.append(relation)
+        
+        numAttr = random.choice(1,2)  # will we ask for one or 2 relations
+        self.attrs.append(self.getAttr(relation))
+        
+        # select and set the second relation if one is needed
+        while numAttr==2:
+            attr2 = self.getAttr(relation)
+            if (attr2 != self.attrs[0]): # don't set the same relation as the first one
+                self.attrs.append(attr2)
+                numAttr = 0
+    
+    
+        
+    """
+        Chooses an aggregate and a relation that fits that aggregate (i.e. numeric). 
+        Aggregate put in aggFns[0]
+        Relation put in rels[0]
+    """    
+    @abstractmethod
+    def createAgg(self):
+        self.aggFns.append(self.setAgg())  # get a random aggreegate func and storing it in aggFns
+        
+        # If doing a count agg, account for *
+        if self.aggFns[0] == 'count(':
+            relation = self.getRel(self) # select random relation from database
+            self.rels.append(relation.name) # add relation to rels array
+            
+            # choose * or an attribute
+            astOrAttr = random.choice(['*', self.getAttr(relation).name]) 
+            self.attrs.append(astOrAttr) # add chosen attribute function / * to array instance variable
+        
+        # if not doing a count
+        else:
+            relation = self.getRel(self, numeric = True) # select relation that countains a numeric attribute from database
+            self.rels.append(relation.name) # add chosen relation function to rels
+            attr = self.getAttr(relation, numeric = True) # select numeric attribute from relation
+            self.attrs.append(attr.name) # add chosen attribute function to array instance variable
+        
+
+        
+    """
+        Chooses a condition and a relation.
+        Aggregate put in aggFns[0]
+        Relation put in rels[0]
+    """  
+    @abstractmethod
+    def createCond(self):
+        condType = random.choice(self.condition) # select a random condition
+        self.conds.append(condType) # add chosen condition to array instance variable
+
+        relation = self.getRel() # select a random relation
+        self.rels.append(relation.name) # add chosen relation to array instance variable
+
+        # choose * or an attribute
+        astOrAttr = random.choice(['*', self.getAttr(relation).name]) 
+        self.attrs.append(astOrAttr) # add chosen attribute function / * to array instance variable
+        
+        match condType:
+            
+            # If this is an "order by" condition
+            case 'order by':
+                self.createOrderByCond(relation)
+                
+            case 'limit':
+                self.createLimitCond(relation)
+            
+            case 'where':
+                self.createWhereCond(relation)
+            
+            case _:
+                print("Invalid condition")
+                self.aggFns.append('')#placeholder
+                self.asNames.append('')#placeholder
+                
+
+    """
+        Append an extra attribute and either ASC to DESC to the conds array.
+    """  
+    @abstractmethod
+    def createOrderByCond(self, relation):
+        
+        attr = self.getAttr(relation) # select a second random attribute 
+        # (can be the same as attr_1)
+        self.conds.append(attr.name) # add chosen attribute to array instance variable
+
+        orderBy = random.choice(['ASC', 'DESC']) # choose between ascending or descending order
+        self.conds.append(orderBy) # add chosen order to array instance variable
+
+
+    # If this is a "limit" condition
+    """
+        Append an extra attribute and either ASC to DESC to the conds array.
+    """  
+    @abstractmethod
+    def createLimitCond(self, relation):
+        
+        lim = random.randrange(1, min(10,relation.getNumRows()), 1) # choose a random value between 1 and 10 (if there are 10 rows)
+        self.conds.append(str(lim)) # add chosen limit to array instance variable
+
+
+    # If this is a "where" condition
+    @abstractmethod
+    def createWhereCond(self, relation):
+        pass
+    
+    
 
     @abstractmethod
     def toQuery(self):
@@ -148,4 +260,6 @@ class ISQLQuery(ABC):
         q += 'FROM' + self.rels[0]
         q += self.queryConds(self.conds)
         return q
+    
+    
     
