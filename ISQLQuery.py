@@ -116,10 +116,10 @@ class ISQLQuery(ABC):
         e.g. "max(customerNumber), customerName"
     """
     @abstractmethod
-    def formatQueryAggs(attributes, aggregates, asNames = ['']):
+    def formatQueryAggs(self, attributes, aggregates):
         aggs = ''
-        if aggregates[0] != '':
-            aggs += aggregates[0] + attributes[0] + ')' + asNames[0]
+        if aggregates:
+            aggs += aggregates[0] + attributes[0] + ')'
         else:
             aggs += attributes[0]
         
@@ -127,7 +127,7 @@ class ISQLQuery(ABC):
         if len(attributes) > 1:
             for x in range(1,len(attributes)-1):
                 if aggregates[x] != '':
-                    aggs += ', ' + aggregates[x] + attributes[x] + ')' + asNames[x]
+                    aggs += ', ' + aggregates[x] + attributes[x] + ')'
                 else:
                     aggs += ', ' + attributes[x]
         return aggs

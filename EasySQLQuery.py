@@ -4,6 +4,7 @@
 
 from ISQLQuery import ISQLQuery
 import random
+from Session import Session #temp for testing
 
 class EasySQLQuery(ISQLQuery):
     
@@ -22,8 +23,8 @@ class EasySQLQuery(ISQLQuery):
     def setAgg(self):
         return super().setAgg()
     
-    def formatQueryAggs(attributes, aggregates, asNames=...):
-        return super().formatQueryAggs(aggregates, asNames)
+    def formatQueryAggs(attributes, aggregates):
+        return super().formatQueryAggs(attributes, aggregates)
     
     def formatQueryConds(conds):
         return super().formatQueryConds()
@@ -91,6 +92,6 @@ class EasySQLQuery(ISQLQuery):
             reqVal = self.selectAttrVal(relation, self.conds[1])
             self.conds.append(str(reqVal)) # add chosen required value to array instance variable
     
-
-s = EasySQLQuery('db', 'seed')
+d = Session.loadDatabase()
+s = EasySQLQuery(d, 'seed')
 print(s.toQuery())
