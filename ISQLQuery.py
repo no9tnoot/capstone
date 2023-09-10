@@ -135,7 +135,7 @@ class ISQLQuery(ABC):
         relation = self.getRel() # get random relation
         self.rels.append(relation)
         
-        numAttr = random.choice(1,2)  # will we ask for one or 2 relations
+        numAttr = random.choice([1,2])  # will we ask for one or 2 relations
         self.attrs.append(self.getAttr(relation))
         
         # select and set the second relation if one is needed
@@ -169,7 +169,7 @@ class ISQLQuery(ABC):
         else:
             relation = self.getRel(numeric = True) # select relation that countains a numeric attribute from database
             self.rels.append(relation.name) # add chosen relation function to rels
-            attr = self.getAttr(relation, numeric = True) # select numeric attribute from relation
+            attr = self.getAttr(relation, True) # select numeric attribute from relation
             self.attrs.append(attr.name) # add chosen attribute function to array instance variable
         
 
