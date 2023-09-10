@@ -7,3 +7,8 @@ import IEnglishQuery
 class MediumEnglishQuery(IEnglishQuery):
     def __init__(self, sqlQuery):
         super().__init__(self, sqlQuery)
+        self.englishQuery = 'Show '
+        self.englishQuery += self.attrsAndAggs(sqlQuery['attributes'], sqlQuery['aggregates'])
+        self.englishQuery += ' in the ' + sqlQuery['relation'] + ' table '
+        self.englishQuery += self.translateCond(sqlQuery['condition'])
+

@@ -8,12 +8,17 @@ Formats for arrays sent to EasyEnglishQuery():
         limit:['limit', number_value_of_limit]
 
         dictionary rework:
-            'cond' = 'limit'/'where'/'order by' etc.
-            'val1' = attribute name to look at
-            'operator' = operator('=','>','is not',etc.) or 'asc'/'desc'
-            'val2' = what to compare to val1. can be attribute or value.
+            'cond': 'limit'/'where'/'order by' etc.
+            'val1': attribute name to look at
+            'operator': operator('=','>','is not',etc.) or 'asc'/'desc'
+            'val2': what to compare to val1. can be attribute or value.
 
     relations:
         [relation1]
 
 Formats for arrays sent to MediumEnglishQuery():
+    dictionary = {'attributes', 'aggregates', 'relation', 'condition', 'asNames'}
+
+    asNames:
+        'name': what to call it e.g.: 'vat'
+        'function': function that defines the value of name e.g.: round(buyprice * 15,2)
