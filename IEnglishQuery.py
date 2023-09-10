@@ -10,7 +10,7 @@ class IEnglishQuery(ABC):
         self.englishQuery = ''
     
     @abstractmethod
-    def englishToString(english):
+    def englishToString(self, english):
         question = ''
         for block in english:
             for string in block:
@@ -19,7 +19,7 @@ class IEnglishQuery(ABC):
     
     #translate aggregate function from SQL to english
     @abstractmethod
-    def translateAgg(agg):
+    def translateAgg(self, agg):
         match agg:
             case 'count(':
                 engAgg = ' how many rows there are in '
@@ -37,7 +37,7 @@ class IEnglishQuery(ABC):
     
     #translate attribute/s to english format
     @abstractmethod
-    def translateAttr(attr):
+    def translateAttr(self, attr):
         if attr == '*':
             engAttr = 'all columns' 
         else:
@@ -46,7 +46,7 @@ class IEnglishQuery(ABC):
     
     #translate SQL condition to english
     @abstractmethod
-    def translateCond(condition):
+    def translateCond(self, condition):
         engCond = ''
         match condition['cond']:
             case 'limit':
@@ -61,6 +61,7 @@ class IEnglishQuery(ABC):
                     engCond += ' in descending order of ' + condition['val1'] + ' value'
                 else:
                     engCond += ' in ascending order of ' + condition['val1'] + ' value'
+        return engCond
 
     @abstractmethod
     def getEnglishQuery(self):
