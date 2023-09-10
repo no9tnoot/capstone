@@ -1,10 +1,24 @@
-Formats for arrays sent to englishQuestion():
-    array = [[aggregate functions],[attributes],[asNames],[relations],[conditions]]
+Formats for arrays sent to EasyEnglishQuery():
+    array = [[aggregate functions],[attributes],[relations],[conditions]]
+    dictionary = ['attributes', 'aggregates', 'relation', 'condition']
 
     conditions:
         order by:['order by', attribute_2, ASC] or ['order by', attribute_2, DESC]
         where:['where', attribute_2, operator,  val_that_attr_2_must_equal] 
         limit:['limit', number_value_of_limit]
 
+        dictionary rework:
+            'cond': 'limit'/'where'/'order by' etc.
+            'val1': attribute name to look at
+            'operator': operator('=','>','is not',etc.) or 'asc'/'desc'
+            'val2': what to compare to val1. can be attribute or value.
+
     relations:
-        [relation1, relation2, join_type]
+        [relation1]
+
+Formats for arrays sent to MediumEnglishQuery():
+    dictionary = {'attributes', 'aggregates', 'relation', 'condition', 'asNames'}
+
+    asNames:
+        'name': what to call it e.g.: 'vat'
+        'function': function that defines the value of name e.g.: round(buyprice * 15,2)

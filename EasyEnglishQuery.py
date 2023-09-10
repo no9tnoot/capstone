@@ -2,16 +2,16 @@
 # 3 September 2023
 # EasyEnglishQuery
 
-import IEnglishQuery
+from IEnglishQuery import IEnglishQuery
 
 class EasyEnglishQuery(IEnglishQuery):
     
     def __init__(self, sqlQuery):
         super().__init__(self, sqlQuery)
-        englishQuery = 'Show '
-        englishQuery += self.attrsAndAggs(sqlQuery['attributes'], sqlQuery['aggregates'])
-        englishQuery += ' in the ' + sqlQuery['relation'] + ' table '
-        englishQuery += self.translateCond(sqlQuery['condition'])
+        self.englishQuery = 'Show '
+        self.englishQuery += self.attrsAndAggs(sqlQuery['attributes'], sqlQuery['aggregates'])
+        self.englishQuery += ' in the ' + sqlQuery['relation'] + ' table '
+        self.englishQuery += self.translateCond(sqlQuery['condition'])
 
     
     def attrsAndAggs(self, attrs, agg):
@@ -20,3 +20,7 @@ class EasyEnglishQuery(IEnglishQuery):
         if len(attrs) == 2:
             endAttrs += ' and ' + self.translateAttrs(attrs[1])
         return engAttrs
+    
+test_dict = {'attributes': '*', 'aggregates': '', 'relation': 'offices'}
+q = EasyEnglishQuery(test_dict)
+print(q.getQuery())
