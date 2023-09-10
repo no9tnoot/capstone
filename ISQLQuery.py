@@ -54,30 +54,18 @@ class ISQLQuery(ABC):
 
     ''' For questions where 2+ attributes are chosen from one relation, must include logic to prevent the
         attribute being selected twice'''
-    
-    
+
     # Randomly selects an attribute from the chosen relation
-    @abstractmethod
-    def getAttr(self, relation, attTypeNeeded, aggOrCondType, attNum):
+    def getAttr(self, relation, numeric = False):
 
-        # if condition or count, include * as an option
-        '''decided to include * in this way as it will allow it to appear with reasonable frequency'''
-        if attTypeNeeded == 'cond' or aggOrCondType == 'count(' or aggOrCondType == '':
-
+        if not numeric:
             # Randomly select attribute from relation -> doesn't have to be numeric
-            attribute = random.randrange(0, relation.getNumAttributes()-1, 1)
-            attribute = relation.getAttribute(attribute)
-            
-            # Choose between attribute and '*' if attNum is 1
-            # (Ensures that 2nd attribute is never * -> select x where y='*' doesn't make sense)
-            if attNum == 1:
-                astOrAttr = random.choice(['*', 'attribute'])
-                if astOrAttr == '*':
-                    attribute = Database.Attribute('*', 'varchar(50)' , 'NO', '')
+            i = random.randrange(0, relation.getNumAttributes()-1, 1)
+            attribute = relation.getAttribute(i)
         
         else: # * should not be an option
-            attribute = random.randrange(0, len(relation.numericAttributes)-1, 1)
-            attribute = relation.numericAttributes[attribute]
+            i = random.randrange(0, relation.numNumeric(), 1)
+            attribute = relation.getAttribute(i, True)
         
         return attribute
     
@@ -179,7 +167,7 @@ class ISQLQuery(ABC):
         
         # if not doing a count
         else:
-            relation = self.getRel(self, numeric = True) # select relation that countains a numeric attribute from database
+            relation = self.getRel(numeric = True) # select relation that countains a numeric attribute from database
             self.rels.append(relation.name) # add chosen relation function to rels
             attr = self.getAttr(relation, numeric = True) # select numeric attribute from relation
             self.attrs.append(attr.name) # add chosen attribute function to array instance variable
