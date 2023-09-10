@@ -10,6 +10,7 @@ class EasySQLQuery(ISQLQuery):
     
     def __init__(self, database, seed):
         super().__init__(database, seed)
+        self.easyBuilder()
         
     def getRel(self, numeric=False):
         return super().getRel(numeric)
