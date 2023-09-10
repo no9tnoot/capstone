@@ -254,6 +254,10 @@ class ISQLQuery(ABC):
     @abstractmethod
     def toQuery(self):
         pass
+
+    @abstractmethod
+    def getSqlQuery(self):
+        return self.query
     
     
     

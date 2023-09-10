@@ -41,6 +41,9 @@ class EasySQLQuery(ISQLQuery):
     def createLimitCond(self, relation):
         return super().createLimitCond(relation)
     
+    def getSqlQuery(self):
+        return super().getSqlQuery()
+    
     def toQuery(self):
         q = 'SELECT '
         q += self.formatQueryAggs(self.attrs, self.aggFns)
@@ -94,4 +97,4 @@ class EasySQLQuery(ISQLQuery):
     
 d = Session.loadDatabase()
 s = EasySQLQuery(d, 'seed')
-print(s.toQuery())
+print(s.getSqlQuery())
