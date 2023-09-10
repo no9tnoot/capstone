@@ -25,7 +25,7 @@ class HardSQLQuery(ISQLQuery):
         
     def toQuery(self):
         q = 'SELECT '
-        q += self.queryAggs(self.attrs, self.aggFns, self.asNames)
+        q += self.formatQueryAggs(self.attrs, self.aggFns, self.asNames)
         q += 'FROM' + self.queryRels(self.rels[0], self.rels[1], self.rels[2])
-        q += self.queryConds(self.conds)
+        q += self.formatQueryConds(self.conds)
         return q

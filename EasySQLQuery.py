@@ -2,13 +2,51 @@
 # 31 August 2023
 # ISQLQuery
 
-import ISQLQuery
+from ISQLQuery import ISQLQuery
 import random
 
 class EasySQLQuery(ISQLQuery):
     
-    def __init__(database, seed):
+    def __init__(self, database, seed):
         super().__init__(database, seed)
+        
+    def getRel(self, numeric=False):
+        return super().getRel(numeric)
+    
+    def getAttr(self, relation, attTypeNeeded, aggOrCondType, attNum):
+        return super().getAttr(relation, attTypeNeeded, aggOrCondType, attNum)
+    
+    def selectAttrVal(self, relation, attribute):
+        return super().selectAttrVal(relation, attribute)
+    
+    def setAgg(self):
+        return super().setAgg()
+    
+    def formatQueryAggs(attributes, aggregates, asNames=...):
+        return super().formatQueryAggs(aggregates, asNames)
+    
+    def formatQueryConds(conds):
+        return super().formatQueryConds()
+    
+    def createAgg(self):
+        return super().createAgg()
+    
+    def createCond(self):
+        return super().createCond()
+    
+    def createOrderByCond(self, relation):
+        return super().createOrderByCond(relation)
+    
+    def createLimitCond(self, relation):
+        return super().createLimitCond(relation)
+    
+    def toQuery(self):
+        q = 'SELECT '
+        q += self.formatQueryAggs(self.attrs, self.aggFns)
+        q += 'FROM' + self.rels[0]
+        q += self.formatQueryConds(self.conds)
+        return q
+    
         
     def easyBuilder(self):
         # Randomly select either an aggregate fn or condition or neither
@@ -53,3 +91,6 @@ class EasySQLQuery(ISQLQuery):
             reqVal = self.selectAttrVal(relation, self.conds[1])
             self.conds.append(str(reqVal)) # add chosen required value to array instance variable
     
+
+s = EasySQLQuery('db', 'seed')
+print(s.toQuery())
