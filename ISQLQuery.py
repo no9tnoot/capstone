@@ -116,7 +116,7 @@ class ISQLQuery(ABC):
         e.g. "max(customerNumber), customerName"
     """
     @abstractmethod
-    def queryAggs(attributes, aggregates, asNames = ['']):
+    def formatQueryAggs(attributes, aggregates, asNames = ['']):
         aggs = ''
         if aggregates[0] != '':
             aggs += aggregates[0] + attributes[0] + ')' + asNames[0]
@@ -136,7 +136,7 @@ class ISQLQuery(ABC):
     #conditions to query form. will add a few extra spaces in some cases but shouldn't matter too much 
     # still need to implement AND/OR for extra conditions   
     @abstractmethod
-    def queryConds(conds):
+    def formatQueryConds(conds):
         cond = conds[0] + ' ' + conds[1] + ' ' + conds[2] + ' ' + conds[3]
         return cond
     
@@ -250,16 +250,10 @@ class ISQLQuery(ABC):
     @abstractmethod
     def createWhereCond(self, relation):
         pass
-    
-    
 
     @abstractmethod
     def toQuery(self):
-        q = 'SELECT '
-        q += self.queryAggs(self.attrs, self.aggFns, self.asNames)
-        q += 'FROM' + self.rels[0]
-        q += self.queryConds(self.conds)
-        return q
+        pass
     
     
     

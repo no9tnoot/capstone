@@ -22,11 +22,11 @@ class EasySQLQuery(ISQLQuery):
     def setAgg(self):
         return super().setAgg()
     
-    def queryAggs(attributes, aggregates, asNames=...):
-        return super().queryAggs(aggregates, asNames)
+    def formatQueryAggs(attributes, aggregates, asNames=...):
+        return super().formatQueryAggs(aggregates, asNames)
     
-    def queryConds(conds):
-        return super().queryConds()
+    def formatQueryConds(conds):
+        return super().formatQueryConds()
     
     def createAgg(self):
         return super().createAgg()
@@ -41,7 +41,11 @@ class EasySQLQuery(ISQLQuery):
         return super().createLimitCond(relation)
     
     def toQuery(self):
-        return super().toQuery()
+        q = 'SELECT '
+        q += self.formatQueryAggs(self.attrs, self.aggFns)
+        q += 'FROM' + self.rels[0]
+        q += self.formatQueryConds(self.conds)
+        return q
     
         
     def easyBuilder(self):
@@ -89,3 +93,4 @@ class EasySQLQuery(ISQLQuery):
     
 
 s = EasySQLQuery('db', 'seed')
+print(s.toQuery())
