@@ -15,8 +15,8 @@ class EasySQLQuery(ISQLQuery):
     def getRel(self, numeric=False):
         return super().getRel(numeric)
     
-    def getAttr(self, relation, attTypeNeeded, aggOrCondType, attNum):
-        return super().getAttr(relation, attTypeNeeded, aggOrCondType, attNum)
+    def getAttr(self, relation, numeric=False):
+        return super().getAttr(relation, numeric)
     
     def selectAttrVal(self, relation, attribute):
         return super().selectAttrVal(relation, attribute)
