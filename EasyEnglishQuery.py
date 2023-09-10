@@ -27,7 +27,10 @@ class EasyEnglishQuery(IEnglishQuery):
     def __init__(self, sqlQuery):
         super().__init__(sqlQuery)
         self.englishQuery = 'Show'
-        self.englishQuery += self.attrsAndAggs(sqlQuery['attributes'], sqlQuery['aggregates'])
+        if sqlQuery['aggregates']:
+            self.englishQuery += self.attrsAndAggs(sqlQuery['attributes'], sqlQuery['aggregate'])
+        else:
+            self.englishQuery += self.onlyAttrs(sqlQuery['attributes'])
         self.englishQuery += ' in the ' + sqlQuery['relation'] + ' table'
         if sqlQuery['condition']:
             self.englishQuery += self.translateCond(sqlQuery['condition'])
@@ -37,6 +40,10 @@ class EasyEnglishQuery(IEnglishQuery):
     def attrsAndAggs(self, attrs, agg):
         engAttrs = self.translateAgg(agg)
         engAttrs += self.translateAttr(attrs[0])
+        return engAttrs
+    
+    def onlyAttrs(self, attrs):
+        engAttrs = self.translateAttr(attrs[0])
         if len(attrs) == 2:
             engAttrs += ' and ' + self.translateAttr(attrs[1])
         return engAttrs

@@ -256,6 +256,8 @@ class ISQLQuery(ABC):
                 'aggregate': self.aggFns,
                 'relation': self.rels,
                 'condition': self.conds}
+        
+        return dict
     
     
     

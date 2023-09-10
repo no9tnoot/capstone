@@ -84,7 +84,7 @@ class EasySQLQuery(ISQLQuery):
         nullOrVal = random.choice(['null', 'val']) # Choose between ensuring the attribute value 
         # is not null and ensuring it has a given value
         # If null option chosen and attribute contains null values
-        if nullOrVal == 'null' and self.conds[1].null == 'YES':
+        if nullOrVal == 'null' and self.conds['val1'].null == 'YES':
             operator = random.choice(self.nullOperators)
             self.conds['operator'] = operator
             self.conds['val2'] = 'NULL'
@@ -93,7 +93,7 @@ class EasySQLQuery(ISQLQuery):
             operator = random.choice(self.operators)
             self.conds['operator'] = operator
             # Select a required value for the attribute
-            reqVal = self.selectAttrVal(relation, self.conds[1])
+            reqVal = self.selectAttrVal(relation, self.conds['val1'])
             self.conds['val2'] = str(reqVal) # add chosen required value to array instance variable
 
 #temp for testing
