@@ -13,7 +13,7 @@ import mysql.connector # python3 --version, and then # pip3.8 install mysql-conn
 """
 class Attribute:
     
-    def __init__(self, name, dt, null, k):
+    def __init__(self, name, dt='', null='', k=''):
         self.name=name
         if not isinstance(dt, str):
             dt=dt.decode()
@@ -56,6 +56,9 @@ class Relation:
         self.attributes=[]
         self.numericAttributes=[]
         self.numRows = nrow
+    
+    def ___str___(self):
+        return self.name
     
     
     def addAttribute(self, attribute):

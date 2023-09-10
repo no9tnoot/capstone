@@ -14,6 +14,7 @@ class ISQLQuery(ABC):
     aggregateFunctions = ['count(', 'max(', 'min(', 'avg(', 'sum(']
     condition = ['where', 'limit', 'order by']
     wildcard = ['%','_', ]
+    asterisk = Database.Attribute('*')
     
     @abstractmethod
     def __init__(self, database, seed):
@@ -39,7 +40,6 @@ class ISQLQuery(ABC):
     # Randomly selects a relation from the loaded database
     # by default does not require relation to contain numeric attributes    @abstractmethod
     def getRel(self, numeric = False):
-
         # select relation
         relation = random.randrange(0, self.db.numRelations()-1, 1)
         relation = self.db.getRelation(relation)
@@ -57,7 +57,6 @@ class ISQLQuery(ABC):
 
     # Randomly selects an attribute from the chosen relation
     def getAttr(self, relation, numeric = False):
-
         if not numeric:
             # Randomly select attribute from relation -> doesn't have to be numeric
             i = random.randrange(0, relation.getNumAttributes()-1, 1)
@@ -74,7 +73,7 @@ class ISQLQuery(ABC):
     """
     @abstractmethod
     def selectAttrVal(self, relation, attribute):
-
+        
         # Connect to database
         database = mysql.connector.connect(
             host=self.db.host,
@@ -85,9 +84,9 @@ class ISQLQuery(ABC):
         
         cursor = database.cursor()  # Create a cursor to interact with the database
         
-        reqVal = random.randrange(0, relation.getNumRows()-1, 1) #Select a random value between 0 and the total number of values -1
+        reqVal = str( random.randint(0, relation.getNumRows()-1) ) #Select a random value between 0 and the total number of values -1
 
-        cursor.execute("SELECT " + attribute.name + " FROM " + relation.name + "limit 1 offset " + reqVal + ";")   # SQL: print the table names
+        cursor.execute("SELECT " + attribute.name + " FROM " + relation.name + " limit 1 offset " + reqVal + ";")   # SQL: print the table names
         
         return cursor.fetchall()[0]       # return the 
 
@@ -96,6 +95,7 @@ class ISQLQuery(ABC):
     """
     @abstractmethod
     def setAgg(self):
+        
         aggType = random.choice(self.aggregateFunctions) # select the type of aggregate function
         return aggType # add chosen aggregate function to array instance variable
     
@@ -107,9 +107,9 @@ class ISQLQuery(ABC):
     def formatQueryAggs(self, attributes, aggregates):
         aggs = ''
         if aggregates:
-            aggs += aggregates[0] + attributes[0] + ')'
+            aggs += aggregates[0] + attributes[0].name + ')'
         else:
-            aggs += attributes[0]
+            aggs += attributes[0].name
         
         #if we have more than one attribute/aggregate
         if len(attributes) > 1:
@@ -125,7 +125,9 @@ class ISQLQuery(ABC):
     # still need to implement AND/OR for extra conditions   
     @abstractmethod
     def formatQueryConds(self, conds):
-        cond = conds[0] + ' ' + conds[1] + ' ' + conds[2] + ' ' + conds[3]
+        cond = ''
+        if cond:
+            cond = conds[0] + ' ' + conds[1] + ' ' + conds[2] + ' ' + conds[3]
         return cond
     
     """
@@ -159,18 +161,18 @@ class ISQLQuery(ABC):
         # If doing a count agg, account for *
         if self.aggFns[0] == 'count(':
             relation = self.getRel(self) # select random relation from database
-            self.rels.append(relation.name) # add relation to rels array
+            self.rels.append(relation) # add relation to rels array
             
             # choose * or an attribute
-            astOrAttr = random.choice(['*', self.getAttr(relation).name]) 
+            astOrAttr = random.choice([ISQLQuery.asterisk, self.getAttr(relation)]) 
             self.attrs.append(astOrAttr) # add chosen attribute function / * to array instance variable
         
         # if not doing a count
         else:
             relation = self.getRel(numeric = True) # select relation that countains a numeric attribute from database
-            self.rels.append(relation.name) # add chosen relation function to rels
+            self.rels.append(relation) # add chosen relation function to rels
             attr = self.getAttr(relation, True) # select numeric attribute from relation
-            self.attrs.append(attr.name) # add chosen attribute function to array instance variable
+            self.attrs.append(attr) # add chosen attribute function to array instance variable
         
 
         
@@ -181,14 +183,15 @@ class ISQLQuery(ABC):
     """  
     @abstractmethod
     def createCond(self):
+        
         condType = random.choice(self.condition) # select a random condition
         self.conds.append(condType) # add chosen condition to array instance variable
 
         relation = self.getRel() # select a random relation
-        self.rels.append(relation.name) # add chosen relation to array instance variable
+        self.rels.append(relation) # add chosen relation to array instance variable
 
         # choose * or an attribute
-        astOrAttr = random.choice(['*', self.getAttr(relation).name]) 
+        astOrAttr = random.choice([ISQLQuery.asterisk, self.getAttr(relation)]) 
         self.attrs.append(astOrAttr) # add chosen attribute function / * to array instance variable
         
         match condType:
@@ -205,8 +208,6 @@ class ISQLQuery(ABC):
             
             case _:
                 print("Invalid condition")
-                self.aggFns.append('')#placeholder
-                self.asNames.append('')#placeholder
                 
 
     """
@@ -215,9 +216,10 @@ class ISQLQuery(ABC):
     @abstractmethod
     def createOrderByCond(self, relation):
         
+        
         attr = self.getAttr(relation) # select a second random attribute 
         # (can be the same as attr_1)
-        self.conds.append(attr.name) # add chosen attribute to array instance variable
+        self.conds.append(attr) # add chosen attribute to array instance variable
 
         orderBy = random.choice(['ASC', 'DESC']) # choose between ascending or descending order
         self.conds.append(orderBy) # add chosen order to array instance variable
@@ -229,6 +231,7 @@ class ISQLQuery(ABC):
     """  
     @abstractmethod
     def createLimitCond(self, relation):
+        
         
         lim = random.randrange(1, min(10,relation.getNumRows()), 1) # choose a random value between 1 and 10 (if there are 10 rows)
         self.conds.append(str(lim)) # add chosen limit to array instance variable

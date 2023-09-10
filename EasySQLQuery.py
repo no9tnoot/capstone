@@ -48,7 +48,7 @@ class EasySQLQuery(ISQLQuery):
     def toQuery(self):
         q = 'SELECT '
         q += self.formatQueryAggs(self.attrs, self.aggFns)
-        q += 'FROM' + self.rels[0]
+        q += ' FROM ' + self.rels[0].name
         q += self.formatQueryConds(self.conds)
         return q
     
@@ -77,9 +77,9 @@ class EasySQLQuery(ISQLQuery):
     # If this is a "where" condition
     def createWhereCond(self, relation):
         
-        attr = self.setAttr(relation) # select a second random attribute 
+        attr = self.getAttr(relation) # select a second random attribute 
         # (can be the same as attr_1)
-        self.conds.append(attr.name) # add chosen attribute to conds array
+        self.conds.append(attr) # add chosen attribute to conds array
 
         nullOrVal = random.choice(['null', 'val']) # Choose between ensuring the attribute value 
         # is not null and ensuring it has a given value
