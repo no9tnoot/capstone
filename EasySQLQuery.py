@@ -4,7 +4,6 @@
 
 from ISQLQuery import ISQLQuery
 import random
-from Session import Session #temp for testing
 
 class EasySQLQuery(ISQLQuery):
     
@@ -45,6 +44,9 @@ class EasySQLQuery(ISQLQuery):
     def getSqlQuery(self):
         return super().getSqlQuery()
     
+    def getDict(self):
+        return super().getDict()
+    
     def toQuery(self):
         q = 'SELECT '
         q += self.formatQueryAggs(self.attrs, self.aggFns)
@@ -69,8 +71,6 @@ class EasySQLQuery(ISQLQuery):
             case '':
                 self.createSimple()
                 
-
-        self.rels += ['','']
         self.query = self.toQuery()
     
     
@@ -79,23 +79,25 @@ class EasySQLQuery(ISQLQuery):
         
         attr = self.getAttr(relation) # select a second random attribute 
         # (can be the same as attr_1)
-        self.conds.append(attr) # add chosen attribute to conds array
+        self.conds['val1'] = attr # add chosen attribute to conds array
 
         nullOrVal = random.choice(['null', 'val']) # Choose between ensuring the attribute value 
         # is not null and ensuring it has a given value
         # If null option chosen and attribute contains null values
         if nullOrVal == 'null' and self.conds[1].null == 'YES':
             operator = random.choice(self.nullOperators)
-            self.conds.append(operator)
-            self.conds.append('NULL')
+            self.conds['operator'] = operator
+            self.conds['val2'] = 'NULL'
         #If value option chosen or attribute does not contain any nulls
         else:
             operator = random.choice(self.operators)
-            self.conds.append(operator)
+            self.conds['operator'] = operator
             # Select a required value for the attribute
             reqVal = self.selectAttrVal(relation, self.conds[1])
-            self.conds.append(str(reqVal)) # add chosen required value to array instance variable
-    
+            self.conds['val2'] = str(reqVal) # add chosen required value to array instance variable
+
+#temp for testing
+from Session import Session     
 d = Session.loadDatabase()
 s = EasySQLQuery(d, 'seed')
 print(s.getSqlQuery())

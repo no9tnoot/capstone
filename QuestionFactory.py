@@ -3,33 +3,43 @@
 # Query Factory
 
 import ISQLQuery
-import EasySQLQuery
-import MediumSQLQuery
-import HardSQLQuery
-import EasyEnglishQuery
-import MediumEnglishQuery
-import HardEnglishQuery
+from EasySQLQuery import EasySQLQuery
+#import MediumSQLQuery
+#import HardSQLQuery
+from EasyEnglishQuery import EasyEnglishQuery
+#import MediumEnglishQuery
+#import HardEnglishQuery
 import Question
 
 class QuestionFactory:
     
-    def __init__(self):
-        self.question
+    def __init__(self, database):
+        #self.question
+        self.database = database
         
     
     def getQuestion(self, difficulty):
         match difficulty:
             case 'easy':
-                sqlQuery = EasySQLQuery()
-                engQuery = EasyEnglishQuery()
+                sqlQuery = EasySQLQuery(self.database, 1)
+                engQuery = EasyEnglishQuery(sqlQuery.getSqlQuery())
             
             case 'medium':
-                sqlQuery = MediumSQLQuery()
-                engQuery = MediumEnglishQuery()
+                sqlQuery = MediumSQLQuery(self.database)
+                engQuery = MediumEnglishQuery(sqlQuery)
             
             case 'hard':
-                sqlQuery = HardSQLQuery()
-                engQuery = HardEnglishQuery()
+                sqlQuery = HardSQLQuery(self.database)
+                engQuery = HardEnglishQuery(sqlQuery)
             
         self.question = Question(sqlQuery, engQuery)
+        return self.question
+    
+#testing
+from Session import Session
+d = Session.loadDatabase()
+factory = QuestionFactory(d)
+q = factory.getQuestion('easy')
+print(q.getSqlQuery())
+print(q.getEnglishQuery())
                 

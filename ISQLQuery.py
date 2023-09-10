@@ -27,7 +27,7 @@ class ISQLQuery(ABC):
         self.aggFns = []
 
         # Ordered list of conditions used in the query
-        self.conds = []
+        self.conds = {}
 
         # Ordered list of attributes used in the query
         self.attrs = []
@@ -185,7 +185,7 @@ class ISQLQuery(ABC):
     def createCond(self):
         
         condType = random.choice(self.condition) # select a random condition
-        self.conds.append(condType) # add chosen condition to array instance variable
+        self.conds['cond'] = condType # add chosen condition to array instance variable
 
         relation = self.getRel() # select a random relation
         self.rels.append(relation) # add chosen relation to array instance variable
@@ -219,10 +219,10 @@ class ISQLQuery(ABC):
         
         attr = self.getAttr(relation) # select a second random attribute 
         # (can be the same as attr_1)
-        self.conds.append(attr) # add chosen attribute to array instance variable
+        self.conds['val1'] = attr # add chosen attribute to array instance variable
 
         orderBy = random.choice(['ASC', 'DESC']) # choose between ascending or descending order
-        self.conds.append(orderBy) # add chosen order to array instance variable
+        self.conds['operator'] = orderBy # add chosen order to array instance variable
 
 
     # If this is a "limit" condition
@@ -234,7 +234,7 @@ class ISQLQuery(ABC):
         
         
         lim = random.randrange(1, min(10,relation.getNumRows()), 1) # choose a random value between 1 and 10 (if there are 10 rows)
-        self.conds.append(str(lim)) # add chosen limit to array instance variable
+        self.conds['val2'] = str(lim) # add chosen limit to array instance variable
 
 
     # If this is a "where" condition
@@ -249,6 +249,13 @@ class ISQLQuery(ABC):
     @abstractmethod
     def getSqlQuery(self):
         return self.query
+    
+    @abstractmethod
+    def getDict(self):
+        dict = {'attributes': self.attrs, 
+                'aggregate': self.aggFns,
+                'relation': self.rels,
+                'condition': self.conds}
     
     
     
