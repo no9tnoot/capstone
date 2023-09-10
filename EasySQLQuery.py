@@ -24,11 +24,11 @@ class EasySQLQuery(ISQLQuery):
     def setAgg(self):
         return super().setAgg()
     
-    def formatQueryAggs(attributes, aggregates):
+    def formatQueryAggs(self, attributes, aggregates):
         return super().formatQueryAggs(attributes, aggregates)
     
-    def formatQueryConds(conds):
-        return super().formatQueryConds()
+    def formatQueryConds(self, conds):
+        return super().formatQueryConds(conds)
     
     def createAgg(self):
         return super().createAgg()

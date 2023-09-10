@@ -124,7 +124,7 @@ class ISQLQuery(ABC):
     #conditions to query form. will add a few extra spaces in some cases but shouldn't matter too much 
     # still need to implement AND/OR for extra conditions   
     @abstractmethod
-    def formatQueryConds(conds):
+    def formatQueryConds(self, conds):
         cond = conds[0] + ' ' + conds[1] + ' ' + conds[2] + ' ' + conds[3]
         return cond
     
