@@ -8,9 +8,14 @@ class MediumEnglishQuery(IEnglishQuery):
     def __init__(self, sqlQuery):
         super().__init__(self, sqlQuery)
         self.englishQuery = 'Show '
-        self.englishQuery += self.attrsAndAggs(sqlQuery['attributes'], sqlQuery['aggregates'])
-        self.englishQuery += ' in the ' + sqlQuery['relation'] + ' table '
-        self.englishQuery += self.translateCond(sqlQuery['condition'])
+        if sqlQuery['aggregates']:
+            self.englishQuery += self.attrsAndAggs(sqlQuery['attributes'][0], sqlQuery['aggregates'][0])
+        else:
+            self.englishQuery += self.onlyAttrs(sqlQuery['attributes'])
+        self.englishQuery += ' in the ' + sqlQuery['relation']['rel1'].name + ' table'
+        if sqlQuery['condition']:
+            self.englishQuery += self.translateCond(sqlQuery['condition'])
+        self.englishQuery += '.'
 
     #show (function) as (asName)
     #e.g.: show price * 0.152 as VAT
