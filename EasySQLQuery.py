@@ -81,7 +81,7 @@ class EasySQLQuery(ISQLQuery):
     
 
 #temp for testing
-from Session import Session     
-d = Session.loadDatabase()
-s = EasySQLQuery(d, 'seed')
-print(s.getSqlQuery())
+# from Session import Session     
+# d = Session.loadDatabase()
+# s = EasySQLQuery(d, 'seed')
+# print(s.getSqlQuery())
