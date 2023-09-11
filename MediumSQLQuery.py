@@ -2,7 +2,7 @@
 # 31 August 2023
 # ISQLQuery
 
-import ISQLQuery
+from ISQLQuery import ISQLQuery
 import random
 
 class MediumSQLQuery(ISQLQuery):
@@ -11,69 +11,67 @@ class MediumSQLQuery(ISQLQuery):
     def __init__(self):
         super.__init__(self)
         self.asNames = [] #names for AS aggregates
-    
-    # If this is a "where" condition
-    def createWhereCond(self, relation):
         
-        attr = self.setAttr(relation) # select a second random attribute 
-        # (can be the same as attr_1)
-        self.conds.append(attr.name) # add chosen attribute to conds array
+    def mediumBuilder(self):
+        # Randomly select either an aggregate fn or condition or neither
+        components = random.choice(['agg&cond', 'like']) # distinct, as
 
-        whereCond = random.choice(['null', 'val', 'like']) # Choose between ensuring the attribute value 
-        # is not null, ensuring it has a given value, or string comparison (like)
-        # If null option chosen and attribute contains null values
-        
-        match whereCond:
+        match components:
+            # If the random selection is an aggregate fn
+            case 'agg&cond':
+                relation = self.createAgg() # create the agg component, and return the chosen relation
+                self.createCond(relation) #create the cond component using the chosen relation
+            
             case 'like':
-                self.conds.append('like')
-                val = self.selectAttrVal(self, relation, attr)
-                val = [char for char in val]  # turn string into an array of characters
+                relation = self.getRel(self) # select random relation from database
+                self.createLikeCond(relation)
                 
-                x = random.choice(0,1)   # if 1: at least 1 _ , if 0: at least 1 %
-                
-                match type:
-                    case 'simple':
-                        # do a 'begins with' / ;ends with'
-                        pass
-                    case 'hard':
-                        numUnderscore = random.randint(x,min(0.5*len(val), 8))
-                        numPercentage = random.randint(1-x,3)
-                
-                        for p in range(1,numPercentage):
-                            i = random.randint(0,len(val)-1)
-                            val[i] = '%'
-                            y=random.choice(-1,1)
-                            decreasing = random.choice(True,False)
-                            if decreasing:
-                                char_to_remove = range(0,-random.randint(1,numUnderscore/p),-1)
-                            else:
-                                char_to_remove = range(random.randint(numUnderscore/p),0,-1)
-                            for char in char_to_remove:
-                                val.pop(i+char_to_remove)
-                    
-                
-                
-                        
-                        
-                        
-                    
-                
-                # unfinished I'm trying
-                
-                
-                
-            case 'null':        
-                if self.conds[1].null == 'YES':
-                    operator = random.choice(self.nullOperators)
-                    self.conds.append(operator)
-                    self.conds.append('NULL')
+        self.query = self.toQuery()
+    
 
-            case _:
-                operator = random.choice(self.operators)
-                self.conds.append(operator)
-                # Select a required value for the attribute
-                reqVal = self.selectAttrVal(relation, self.conds[1])
-                self.conds.append(str(reqVal)) # add chosen required value to array instance variable
+    def createLikeCond(self, relation):
+        
+        self.conds['opperator']='like'
+        
+        attr = self.getAttr(relation) # select a second random attribute 
+        # (can be the same as attr_1)
+        self.conds['val1'] = attr # add chosen attribute to conds array
+
+        
+        val = self.selectAttrVal(self, relation, attr)  #select an attribute from the relation
+        val = [char for char in val]  # turn string into an array of characters
+        
+        likeType = random.choice('%', '%%', '_%', 'x%')
+        
+        match likeType:
+            
+            #Either 'starts with' or 'ends with' a string
+            case '%':
+                startswith = random.choice(True,False)
+                num_char_to_remove = random.randint(0.5*len(val), len(val)-1)
+                self.insertPercentWildCard(val, startswith, num_char_to_remove)
+
+            # 'Contains' a string
+            case '%%':
+                num_char_to_remove = random.randint(0.25*len(val), 0.5*len(val)-1)
+                self.insertPercentWildCard(val, True, num_char_to_remove)
+                num_char_to_remove = random.randint(0.25*len(val), 0.5*len(val)-1)
+                self.insertPercentWildCard(val, False, num_char_to_remove)
+            
+            # First/Second/Third/Fourth etc letter is x
+            case '_%':
+                startswith = random.choice(True,False)
+                num_char_to_remove = random.randint(0, min(10, len(val)-1))
+                self.insertPercentWildCard(val, startswith, num_char_to_remove)
+                match startswith:
+                    case True:
+                        for i in range(0,num_char_to_remove):
+                            val.insert(0, '_')
+                    case False:
+                        for i in range(0,num_char_to_remove):
+                            val.append('_')
+                            
+        self.conds['val2']=val 
     
     
     
@@ -81,5 +79,32 @@ class MediumSQLQuery(ISQLQuery):
         q = 'SELECT '
         q += self.queryAggs(self.attrs, self.aggFns, self.asNames)
         q += 'FROM' + self.queryRels(self.rels[0], self.rels[1], self.rels[2])
-        q += self.queryConds(self.conds)
+        q += self.formatQueryConds(self.conds)
         return q
+    
+    
+    """
+        Insert a percentage wildcard at the given index in value (an array of characters),
+        and remove a number of characters wither before (startswith True) or after (startswith 
+        False) the percentage wildcard.
+    """
+    def insertPercentWildCard(self, value, startswith, num_char_to_remove):
+        
+        match startswith:
+            
+            case True:
+                #remove the first n characters
+                for i in range(0, num_char_to_remove):
+                    value.pop(i)
+                value.insert(0, '%') # insert % at beginning
+                
+            case False:
+                #remove the last n characters
+                for i in range(num_char_to_remove-1,len(value)-1):
+                    value.pop(i)
+                value.append('%') # insert % at end
+# #temp for testing
+# from Session import Session     
+# d = Session.loadDatabase()
+# s = MediumSQLQuery(d, 'seed')
+# print(s.getSqlQuery())

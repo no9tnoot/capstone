@@ -8,7 +8,7 @@ Formats for arrays sent to EasyEnglishQuery():
         limit:['limit', number_value_of_limit]
 
         dictionary rework:
-            'cond': 'limit'/'where'/'order by' etc.
+            'cond': 'limit'/'where'/'order by'/'like' etc.
             'val1': attribute name to look at
             'operator': operator('=','>','is not',etc.) or 'asc'/'desc'
             'val2': what to compare to val1. can be attribute or value.
