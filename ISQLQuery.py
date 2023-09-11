@@ -128,11 +128,11 @@ class ISQLQuery(ABC):
         cond = ''
         match conds['cond'].lower():
             case 'where':
-                cond = conds['cond'] + ' ' + conds['val1'].name + ' ' + conds['operator'] + ' ' + conds['val2']
+                cond = ' ' + conds['cond'] + ' ' + conds['val1'].name + ' ' + conds['operator'] + ' ' + conds['val2']
             case 'limit':
-                cond = conds['cond'] + ' ' + conds['val2']
+                cond = ' ' + conds['cond'] + ' ' + conds['val2']
             case 'order by':
-                cond = conds['cond'] + ' ' + conds['val1'].name + ' ' + conds['operator']
+                cond = ' ' + conds['cond'] + ' ' + conds['val1'].name + ' ' + conds['operator']
         return cond
     
     """
