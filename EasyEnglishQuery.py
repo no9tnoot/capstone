@@ -31,7 +31,7 @@ class EasyEnglishQuery(IEnglishQuery):
             self.englishQuery += self.attrsAndAggs(sqlQuery['attributes'][0], sqlQuery['aggregates'][0])
         else:
             self.englishQuery += self.onlyAttrs(sqlQuery['attributes'])
-        self.englishQuery += ' in the ' + sqlQuery['relation'][0].name + ' table'
+        self.englishQuery += ' in the ' + sqlQuery['relation']['rel1'].name + ' table'
         if sqlQuery['condition']:
             self.englishQuery += self.translateCond(sqlQuery['condition'])
         self.englishQuery += '.'

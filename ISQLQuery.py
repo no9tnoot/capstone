@@ -33,7 +33,7 @@ class ISQLQuery(ABC):
         self.attrs = []
 
         # Ordered list of relations used in the query
-        self.rels = []
+        self.rels = {}
 
         
     
@@ -44,9 +44,11 @@ class ISQLQuery(ABC):
         relation = random.randrange(0, self.db.numRelations()-1, 1)
         relation = self.db.getRelation(relation)
         if not numeric:
+            self.rels['rel1'] = relation
             return relation
         else:
             if relation.numNumeric():
+                self.rels['rel1'] = relation
                 return relation
             else:
                 return self.getRel(True)
@@ -140,7 +142,7 @@ class ISQLQuery(ABC):
     """
     def createSimple(self):
         relation = self.getRel() # get random relation
-        self.rels.append(relation)
+        #self.rels.append(relation)
         
         numAttr = random.choice([1,2])  # will we ask for one or 2 relations
         self.attrs.append(self.getAttr(relation))
@@ -166,7 +168,7 @@ class ISQLQuery(ABC):
         # If doing a count agg, account for *
         if self.aggFns[0] == 'count(':
             relation = self.getRel(self) # select random relation from database
-            self.rels.append(relation) # add relation to rels array
+            #self.rels.append(relation) # add relation to rels array
             
             # choose * or an attribute
             astOrAttr = random.choice([ISQLQuery.asterisk, self.getAttr(relation)]) 
@@ -175,7 +177,7 @@ class ISQLQuery(ABC):
         # if not doing a count
         else:
             relation = self.getRel(numeric = True) # select relation that countains a numeric attribute from database
-            self.rels.append(relation) # add chosen relation function to rels
+            #self.rels.append(relation) # add chosen relation function to rels
             attr = self.getAttr(relation, True) # select numeric attribute from relation
             self.attrs.append(attr) # add chosen attribute function to array instance variable
         
@@ -192,7 +194,7 @@ class ISQLQuery(ABC):
         condType = random.choice(self.condition) # select a random condition
         self.conds['cond'] = condType # add chosen condition to array instance variable
 
-        self.rels.append(relation) # add chosen relation to array instance variable
+        #self.rels.append(relation) # add chosen relation to array instance variable
 
         # choose * or an attribute
         astOrAttr = random.choice([ISQLQuery.asterisk, self.getAttr(relation)]) 

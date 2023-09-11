@@ -61,7 +61,7 @@ class MediumSQLQuery(ISQLQuery):
             # If the random selection is an aggregate fn
             case 'agg&cond':
                 self.createAgg() # create the agg component, and return the chosen relation
-                self.createCond(self.rels[0]) #create the cond component using the chosen relation
+                self.createCond(self.rels['rel1']) #create the cond component using the chosen relation
             
             case 'like':
                 relation = self.getRel(self) # select random relation from database
@@ -128,7 +128,7 @@ class MediumSQLQuery(ISQLQuery):
     def toQuery(self):
         q = 'SELECT '
         q += self.formatQueryAggs(self.attrs, self.aggFns)
-        q += ' FROM ' + self.rels[0].name
+        q += ' FROM ' + self.rels['rel1'].name
         q += self.formatQueryConds(self.conds)
         return q
     

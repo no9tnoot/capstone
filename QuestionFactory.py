@@ -4,7 +4,7 @@
 
 import ISQLQuery
 from EasySQLQuery import EasySQLQuery
-from MediumSQLQuery import MediumSQLQuery
+#from MediumSQLQuery import MediumSQLQuery
 #import HardSQLQuery
 from EasyEnglishQuery import EasyEnglishQuery
 #import MediumEnglishQuery
