@@ -9,7 +9,7 @@ from EasySQLQuery import EasySQLQuery
 from EasyEnglishQuery import EasyEnglishQuery
 #import MediumEnglishQuery
 #import HardEnglishQuery
-import Question
+from Question import Question
 
 class QuestionFactory:
     
@@ -32,7 +32,7 @@ class QuestionFactory:
                 sqlQuery = HardSQLQuery(self.database)
                 engQuery = HardEnglishQuery(sqlQuery)
             
-        self.question = Question(sqlQuery, engQuery)
+        self.question = Question(sqlQuery.getSqlQuery(), engQuery.getEnglishQuery())
         return self.question
     
 #testing

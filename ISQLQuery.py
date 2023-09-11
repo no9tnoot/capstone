@@ -253,7 +253,7 @@ class ISQLQuery(ABC):
     @abstractmethod
     def getDict(self):
         dict = {'attributes': self.attrs, 
-                'aggregate': self.aggFns,
+                'aggregates': self.aggFns,
                 'relation': self.rels,
                 'condition': self.conds}
         

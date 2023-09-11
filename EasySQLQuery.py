@@ -97,7 +97,7 @@ class EasySQLQuery(ISQLQuery):
             self.conds['val2'] = str(reqVal) # add chosen required value to array instance variable
 
 #temp for testing
-from Session import Session     
-d = Session.loadDatabase()
-s = EasySQLQuery(d, 'seed')
-print(s.getSqlQuery())
+# from Session import Session     
+# d = Session.loadDatabase()
+# s = EasySQLQuery(d, 'seed')
+# print(s.getSqlQuery())

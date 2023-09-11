@@ -28,10 +28,10 @@ class EasyEnglishQuery(IEnglishQuery):
         super().__init__(sqlQuery)
         self.englishQuery = 'Show'
         if sqlQuery['aggregates']:
-            self.englishQuery += self.attrsAndAggs(sqlQuery['attributes'], sqlQuery['aggregate'])
+            self.englishQuery += self.attrsAndAggs(sqlQuery['attributes'][0], sqlQuery['aggregates'][0])
         else:
             self.englishQuery += self.onlyAttrs(sqlQuery['attributes'])
-        self.englishQuery += ' in the ' + sqlQuery['relation'] + ' table'
+        self.englishQuery += ' in the ' + sqlQuery['relation'][0].name + ' table'
         if sqlQuery['condition']:
             self.englishQuery += self.translateCond(sqlQuery['condition'])
         self.englishQuery += '.'
@@ -39,7 +39,7 @@ class EasyEnglishQuery(IEnglishQuery):
     
     def attrsAndAggs(self, attrs, agg):
         engAttrs = self.translateAgg(agg)
-        engAttrs += self.translateAttr(attrs[0])
+        engAttrs += self.translateAttr(attrs)
         return engAttrs
     
     def onlyAttrs(self, attrs):
@@ -48,6 +48,6 @@ class EasyEnglishQuery(IEnglishQuery):
             engAttrs += ' and ' + self.translateAttr(attrs[1])
         return engAttrs
     
-test_dict = {'attributes': ['customernumber', 'customername'], 'aggregates': '', 'relation': 'offices', 'condition': {'cond': 'limit', 'val2': 1}}
-q = EasyEnglishQuery(test_dict)
-print(q.getEnglishQuery())
+# test_dict = {'attributes': ['customernumber', 'customername'], 'aggregates': '', 'relation': 'offices', 'condition': {'cond': 'limit', 'val2': 1}}
+# q = EasyEnglishQuery(test_dict)
+# print(q.getEnglishQuery())
