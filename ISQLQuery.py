@@ -39,15 +39,21 @@ class ISQLQuery(ABC):
     
     # Randomly selects a relation from the loaded database
     # by default does not require relation to contain numeric attributes    @abstractmethod
-    def getRel(self, numeric = False):
+    def getRel(self, numeric = False, string = False):
         # select relation
         relation = random.randrange(0, self.db.numRelations()-1, 1)
         relation = self.db.getRelation(relation)
-        if not numeric:
+        if not numeric and not string:
             self.rels['rel1'] = relation
             return relation
+        elif numeric:
+            if relation.hasNumeric():
+                self.rels['rel1'] = relation
+                return relation
+            else:
+                return self.getRel(True)
         else:
-            if relation.numNumeric():
+            if relation.hasString():
                 self.rels['rel1'] = relation
                 return relation
             else:
@@ -65,7 +71,7 @@ class ISQLQuery(ABC):
             attribute = relation.getAttribute(i)
         
         else: # * should not be an option
-            i = random.randrange(0, relation.numNumeric(), 1)
+            i = random.randrange(0, relation.hasNumeric(), 1)
             attribute = relation.getAttribute(i, True)
         
         return attribute

@@ -87,9 +87,13 @@ class Relation:
             self.stringAttributes.append(attribute)
     
     
-    # Returns the number of numeric attributes in the relation
-    def numNumeric(self):
+    # Returns if the relation has numeric attributes
+    def hasNumeric(self):
         return len(self.numericAttributes)>0
+    
+    # Returns if the relation has string attributes
+    def hasNumeric(self):
+        return len(self.stringAttributes)>0
 
         
     def getAttribute(self, i, numeric = False):
@@ -164,7 +168,7 @@ class Database:
                 r.addAttribute(Attribute(column[0], column[1], column[2], column[3]))
             
             # if relation r contains at least 1 numeric attribute, add it to numericRelations array
-            if (r.numNumeric() > 0):
+            if (r.hasNumeric() > 0):
                 self.numericRelations.append(r)
         
     
