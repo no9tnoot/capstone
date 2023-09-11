@@ -244,8 +244,26 @@ class ISQLQuery(ABC):
 
     # If this is a "where" condition
     @abstractmethod
-    def createWhereCond(self, relation):
-        pass
+    def createWhereCond(self, relation):        
+        attr = self.getAttr(relation) # select a second random attribute 
+        # (can be the same as attr_1)
+        self.conds['val1'] = attr # add chosen attribute to conds array
+
+        nullOrVal = random.choice(['null', 'val']) # Choose between ensuring the attribute value 
+        # is not null and ensuring it has a given value
+        # If null option chosen and attribute contains null values
+        if nullOrVal == 'null' and self.conds['val1'].null == 'YES':
+            operator = random.choice(self.nullOperators)
+            self.conds['operator'] = operator
+            self.conds['val2'] = 'NULL'
+        #If value option chosen or attribute does not contain any nulls
+        else:
+            operator = random.choice(self.operators)
+            self.conds['operator'] = operator
+            # Select a required value for the attribute
+            reqVal = self.selectAttrVal(relation, self.conds['val1'])
+            self.conds['val2'] = str(reqVal) # add chosen required value to array instance variable
+
 
     @abstractmethod
     def toQuery(self):
