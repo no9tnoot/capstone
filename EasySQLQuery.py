@@ -32,8 +32,8 @@ class EasySQLQuery(ISQLQuery):
     def createAgg(self):
         return super().createAgg()
     
-    def createCond(self):
-        return super().createCond()
+    def createCond(self, relation):
+        return super().createCond(relation)
     
     def createOrderByCond(self, relation):
         return super().createOrderByCond(relation)
@@ -57,7 +57,8 @@ class EasySQLQuery(ISQLQuery):
         
     def easyBuilder(self):
         # Randomly select either an aggregate fn or condition or neither
-        aggOrCond = random.choice(['agg', 'cond', ''])
+        #aggOrCond = random.choice(['agg', 'cond', ''])
+        aggOrCond='cond'
 
         match aggOrCond:
             # If the random selection is an aggregate fn
@@ -66,7 +67,8 @@ class EasySQLQuery(ISQLQuery):
             
             # If the random selection is a condition
             case 'cond':
-                self.createCond()
+                relation = self.getRel(self) # select random relation from database
+                self.createCond(relation)
         
             case '':
                 self.createSimple()
