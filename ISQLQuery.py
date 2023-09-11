@@ -90,7 +90,7 @@ class ISQLQuery(ABC):
 
         cursor.execute("SELECT " + attribute.name + " FROM " + relation.name + " limit 1 offset " + reqVal + ";")   # SQL: print the table names
         
-        return cursor.fetchall()[0]       # return the 
+        return cursor.fetchall()[0][0]       # return the 
 
     """
         Returns a random aggregate function
