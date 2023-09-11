@@ -179,7 +179,6 @@ class ISQLQuery(ABC):
             attr = self.getAttr(relation, True) # select numeric attribute from relation
             self.attrs.append(attr) # add chosen attribute function to array instance variable
         
-        return relation
 
         
     """
@@ -258,7 +257,13 @@ class ISQLQuery(ABC):
             self.conds['val2'] = 'NULL'
         #If value option chosen or attribute does not contain any nulls
         else:
-            operator = random.choice(self.operators)
+            
+            if attr.numeric:
+                operator = random.choice(self.operators)
+            
+            else:
+                operator = '='
+            
             self.conds['operator'] = operator
             # Select a required value for the attribute
             reqVal = self.selectAttrVal(relation, self.conds['val1'])

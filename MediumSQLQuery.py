@@ -19,8 +19,8 @@ class MediumSQLQuery(ISQLQuery):
         match components:
             # If the random selection is an aggregate fn
             case 'agg&cond':
-                relation = self.createAgg() # create the agg component, and return the chosen relation
-                self.createCond(relation) #create the cond component using the chosen relation
+                self.createAgg() # create the agg component, and return the chosen relation
+                self.createCond(self.rels[0]) #create the cond component using the chosen relation
             
             case 'like':
                 relation = self.getRel(self) # select random relation from database
