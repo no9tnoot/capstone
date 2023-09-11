@@ -70,6 +70,7 @@ class Relation:
         self.name = n
         self.attributes=[]
         self.numericAttributes=[]
+        self.stringAttributes=[]
         self.numRows = nrow
     
     def ___str___(self):
@@ -81,6 +82,9 @@ class Relation:
         # If attribute is numeric, add to numericAttributes array
         if (attribute.numeric):
             self.numericAttributes.append(attribute)
+        # If attribute is string, add to stringAttributes array
+        if (attribute.string):
+            self.stringAttributes.append(attribute)
     
     
     # Returns the number of numeric attributes in the relation
