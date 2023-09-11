@@ -132,7 +132,7 @@ class ISQLQuery(ABC):
             case 'limit':
                 cond = conds['cond'] + ' ' + conds['val2']
             case 'order by':
-                cond = conds['cond'] + ' ' + conds['operator']
+                cond = conds['cond'] + ' ' + conds['val1'].name + ' ' + conds['operator']
         return cond
     
     """
