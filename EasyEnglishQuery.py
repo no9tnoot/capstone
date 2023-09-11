@@ -26,7 +26,7 @@ class EasyEnglishQuery(IEnglishQuery):
     
     def __init__(self, sqlQuery):
         super().__init__(sqlQuery)
-        self.englishQuery = 'Show'
+        self.englishQuery = 'Show '
         if sqlQuery['aggregates']:
             self.englishQuery += self.attrsAndAggs(sqlQuery['attributes'][0], sqlQuery['aggregates'][0])
         else:

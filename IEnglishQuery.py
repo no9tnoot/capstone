@@ -22,17 +22,17 @@ class IEnglishQuery(ABC):
     def translateAgg(self, agg):
         match agg:
             case 'count(':
-                engAgg = ' how many rows there are in '
+                engAgg = 'how many rows there are in '
             case 'max(':
-                engAgg = ' the greatest value of '
+                engAgg = 'the greatest value of '
             case 'min(':
-                engAgg = ' the smallest value of '
+                engAgg = 'the smallest value of '
             case 'avg(':
-                engAgg = ' the average value of '
+                engAgg = 'the average value of '
             case 'sum(':
-                engAgg = ' the sum of all values of '
+                engAgg = 'the sum of all values of '
             case _:
-                engAgg = ' the values of '
+                engAgg = 'the values of '
         return engAgg
     
     #translate attribute/s to english format
