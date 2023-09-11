@@ -7,6 +7,8 @@ import random
 
 class EasySQLQuery(ISQLQuery):
     
+    operators = ['=']
+    
     def __init__(self, database, seed):
         super().__init__(database, seed)
         self.easyBuilder()
