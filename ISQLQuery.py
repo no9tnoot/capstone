@@ -126,8 +126,8 @@ class ISQLQuery(ABC):
     @abstractmethod
     def formatQueryConds(self, conds):
         cond = ''
-        if cond:
-            cond = conds[0] + ' ' + conds[1] + ' ' + conds[2] + ' ' + conds[3]
+        if conds:
+            cond = conds['cond'] + ' ' + conds['val1'] + ' ' + conds['operator'] + ' ' + conds['val2']
         return cond
     
     """
@@ -174,6 +174,7 @@ class ISQLQuery(ABC):
             attr = self.getAttr(relation, True) # select numeric attribute from relation
             self.attrs.append(attr) # add chosen attribute function to array instance variable
         
+        return relation
 
         
     """
@@ -182,12 +183,11 @@ class ISQLQuery(ABC):
         Relation put in rels[0]
     """  
     @abstractmethod
-    def createCond(self):
+    def createCond(self, relation):
         
         condType = random.choice(self.condition) # select a random condition
         self.conds['cond'] = condType # add chosen condition to array instance variable
 
-        relation = self.getRel() # select a random relation
         self.rels.append(relation) # add chosen relation to array instance variable
 
         # choose * or an attribute
@@ -216,7 +216,7 @@ class ISQLQuery(ABC):
     @abstractmethod
     def createOrderByCond(self, relation):
         
-        
+
         attr = self.getAttr(relation) # select a second random attribute 
         # (can be the same as attr_1)
         self.conds['val1'] = attr # add chosen attribute to array instance variable
