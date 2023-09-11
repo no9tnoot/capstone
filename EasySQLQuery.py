@@ -62,8 +62,8 @@ class EasySQLQuery(ISQLQuery):
         
     def easyBuilder(self):
         # Randomly select either an aggregate fn or condition or neither
-        #aggOrCond = random.choice(['agg', 'cond', ''])
-        aggOrCond='cond'
+        aggOrCond = random.choice(['agg', 'cond', ''])
+        #aggOrCond='cond'  # for testing
 
         match aggOrCond:
             # If the random selection is an aggregate fn
