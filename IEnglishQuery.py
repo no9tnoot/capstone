@@ -38,10 +38,10 @@ class IEnglishQuery(ABC):
     #translate attribute/s to english format
     @abstractmethod
     def translateAttr(self, attr):
-        if attr == '*':
+        if attr.name == '*':
             engAttr = 'all columns' 
         else:
-            engAttr = attr
+            engAttr = attr.name
         return engAttr
     
     #translate SQL condition to english
@@ -55,12 +55,12 @@ class IEnglishQuery(ABC):
                 else:
                     engCond += ' but only show ' + condition['val2'] + ' rows'
             case 'where':
-                engCond += ' but only for rows where ' + condition['val1'] + ' ' + condition['operator'] + ' ' + condition['val2']
+                engCond += ' but only for rows where ' + condition['val1'].name + ' ' + condition['operator'] + ' ' + condition['val2']
             case 'order by':
                 if condition['operator'].lower() == 'desc':
-                    engCond += ' in descending order of ' + condition['val1'] + ' value'
+                    engCond += ' in descending order of ' + condition['val1'].name + ' value'
                 else:
-                    engCond += ' in ascending order of ' + condition['val1'] + ' value'
+                    engCond += ' in ascending order of ' + condition['val1'].name + ' value'
         return engCond
 
     @abstractmethod
