@@ -21,6 +21,7 @@ class Attribute:
         self.null=null
         self.key=k
         self.numeric = Attribute.isNumeric(self)
+        self.string = Attribute.isString(self)
     
     def getName(self):
         return self.name
@@ -41,6 +42,20 @@ class Attribute:
                 isNum = True
         
         return isNum
+    
+    # Sets string to True if the attribute is string (not a numeric/date/time/boolean)
+    def isString(self):
+        
+        isString = False
+        
+        numDataType = ['char', 'varchar', 'text', 'tinytext', 'mediumtext', 'longtext']
+        
+        # search to see if the dataType contains one of the above strings - indicating numeric attribute
+        for dt in numDataType:
+            if dt in self.dataType.lower():  # set the dataType to lower case to include all string cases in search
+                isString = True
+        
+        return isString
 
 
 
