@@ -56,7 +56,8 @@ class EasySQLQuery(ISQLQuery):
         q = 'SELECT '
         q += self.formatQueryAggs(self.attrs, self.aggFns)
         q += ' FROM ' + self.rels[0].name
-        q += self.formatQueryConds(self.conds)
+        if self.conds:
+            q += self.formatQueryConds(self.conds)
         return q
     
         
