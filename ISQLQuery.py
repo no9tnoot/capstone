@@ -127,7 +127,7 @@ class ISQLQuery(ABC):
     def formatQueryConds(self, conds):
         cond = ''
         if conds:
-            cond = conds['cond'] + ' ' + conds['val1'] + ' ' + conds['operator'] + ' ' + conds['val2']
+            cond = conds['cond'] + ' ' + conds['val1'].name + ' ' + conds['operator'] + ' ' + conds['val2']
         return cond
     
     """
