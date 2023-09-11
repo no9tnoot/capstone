@@ -92,7 +92,7 @@ class Relation:
         return len(self.numericAttributes)>0
     
     # Returns if the relation has string attributes
-    def hasNumeric(self):
+    def hasString(self):
         return len(self.stringAttributes)>0
 
         
