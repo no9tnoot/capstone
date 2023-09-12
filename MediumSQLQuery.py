@@ -17,9 +17,6 @@ class MediumSQLQuery(ISQLQuery):
     def getRel(self, numeric=False, string=False):
         return super().getRel(numeric, string)
     
-    def getAttr(self, relation, numeric=False, string = False):
-        return super().getAttr(relation, numeric, string)
-    
     def selectAttrVal(self, relation, attribute):
         return super().selectAttrVal(relation, attribute)
     
@@ -37,6 +34,9 @@ class MediumSQLQuery(ISQLQuery):
     
     def createCond(self, relation):
         return super().createCond(relation)
+    
+    def createSimple(self, relation):
+        return super().createSimple(relation)
     
     def createOrderByCond(self, relation):
         return super().createOrderByCond(relation)
@@ -65,16 +65,17 @@ class MediumSQLQuery(ISQLQuery):
             
             case 'like':
                 relation = self.getRel(string=True) # select random relation from database
+                self.createSimple(relation)
                 self.createLikeCond(relation)
                 
         self.query = self.toQuery()
     
 
     def createLikeCond(self, relation):
+        self.conds['cond']='where'
+        self.conds['operator']='like'
         
-        self.conds['opperator']='like'
-        
-        attr = self.getAttr(relation, string = True) # select a second random attribute 
+        attr = relation.getAttribute(string = True) # select a second random attribute 
         # (can be the same as attr_1)
         self.conds['val1'] = attr # add chosen attribute to conds array
 
@@ -99,17 +100,17 @@ class MediumSQLQuery(ISQLQuery):
                 #Either 'starts with' or 'ends with' a string
                 case '%':
                     startswith = random.choice([True,False])
-                    num_char_to_remove = random.randint(math.ceil(0.5*len(val)), len(val)-1)
+                    num_char_to_remove = random.randint(1, len(val)-1)
                     self.insertPercentWildCard(val, startswith, num_char_to_remove)
 
                 # 'Contains' a string
-                case '%%':
-                    num_char_to_remove = random.randint(math.ceil(0.25*len(val)), math.floor(0.5*len(val)-1))
+                case '%%': 
+                    num_char_to_remove = random.randint(1, math.floor(0.5*len(val)))
                     self.insertPercentWildCard(val, True, num_char_to_remove)
-                    num_char_to_remove = random.randint(math.ceil(0.25*len(val)), math.floor(0.5*len(val)-1))
+                    num_char_to_remove = random.randint(1, math.floor(0.5*len(val)))
                     self.insertPercentWildCard(val, False, num_char_to_remove)
                 
-                # First/Second/Third/Fourth etc letter is x
+                # First/Second/Third/Fourth etc letter is x USE NUM_CHAR_TO_REMOVE AS INDEX TO ARRAY OF STRINGS ['FIRST',SECOND'...]
                 case '_%':
                     startswith = random.choice([True,False])
                     num_char_to_remove = random.randint(0, min(10, len(val)-1))
@@ -122,14 +123,15 @@ class MediumSQLQuery(ISQLQuery):
                             for i in range(0,num_char_to_remove):
                                 val.append('_')
                             
-        self.conds['val2']=val 
+        self.conds['val2']=''.join(val)
     
 
     def toQuery(self):
         q = 'SELECT '
         q += self.formatQueryAggs(self.attrs, self.aggFns)
         q += ' FROM ' + self.rels['rel1'].name
-        q += self.formatQueryConds(self.conds)
+        if self.conds:
+            q += self.formatQueryConds(self.conds)
         return q
     
     
@@ -140,7 +142,7 @@ class MediumSQLQuery(ISQLQuery):
     """
     def insertPercentWildCard(self, value, startswith, num_char_to_remove):
         
-        match startswith:
+        match startswith: # fix this name
             
             case True:
                 #remove the first n characters
@@ -150,7 +152,7 @@ class MediumSQLQuery(ISQLQuery):
                 
             case False:
                 #remove the last n characters
-                for i in range(num_char_to_remove-1,len(value)-1):
+                for i in range(len(value)-num_char_to_remove,len(value)):
                     value.pop(i)
                 value.append('%') # insert % at end
 

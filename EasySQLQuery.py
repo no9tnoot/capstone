@@ -16,9 +16,6 @@ class EasySQLQuery(ISQLQuery):
     def getRel(self, numeric=False):
         return super().getRel(numeric)
     
-    def getAttr(self, relation, numeric=False):
-        return super().getAttr(relation, numeric)
-    
     def selectAttrVal(self, relation, attribute):
         return super().selectAttrVal(relation, attribute)
     
@@ -77,7 +74,8 @@ class EasySQLQuery(ISQLQuery):
                 self.createCond(relation)
         
             case '':
-                self.createSimple()
+                relation = self.getRel() # get random relation
+                self.createSimple(relation)
                 
         self.query = self.toQuery()
     

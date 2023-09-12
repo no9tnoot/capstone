@@ -51,34 +51,18 @@ class ISQLQuery(ABC):
                 self.rels['rel1'] = relation
                 return relation
             else:
-                return self.getRel(True)
+                return self.getRel(numeric=True)
         else:
             if relation.hasString():
                 self.rels['rel1'] = relation
                 return relation
             else:
-                return self.getRel(True)
+                return self.getRel(string=True)
 
 
     ''' For questions where 2+ attributes are chosen from one relation, must include logic to prevent the
         attribute being selected twice'''
 
-    # Randomly selects an attribute from the chosen relation
-    def getAttr(self, relation, numeric = False, string = False):
-        if not numeric and not string:
-            # Randomly select attribute from relation -> doesn't have to be numeric
-            i = random.randrange(0, relation.getNumAttributes()-1, 1)
-            attribute = relation.getAttribute(i)
-        
-        elif numeric: # * should not be an option
-            i = random.randrange(0, len(relation.numericAttributes), 1)
-            attribute = relation.getAttribute(i, numeric=True)
-            
-        elif string:
-            i = random.randrange(0, len(relation.stringAttributes), 1)
-            attribute = relation.getAttribute(i, string = True)
-        
-        return attribute
     
     """
         Selects a possible value from an attribute.
@@ -100,7 +84,14 @@ class ISQLQuery(ABC):
 
         cursor.execute("SELECT " + attribute.name + " FROM " + relation.name + " limit 1 offset " + reqVal + ";")   # SQL: print the table names
         
-        return cursor.fetchall()[0][0]       # return the 
+        val = cursor.fetchall()[0][0]
+        
+        if val: # hopefully this works
+            return val
+        
+        else: 
+            self.selectAttrVal(relation, attribute)
+            # return the 
 
     """
         Returns a random aggregate function
@@ -150,16 +141,15 @@ class ISQLQuery(ABC):
     """
         Create an attribute with neither a condition nor an aggregate function
     """
-    def createSimple(self):
-        relation = self.getRel() # get random relation
-        #self.rels.append(relation)
+    @abstractmethod
+    def createSimple(self, relation):
         
         numAttr = random.choice([1,2])  # will we ask for one or 2 relations
-        self.attrs.append(self.getAttr(relation))
+        self.attrs.append(relation.getAttribute())
         
         # select and set the second relation if one is needed
         while numAttr==2:
-            attr2 = self.getAttr(relation)
+            attr2 = relation.getAttribute()
             if (attr2 != self.attrs[0]): # don't set the same relation as the first one
                 self.attrs.append(attr2)
                 numAttr = 0
@@ -181,14 +171,14 @@ class ISQLQuery(ABC):
             #self.rels.append(relation) # add relation to rels array
             
             # choose * or an attribute
-            astOrAttr = random.choice([ISQLQuery.asterisk, self.getAttr(relation)]) 
+            astOrAttr = random.choice([ISQLQuery.asterisk, relation.getAttribute()]) 
             self.attrs.append(astOrAttr) # add chosen attribute function / * to array instance variable
         
         # if not doing a count
         else:
             relation = self.getRel(numeric = True) # select relation that countains a numeric attribute from database
             #self.rels.append(relation) # add chosen relation function to rels
-            attr = self.getAttr(relation, True) # select numeric attribute from relation
+            attr = relation.getAttribute(numeric=True) # select numeric attribute from relation
             self.attrs.append(attr) # add chosen attribute function to array instance variable
         
 
@@ -207,7 +197,7 @@ class ISQLQuery(ABC):
         #self.rels.append(relation) # add chosen relation to array instance variable
 
         # choose * or an attribute
-        astOrAttr = random.choice([ISQLQuery.asterisk, self.getAttr(relation)]) 
+        astOrAttr = random.choice([ISQLQuery.asterisk, relation.getAttribute()]) 
         self.attrs.append(astOrAttr) # add chosen attribute function / * to array instance variable
         
         match condType:
@@ -233,7 +223,7 @@ class ISQLQuery(ABC):
     def createOrderByCond(self, relation):
         
 
-        attr = self.getAttr(relation) # select a second random attribute 
+        attr = relation.getAttribute() # select a second random attribute 
         # (can be the same as attr_1)
         self.conds['val1'] = attr # add chosen attribute to array instance variable
 
@@ -256,7 +246,7 @@ class ISQLQuery(ABC):
     # If this is a "where" condition
     @abstractmethod
     def createWhereCond(self, relation):        
-        attr = self.getAttr(relation) # select a second random attribute 
+        attr = relation.getAttribute() # select a second random attribute 
         # (can be the same as attr_1)
         self.conds['val1'] = attr # add chosen attribute to conds array
 

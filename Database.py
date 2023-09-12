@@ -3,6 +3,7 @@
 # Database Class
 
 from array import *
+import random
 
 import mysql.connector # python3 --version, and then # pip3.8 install mysql-connector-python
 
@@ -96,24 +97,20 @@ class Relation:
         return len(self.stringAttributes)>0
 
         
-    def getAttribute(self, i, numeric = False, string = False):
+    def getAttribute(self, numeric = False, string = False):
         # check that the attribute number asked for is not out of bounds
         if not numeric and not string:
-            if ( i < (len(self.attributes) + len(self.numericAttributes)) ):
-                return (self.attributes + self.numericAttributes)[i]
-            else:
-                return 0
+            i = random.randrange(0, self.getNumAttributes()-1, 1)
+            return self.attributes[i]
+
         elif numeric:
-            if (i < len(self.numericAttributes)):
-                return self.numericAttributes[i]
-            else:
-                return 0
-            
+            i = random.randrange(0, len(self.numericAttributes), 1)
+            return self.numericAttributes[i]
+
         elif string:
-            if (i < len(self.stringAttributes)):
-                return self.stringAttributes[i]
-            else:
-                return 0
+            i = random.randrange(0, len(self.stringAttributes), 1)
+            return self.stringAttributes[i]
+
             
         
     def getNumAttributes(self):
