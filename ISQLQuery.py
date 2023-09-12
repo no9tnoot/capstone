@@ -39,15 +39,21 @@ class ISQLQuery(ABC):
     
     # Randomly selects a relation from the loaded database
     # by default does not require relation to contain numeric attributes    @abstractmethod
-    def getRel(self, numeric = False):
+    def getRel(self, numeric = False, string = False):
         # select relation
         relation = random.randrange(0, self.db.numRelations()-1, 1)
         relation = self.db.getRelation(relation)
-        if not numeric:
+        if not numeric and not string:
             self.rels['rel1'] = relation
             return relation
+        elif numeric:
+            if relation.hasNumeric():
+                self.rels['rel1'] = relation
+                return relation
+            else:
+                return self.getRel(True)
         else:
-            if relation.numNumeric():
+            if relation.hasString():
                 self.rels['rel1'] = relation
                 return relation
             else:
@@ -58,15 +64,19 @@ class ISQLQuery(ABC):
         attribute being selected twice'''
 
     # Randomly selects an attribute from the chosen relation
-    def getAttr(self, relation, numeric = False):
-        if not numeric:
+    def getAttr(self, relation, numeric = False, string = False):
+        if not numeric and not string:
             # Randomly select attribute from relation -> doesn't have to be numeric
             i = random.randrange(0, relation.getNumAttributes()-1, 1)
             attribute = relation.getAttribute(i)
         
-        else: # * should not be an option
-            i = random.randrange(0, relation.numNumeric(), 1)
-            attribute = relation.getAttribute(i, True)
+        elif numeric: # * should not be an option
+            i = random.randrange(0, len(relation.numericAttributes), 1)
+            attribute = relation.getAttribute(i, numeric=True)
+            
+        elif string:
+            i = random.randrange(0, len(relation.stringAttributes), 1)
+            attribute = relation.getAttribute(i, string = True)
         
         return attribute
     
