@@ -17,8 +17,8 @@ class MediumSQLQuery(ISQLQuery):
     def getRel(self, numeric=False, string=False):
         return super().getRel(numeric, string)
     
-    def getAttr(self, relation, numeric=False):
-        return super().getAttr(relation, numeric)
+    def getAttr(self, relation, numeric=False, string = False):
+        return super().getAttr(relation, numeric, string)
     
     def selectAttrVal(self, relation, attribute):
         return super().selectAttrVal(relation, attribute)
@@ -55,8 +55,8 @@ class MediumSQLQuery(ISQLQuery):
         
     def mediumBuilder(self):
         # Randomly select either an aggregate fn or condition or neither
-        components = random.choice(['agg&cond', 'like']) # distinct, as
-
+        #components = random.choice(['agg&cond', 'like']) # distinct, as
+        components= 'like'
         match components:
             # If the random selection is an aggregate fn
             case 'agg&cond':
@@ -74,7 +74,7 @@ class MediumSQLQuery(ISQLQuery):
         
         self.conds['opperator']='like'
         
-        attr = self.getAttr(relation) # select a second random attribute 
+        attr = self.getAttr(relation, string = True) # select a second random attribute 
         # (can be the same as attr_1)
         self.conds['val1'] = attr # add chosen attribute to conds array
 

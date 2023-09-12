@@ -96,18 +96,25 @@ class Relation:
         return len(self.stringAttributes)>0
 
         
-    def getAttribute(self, i, numeric = False):
+    def getAttribute(self, i, numeric = False, string = False):
         # check that the attribute number asked for is not out of bounds
-        if not numeric:
+        if not numeric and not string:
             if ( i < (len(self.attributes) + len(self.numericAttributes)) ):
                 return (self.attributes + self.numericAttributes)[i]
             else:
                 return 0
-        else:
+        elif numeric:
             if (i < len(self.numericAttributes)):
                 return self.numericAttributes[i]
             else:
                 return 0
+            
+        elif string:
+            if (i < len(self.stringAttributes)):
+                return self.stringAttributes[i]
+            else:
+                return 0
+            
         
     def getNumAttributes(self):
         return len(self.attributes)
