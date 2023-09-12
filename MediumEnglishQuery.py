@@ -2,7 +2,7 @@
 # 9 September 2023
 # MediumEnglishQuery
 
-import IEnglishQuery
+from IEnglishQuery import IEnglishQuery
 
 class MediumEnglishQuery(IEnglishQuery):
     def __init__(self, sqlQuery):

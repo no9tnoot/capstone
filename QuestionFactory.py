@@ -4,10 +4,10 @@
 
 import ISQLQuery
 from EasySQLQuery import EasySQLQuery
-#from MediumSQLQuery import MediumSQLQuery
+from MediumSQLQuery import MediumSQLQuery
 #import HardSQLQuery
 from EasyEnglishQuery import EasyEnglishQuery
-#import MediumEnglishQuery
+from MediumEnglishQuery import MediumEnglishQuery
 #import HardEnglishQuery
 from Question import Question
 
@@ -26,7 +26,7 @@ class QuestionFactory:
             
             case 'medium':
                 sqlQuery = MediumSQLQuery(self.database, 'seed')
-                #engQuery = MediumEnglishQuery(sqlQuery)
+                engQuery = MediumEnglishQuery(sqlQuery.getDict())
             
             case 'hard':
                 sqlQuery = HardSQLQuery(self.database)
