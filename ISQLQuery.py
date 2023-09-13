@@ -35,7 +35,9 @@ class ISQLQuery(ABC):
         # Ordered list of relations used in the query
         self.rels = {}
         
+        # Flags
         self.distinct = False
+        self.orCond = False
   
 
         
