@@ -1,5 +1,5 @@
 Formats for arrays sent to EasyEnglishQuery():
-    dictionary = ['attributes', 'aggregates', 'relation', 'condition']
+    dict = ['attributes', 'aggregates', 'relation', 'condition']
 
     conds:
         'cond': 'limit'/'where'/'order by'/'like' etc.
