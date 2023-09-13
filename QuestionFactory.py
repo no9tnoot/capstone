@@ -31,6 +31,9 @@ class QuestionFactory:
             case 'hard':
                 sqlQuery = HardSQLQuery(self.database)
                 engQuery = HardEnglishQuery(sqlQuery)
+
+            case _:
+                print('Invalid difficulty')
             
         self.question = Question(sqlQuery.getSqlQuery(), engQuery.getEnglishQuery())
         return self.question
