@@ -113,15 +113,10 @@ class ISQLQuery(ABC):
         if aggregates:
             aggs += aggregates[0] + attributes[0].name + ')'
         else:
-            aggs += attributes[0].name
-        
-        #if we have more than one attribute/aggregate
-        if len(attributes) > 1:
-            for x in range(1,len(attributes)-1):
-                if aggregates[x] != '':
-                    aggs += ', ' + aggregates[x] + attributes[x] + ')'
-                else:
-                    aggs += ', ' + attributes[x]
+            for att in attributes[:-1]:
+                aggs += att.name + ", "
+            aggs += attributes[-1].name
+            
         return aggs
     
     
@@ -145,7 +140,8 @@ class ISQLQuery(ABC):
     @abstractmethod
     def createSimple(self, relation):
         
-        numAttr = random.choice([1,2])  # will we ask for one or 2 relations
+        #numAttr = random.choice([1,2])  # will we ask for one or 2 relations
+        numAttr = 2
         self.attrs.append(relation.getAttribute())
         
         # select and set the second relation if one is needed
@@ -169,7 +165,6 @@ class ISQLQuery(ABC):
         # If doing a count agg, account for *
         if self.aggFns[0] == 'count(':
             relation = self.getRel(self) # select random relation from database
-            #self.rels.append(relation) # add relation to rels array
             
             # choose * or an attribute
             astOrAttr = random.choice([ISQLQuery.asterisk, relation.getAttribute()]) 
@@ -178,7 +173,6 @@ class ISQLQuery(ABC):
         # if not doing a count
         else:
             relation = self.getRel(numeric = True) # select relation that countains a numeric attribute from database
-            #self.rels.append(relation) # add chosen relation function to rels
             attr = relation.getAttribute(numeric=True) # select numeric attribute from relation
             self.attrs.append(attr) # add chosen attribute function to array instance variable
         
