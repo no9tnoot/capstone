@@ -55,8 +55,7 @@ class MediumSQLQuery(ISQLQuery):
         
     def mediumBuilder(self):
         # Randomly select either an aggregate fn or conds or neither
-        #components = random.choice(['distinct', 'like', 'or']) # distinct, as
-        components = 'distinct'
+        components = random.choice(['distinct', 'like', 'or']) # distinct, as
         match components:
             case 'distinct':
                 self.distinct = True
@@ -69,12 +68,20 @@ class MediumSQLQuery(ISQLQuery):
                 self.createLikeCond(relation)
                 
             case 'or':
-                relation = self.getRel() # select random relation from database
-                self.conds['cond'] = 'where'
-                astOrAttr = random.choice([ISQLQuery.asterisk, relation.getAttribute()]) 
-                self.attrs.append(astOrAttr) # add chosen attribute function / * to array instance variable
-                self.createWhereCond(relation, self.conds)
-                self.createOrCond(relation)
+                choice = random.choice(['like', 'where'])
+                match choice:
+                    case 'where':
+                        relation = self.getRel() # select random relation from database
+                        self.conds['cond'] = 'where'
+                        astOrAttr = random.choice([ISQLQuery.asterisk, relation.getAttribute()]) 
+                        self.attrs.append(astOrAttr) # add chosen attribute function / * to array instance variable
+                        self.createWhereCond(relation, self.conds)
+                        self.createOrCond(relation)
+                    case 'like':
+                        relation = self.getRel(string=True) # select random relation from database
+                        self.createSimple(relation)
+                        self.createLikeCond(relation, self.conds)
+                        self.createOrCond(relation, string=True)
 
             case _:
                 print('Invalid component')
@@ -82,22 +89,26 @@ class MediumSQLQuery(ISQLQuery):
                 
         self.query = self.toQuery()
     
-    def createOrCond(self, relation):
+    def createOrCond(self, relation, string=False):
         self.orCond=True
         self.conds['or']={}
         self.conds['or']['cond']='or'
-        self.createWhereCond(relation, self.conds['or'])
+        like = random.choice([True, False])
+        if string and like:
+            self.createLikeCond(relation, self.conds['or'])
+        else:
+            self.createWhereCond(relation, self.conds['or'])
         
         
     
-    def createLikeCond(self, relation):
-        self.conds['likeDict']={}
-        self.conds['cond']='where'
-        self.conds['operator']='like'
+    def createLikeCond(self, relation, cond_details):
+        cond_details['likeDict']={}
+        cond_details['cond']='where'
+        cond_details['operator']='like'
         
         attr = relation.getAttribute(string = True) # select a second random attribute 
         # (can be the same as attr_1)
-        self.conds['val1'] = attr # add chosen attribute to conds array
+        cond_details['val1'] = attr # add chosen attribute to conds array
 
         
         val = self.selectAttrVal(relation, attr)  #select an attribute from the relation
@@ -108,7 +119,7 @@ class MediumSQLQuery(ISQLQuery):
             likeType = '%'
             ends_with_perc = random.choice([True,False])
             num_char_to_remove = 0
-            val = self.insertPercentWildCard(val, ends_with_perc, num_char_to_remove)
+            val = self.insertPercentWildCard(val, ends_with_perc, num_char_to_remove, cond_details)
         
         # if val is longer than 1 character long
         else:
@@ -120,41 +131,41 @@ class MediumSQLQuery(ISQLQuery):
                 case '%':
                     ends_with_perc = random.choice([True,False])
                     num_char_to_remove = random.randint(1, len(val)-1)
-                    val = self.insertPercentWildCard(val, ends_with_perc, num_char_to_remove)
+                    val = self.insertPercentWildCard(val, ends_with_perc, num_char_to_remove, cond_details)
 
                 # 'Contains' a string
                 case '%%': 
                     ends_with_perc=False # this both ends and starts with perc, doesn't matter
                     num_char_to_remove = random.randint(1, math.floor(0.5*len(val)))
-                    val = self.insertPercentWildCard(val, True, num_char_to_remove)
+                    val = self.insertPercentWildCard(val, True, num_char_to_remove, cond_details)
                     num_char_to_remove = random.randint(1, math.floor(0.5*len(val)))
-                    val = self.insertPercentWildCard(val, False, num_char_to_remove)
-                    self.conds['likeDict']['wildcard_free_string'] = ''.join(val[1:-1])
+                    val = self.insertPercentWildCard(val, False, num_char_to_remove, cond_details)
+                    cond_details['likeDict']['wildcard_free_string'] = ''.join(val[1:-1])
                 
                 # First/Second/Third/Fourth etc letter is x USE NUM_CHAR_TO_REMOVE AS INDEX TO ARRAY OF STRINGS ['FIRST',SECOND'...]
                 case '_%':
                     ends_with_perc = random.choice([True,False]) 
                     num_underscore = random.randint(1, min(4, len(val)-1))
-                    self.conds['likeDict']['num_underscore'] = num_underscore
-                    val = self.insertPercentWildCard(val, ends_with_perc, len(val)-num_underscore-1)
+                    cond_details['likeDict']['num_underscore'] = num_underscore
+                    val = self.insertPercentWildCard(val, ends_with_perc, len(val)-num_underscore-1, cond_details)
                     match ends_with_perc:
                         case True:
                             val = val[num_underscore:]
-                            self.conds['likeDict']['wildcard_free_string'] = ''.join(val[:-1])
+                            cond_details['likeDict']['wildcard_free_string'] = ''.join(val[:-1])
                             for i in range(0,num_underscore):
                                 val.insert(0, '_')
                         case False:
                             val = val[:-num_underscore]
-                            self.conds['likeDict']['wildcard_free_string'] = ''.join(val[1:])
+                            cond_details['likeDict']['wildcard_free_string'] = ''.join(val[1:])
                             for i in range(0,num_underscore):
                                 val.append('_')
 
                 case _:
                     print('Invalid like type')
                             
-        self.conds['val2']=''.join(val)
-        self.conds['likeDict']['type']=likeType
-        self.conds['likeDict']['starts_with_string']=ends_with_perc
+        cond_details['val2']=''.join(val)
+        cond_details['likeDict']['type']=likeType
+        cond_details['likeDict']['starts_with_string']=ends_with_perc
     
 
     def toQuery(self):
@@ -173,7 +184,7 @@ class MediumSQLQuery(ISQLQuery):
         and remove a number of characters wither before (startswith True) or after (startswith 
         False) the percentage wildcard.
     """
-    def insertPercentWildCard(self, value, ends_with_perc, num_char_to_remove):
+    def insertPercentWildCard(self, value, ends_with_perc, num_char_to_remove, cond_details):
         
         match ends_with_perc: 
             
@@ -181,14 +192,14 @@ class MediumSQLQuery(ISQLQuery):
                 #remove the first n characters
                 for i in range(0, num_char_to_remove):
                     value.pop(0)
-                self.conds['likeDict']['wildcard_free_string'] = ''.join(value)
+                cond_details['likeDict']['wildcard_free_string'] = ''.join(value)
                 value.insert(0, '%') # insert % at beginning
                 
             case True: # insert percentage at end ('starts with string')
                 #remove the last n characters
                 for i in range(len(value)-num_char_to_remove,len(value)):
                     value.pop(-1)
-                self.conds['likeDict']['wildcard_free_string'] = ''.join(value)
+                cond_details['likeDict']['wildcard_free_string'] = ''.join(value)
                 value.append('%') # insert % at end
                 
         return value
