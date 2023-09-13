@@ -11,6 +11,7 @@ Formats for arrays sent to EasyEnglishQuery():
             'starts_with_string': boolean indicating if starts with or ends with wildcare free string
             'num_underscore': the number of inserted underscores
             'wildcard_free_string': the string (not wildard) part of the string to match
+        'or': {'val1', 'operator', 'val2', 'likeDict'} (same as above, but nested for the or)
 
 
     relations:

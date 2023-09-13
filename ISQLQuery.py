@@ -208,7 +208,8 @@ class ISQLQuery(ABC):
                 self.createLimitCond(relation)
             
             case 'where':
-                self.createWhereCond(relation)
+                self.cond = self.createWhereCond(relation, self.conds)
+                self.conds['cond'] = condType
             
             case _:
                 print("Invalid condition")
@@ -243,7 +244,7 @@ class ISQLQuery(ABC):
 
     # If this is a "where" condition
     @abstractmethod
-    def createWhereCond(self, relation):        
+    def createWhereCond(self, relation, cond_details):        
         attr = relation.getAttribute() # select a second random attribute 
         # (can be the same as attr_1)
         self.conds['val1'] = attr # add chosen attribute to conds array
@@ -251,10 +252,10 @@ class ISQLQuery(ABC):
         nullOrVal = random.choice(['null', 'val']) # Choose between ensuring the attribute value 
         # is not null and ensuring it has a given value
         # If null option chosen and attribute contains null values
-        if nullOrVal == 'null' and self.conds['val1'].null == 'YES':
+        if nullOrVal == 'null' and cond_details['val1'].null == 'YES':
             operator = random.choice(self.nullOperators)
-            self.conds['operator'] = operator
-            self.conds['val2'] = 'NULL'
+            cond_details['operator'] = operator
+            cond_details['val2'] = 'NULL'
         #If value option chosen or attribute does not contain any nulls
         else:
             
@@ -264,10 +265,11 @@ class ISQLQuery(ABC):
             else:
                 operator = '='
             
-            self.conds['operator'] = operator
+            cond_details['operator'] = operator
             # Select a required value for the attribute
             reqVal = self.selectAttrVal(relation, self.conds['val1'])
-            self.conds['val2'] = str(reqVal) # add chosen required value to array instance variable
+            cond_details['val2'] = str(reqVal) # add chosen required value to array instance variable
+        return cond_details
 
 
     @abstractmethod

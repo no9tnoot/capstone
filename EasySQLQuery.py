@@ -40,8 +40,8 @@ class EasySQLQuery(ISQLQuery):
     def createLimitCond(self, relation):
         return super().createLimitCond(relation)
     
-    def createWhereCond(self, relation):
-        return super().createWhereCond(relation)
+    def createWhereCond(self, relation, cond_details):
+        return super().createWhereCond(relation, cond_details)
     
     def getSqlQuery(self):
         return super().getSqlQuery()
@@ -73,7 +73,7 @@ class EasySQLQuery(ISQLQuery):
             
             # If the random selection is a condition
             case 'cond':
-                relation = self.getRel(self) # select random relation from database
+                relation = self.getRel() # select random relation from database
                 self.createCond(relation)
         
             case '':
