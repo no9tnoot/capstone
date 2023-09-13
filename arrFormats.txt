@@ -1,11 +1,12 @@
 Formats for arrays sent to EasyEnglishQuery():
     dictionary = ['attributes', 'aggregates', 'relation', 'condition']
 
-    conditions:
+    conds:
         'cond': 'limit'/'where'/'order by'/'like' etc.
         'val1': attribute name to look at
         'operator': operator('=','>','is not',etc.) or 'asc'/'desc'
         'val2': what to compare to val1. can be attribute or value.
+        'likeDict'
 
     relations:
         'rel1': relation name
