@@ -46,6 +46,9 @@ class MediumEnglishQuery(IEnglishQuery):
     
     def onlyAttrs(self, attrs):
         return super().onlyAttrs(attrs)
+    
+    def translateVal2(self, condition):
+        return super().translateVal2(condition)
 
 
     #show (function) as (asName)

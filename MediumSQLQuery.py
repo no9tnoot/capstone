@@ -104,6 +104,10 @@ class MediumSQLQuery(ISQLQuery):
                     ends_with_perc = random.choice([True,False])
                     num_char_to_remove = random.randint(1, len(val)-1)
                     val = self.insertPercentWildCard(val, ends_with_perc, num_char_to_remove)
+                    if ends_with_perc:
+                        self.conds['likeDict']['wildcard_free_string'] = val[:len(val)-num_char_to_remove]
+                    else:
+                        self.conds['likeDict']['wildcard_free_string'] = val[num_char_to_remove:]
 
                 # 'Contains' a string
                 case '%%': 

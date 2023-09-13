@@ -55,7 +55,7 @@ class IEnglishQuery(ABC):
                 else:
                     engCond += ' but only show ' + condition['val2'] + ' rows'
             case 'where':
-                engCond += ' but only for rows where ' + condition['val1'].name + ' ' + self.translateOperator(condition) + ' ' + condition['val2']
+                engCond += ' but only for rows where ' + condition['val1'].name + ' ' + self.translateOperator(condition) + ' ' + self.translateVal2(condition)
             case 'order by':
                 if condition['operator'].lower() == 'desc':
                     engCond += ' in descending order of ' + condition['val1'].name + ' value'
@@ -80,6 +80,13 @@ class IEnglishQuery(ABC):
                 return self.translateLike(condition['likeDict'])
             case _:
                 return condition['operator']
+            
+    @abstractmethod
+    def translateVal2(self, condition):
+        if condition['operator'] == 'like':
+            return "'" + condition['likeDict']['wildcard_free_string'] + "'"
+        else:
+            return 'val2'
 
     @abstractmethod
     def translateLike(self, like):
