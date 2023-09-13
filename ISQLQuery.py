@@ -117,14 +117,6 @@ class ISQLQuery(ABC):
                 aggs += att.name + ", "
             aggs += attributes[-1].name
             
-        
-        #if we have more than one attribute/aggregate
-        if len(attributes) > 1:
-            for x in range(1,len(attributes)-1):
-                if aggregates[x] != '':
-                    aggs += ', ' + aggregates[x] + attributes[x] + ')'
-                else:
-                    aggs += ', ' + attributes[x]
         return aggs
     
     
