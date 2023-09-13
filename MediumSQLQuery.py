@@ -55,8 +55,8 @@ class MediumSQLQuery(ISQLQuery):
         
     def mediumBuilder(self):
         # Randomly select either an aggregate fn or conds or neither
-        #components = random.choice(['distinct', 'like', 'or']) # distinct, as
-        components= 'like'
+        components = random.choice(['distinct', 'like', 'or']) # distinct, as
+        #components = 'like'
         match components:
             case 'distinct':
                 self.distinct = True
@@ -71,6 +71,8 @@ class MediumSQLQuery(ISQLQuery):
             case 'or':
                 relation = self.getRel() # select random relation from database
                 self.conds['cond'] = 'where'
+                astOrAttr = random.choice([ISQLQuery.asterisk, relation.getAttribute()]) 
+                self.attrs.append(astOrAttr) # add chosen attribute function / * to array instance variable
                 self.createWhereCond(relation, self.conds)
                 self.createOrCond(relation)
 
@@ -81,7 +83,10 @@ class MediumSQLQuery(ISQLQuery):
         self.query = self.toQuery()
     
     def createOrCond(self, relation):
+        self.orCond=True
         self.conds['or']={}
+        self.conds['or']['cond']='or'
+        self.createWhereCond(relation, self.conds['or'])
         
         
     
@@ -97,9 +102,7 @@ class MediumSQLQuery(ISQLQuery):
         
         val = self.selectAttrVal(relation, attr)  #select an attribute from the relation
         val = [char for char in val]  # turn string into an array of characters
-        
-        print(val) #for testing
-        
+                
         # if val is only 1 character long, don't remove any characters
         if len(val)==1:
             likeType = '%'
@@ -152,7 +155,6 @@ class MediumSQLQuery(ISQLQuery):
         self.conds['val2']=''.join(val)
         self.conds['likeDict']['type']=likeType
         self.conds['likeDict']['starts_with_string']=ends_with_perc
-        print(self.conds['likeDict']['wildcard_free_string'])
     
 
     def toQuery(self):
@@ -161,6 +163,8 @@ class MediumSQLQuery(ISQLQuery):
         q += ' FROM ' + self.rels['rel1'].name
         if self.conds:
             q += self.formatQueryConds(self.conds)
+        if self.orCond:
+            q += self.formatQueryConds(self.conds['or'])
         return q
     
     
