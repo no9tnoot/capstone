@@ -155,7 +155,6 @@ class MediumSQLQuery(ISQLQuery):
         self.conds['val2']=''.join(val)
         self.conds['likeDict']['type']=likeType
         self.conds['likeDict']['starts_with_string']=ends_with_perc
-        print(self.conds['likeDict']['wildcard_free_string'])
     
 
     def toQuery(self):
