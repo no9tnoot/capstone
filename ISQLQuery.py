@@ -93,7 +93,7 @@ class ISQLQuery(ABC):
             return val
         
         else: 
-            self.selectAttrVal(relation, attribute)
+            return self.selectAttrVal(relation, attribute)
             # return the 
 
     """
