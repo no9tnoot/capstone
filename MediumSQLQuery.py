@@ -56,7 +56,7 @@ class MediumSQLQuery(ISQLQuery):
     def mediumBuilder(self):
         # Randomly select either an aggregate fn or conds or neither
         #components = random.choice(['distinct', 'like', 'or']) # distinct, as
-        components= 'like'
+        components= 'or'
         match components:
             case 'distinct':
                 self.distinct = True
@@ -123,7 +123,7 @@ class MediumSQLQuery(ISQLQuery):
                     val = self.insertPercentWildCard(val, True, num_char_to_remove)
                     num_char_to_remove = random.randint(1, math.floor(0.5*len(val)))
                     val = self.insertPercentWildCard(val, False, num_char_to_remove)
-                    self.conds['likeDict']['wildcard_free_string'] = val[1:-1]
+                    self.conds['likeDict']['wildcard_free_string'] = ''.join(val[1:-1])
                 
                 # First/Second/Third/Fourth etc letter is x USE NUM_CHAR_TO_REMOVE AS INDEX TO ARRAY OF STRINGS ['FIRST',SECOND'...]
                 case '_%':
