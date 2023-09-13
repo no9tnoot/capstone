@@ -34,6 +34,8 @@ class ISQLQuery(ABC):
 
         # Ordered list of relations used in the query
         self.rels = {}
+        
+        self.distinct = False
   
 
         
@@ -110,12 +112,14 @@ class ISQLQuery(ABC):
     @abstractmethod
     def formatQueryAggs(self, attributes, aggregates):
         aggs = ''
+        d=''
+        if self.distinct: d='distinct '
         if aggregates:
-            aggs += aggregates[0] + attributes[0].name + ')'
+            aggs += aggregates[0] + d + attributes[0].name + ')'
         else:
             for att in attributes[:-1]:
                 aggs += att.name + ", "
-            aggs += attributes[-1].name
+            aggs += d+ attributes[-1].name
             
         return aggs
     
@@ -140,8 +144,7 @@ class ISQLQuery(ABC):
     @abstractmethod
     def createSimple(self, relation):
         
-        #numAttr = random.choice([1,2])  # will we ask for one or 2 relations
-        numAttr = 2
+        numAttr = random.choice([1,2])  # will we ask for one or 2 relations
         self.attrs.append(relation.getAttribute())
         
         # select and set the second relation if one is needed

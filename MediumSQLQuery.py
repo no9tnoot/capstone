@@ -59,6 +59,7 @@ class MediumSQLQuery(ISQLQuery):
         components= 'distinct'
         match components:
             case 'distinct':
+                self.distinct = True
                 relation = self.getRel() # select random relation from database
                 self.createSimple(relation)
             
