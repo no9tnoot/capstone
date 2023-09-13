@@ -5,6 +5,9 @@
 from IEnglishQuery import IEnglishQuery
 
 class MediumEnglishQuery(IEnglishQuery):
+
+    likePos = ['second','third','fourth','fifth','sixth']
+
     def __init__(self, sqlQuery):
         super().__init__(self, sqlQuery)
         self.englishQuery = 'Show '
@@ -20,11 +23,14 @@ class MediumEnglishQuery(IEnglishQuery):
     #show (function) as (asName)
     #e.g.: show price * 0.152 as VAT
 
-    def like(self, pattern):
-        pattern = [char for char in pattern]
-        if (pattern[0] == '%'):
-            pos = 'at the end of the string'
-        elif (pattern[len(pattern) == '%']):
-            pos = 'at the beginning of the string'
-        elif (pattern[0] == '%') and (pattern[len(pattern) == '%']):
-            pos = 'somewhere in the string'
+    def like(self, like):
+        match like['type']:
+            case '%':  
+                if like['startswith']:
+                    s = 'starts with'
+                else:
+                    s = 'ends with'
+            case '%%':
+                s = 'contains'
+            case '_%':
+                s = self.likepos[like['pos']] + ''

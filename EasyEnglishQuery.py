@@ -24,6 +24,12 @@ class EasyEnglishQuery(IEnglishQuery):
     def getEnglishQuery(self):
         return super().getEnglishQuery()
     
+    def translateOperator(self, condition):
+        return super().translateOperator(condition)
+    
+    def translateLike(self, like):
+        return super().translateLike(like)
+    
     def __init__(self, sqlQuery):
         super().__init__(sqlQuery)
         self.englishQuery = 'Show '

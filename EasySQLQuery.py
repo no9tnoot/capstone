@@ -49,6 +49,9 @@ class EasySQLQuery(ISQLQuery):
     def getDict(self):
         return super().getDict()
     
+    def createSimple(self, relation):
+        return super().createSimple(relation)
+    
     def toQuery(self):
         q = 'SELECT '
         q += self.formatQueryAggs(self.attrs, self.aggFns)
