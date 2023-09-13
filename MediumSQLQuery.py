@@ -56,7 +56,7 @@ class MediumSQLQuery(ISQLQuery):
     def mediumBuilder(self):
         # Randomly select either an aggregate fn or conds or neither
         #components = random.choice(['distinct', 'like']) # distinct, as
-        components= 'distinct'
+        components= 'like'
         match components:
             case 'distinct':
                 relation = self.getRel() # select random relation from database
@@ -174,7 +174,7 @@ class MediumSQLQuery(ISQLQuery):
 
 
 # #temp for testing
-from Session import Session     
-d = Session.loadDatabase()
-s = MediumSQLQuery(d, 'seed')
-print(s.getSqlQuery())
+# from Session import Session     
+# d = Session.loadDatabase()
+# s = MediumSQLQuery(d, 'seed')
+# print(s.getSqlQuery())

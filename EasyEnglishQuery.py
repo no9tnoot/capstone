@@ -42,17 +42,11 @@ class EasyEnglishQuery(IEnglishQuery):
             self.englishQuery += self.translateCond(sqlQuery['condition'])
         self.englishQuery += '.'
 
-    
     def attrsAndAggs(self, attrs, agg):
-        engAttrs = self.translateAgg(agg)
-        engAttrs += self.translateAttr(attrs)
-        return engAttrs
+        return super().attrsAndAggs(attrs, agg)
     
     def onlyAttrs(self, attrs):
-        engAttrs = self.translateAttr(attrs[0])
-        if len(attrs) == 2:
-            engAttrs += ' and ' + self.translateAttr(attrs[1])
-        return engAttrs
+        return super().onlyAttrs(attrs)
     
 # test_dict = {'attributes': ['customernumber', 'customername'], 'aggregates': '', 'relation': 'offices', 'condition': {'cond': 'limit', 'val2': 1}}
 # q = EasyEnglishQuery(test_dict)
