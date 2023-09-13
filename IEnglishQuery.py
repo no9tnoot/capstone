@@ -77,7 +77,7 @@ class IEnglishQuery(ABC):
             case '>=':
                 return 'is greater than or equal to'
             case 'like':
-                return self.translateLike(condition['like'])
+                return self.translateLike(condition['likeDict'])
             case _:
                 return condition['operator']
 
@@ -85,15 +85,33 @@ class IEnglishQuery(ABC):
     def translateLike(self, like):
         match like['type']:
             case '%':  
-                if like['startswith']:
+                if like['starts_with_string']:
                     s = 'starts with'
                 else:
                     s = 'ends with'
             case '%%':
                 s = 'contains'
             case '_%':
-                s = self.likepos[like['pos']-1] + ''
+                if like['starts_with_string']:
+                    s = 'the ' + self.likePos[like['num_underscore']-1] + ' character from the beginning of the string is '
+                else:
+                    s = 'the ' + self.likePos[like['num_underscore']-1] + ' character from the end of the string is '
+        return s
 
     @abstractmethod
     def getEnglishQuery(self):
         return self.englishQuery
+    
+    @abstractmethod
+    def attrsAndAggs(self, attrs, agg):
+        engAttrs = self.translateAgg(agg)
+        engAttrs += self.translateAttr(attrs)
+        return engAttrs
+    
+
+    @abstractmethod
+    def onlyAttrs(self, attrs):
+        engAttrs = self.translateAttr(attrs[0])
+        if len(attrs) == 2:
+            engAttrs += ' and ' + self.translateAttr(attrs[1])
+        return engAttrs

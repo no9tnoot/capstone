@@ -9,7 +9,7 @@ class MediumEnglishQuery(IEnglishQuery):
     likePos = ['second','third','fourth','fifth','sixth']
 
     def __init__(self, sqlQuery):
-        super().__init__(self, sqlQuery)
+        super().__init__(sqlQuery)
         self.englishQuery = 'Show '
         if sqlQuery['aggregates']:
             self.englishQuery += self.attrsAndAggs(sqlQuery['attributes'][0], sqlQuery['aggregates'][0])
@@ -20,17 +20,33 @@ class MediumEnglishQuery(IEnglishQuery):
             self.englishQuery += self.translateCond(sqlQuery['condition'])
         self.englishQuery += '.'
 
+    def englishToString(self, english):
+        return super().englishToString(english)
+    
+    def getEnglishQuery(self):
+        return super().getEnglishQuery()
+    
+    def translateAgg(self, agg):
+        return super().translateAgg(agg)
+    
+    def translateOperator(self, condition):
+        return super().translateOperator(condition)
+    
+    def translateAttr(self, attr):
+        return super().translateAttr(attr)
+    
+    def translateCond(self, condition):
+        return super().translateCond(condition)
+    
+    def translateLike(self, like):
+        return super().translateLike(like)
+    
+    def attrsAndAggs(self, attrs, agg):
+        return super().attrsAndAggs(attrs, agg)
+    
+    def onlyAttrs(self, attrs):
+        return super().onlyAttrs(attrs)
+
+
     #show (function) as (asName)
     #e.g.: show price * 0.152 as VAT
-
-    def like(self, like):
-        match like['type']:
-            case '%':  
-                if like['startswith']:
-                    s = 'starts with'
-                else:
-                    s = 'ends with'
-            case '%%':
-                s = 'contains'
-            case '_%':
-                s = self.likepos[like['pos']] + ''

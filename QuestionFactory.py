@@ -4,7 +4,7 @@
 
 import ISQLQuery
 from EasySQLQuery import EasySQLQuery
-#from MediumSQLQuery import MediumSQLQuery
+from MediumSQLQuery import MediumSQLQuery
 #import HardSQLQuery
 from EasyEnglishQuery import EasyEnglishQuery
 from MediumEnglishQuery import MediumEnglishQuery
@@ -39,7 +39,7 @@ class QuestionFactory:
 from Session import Session
 d = Session.loadDatabase()
 factory = QuestionFactory(d)
-q = factory.getQuestion('easy')
+q = factory.getQuestion('medium')
 print(q.getSqlQuery())
 print(q.getEnglishQuery())
 
