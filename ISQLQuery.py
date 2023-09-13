@@ -136,6 +136,8 @@ class ISQLQuery(ABC):
                 cond = ' ' + conds['cond'] + ' ' + conds['val2']
             case 'order by':
                 cond = ' ' + conds['cond'] + ' ' + conds['val1'].name + ' ' + conds['operator']
+            case 'or':
+                cond = ' ' + conds['cond'] + ' ' + conds['val1'].name + ' ' + conds['operator'] + ' ' + conds['val2']
         return cond
     
     """
@@ -247,7 +249,7 @@ class ISQLQuery(ABC):
     def createWhereCond(self, relation, cond_details):        
         attr = relation.getAttribute() # select a second random attribute 
         # (can be the same as attr_1)
-        self.conds['val1'] = attr # add chosen attribute to conds array
+        cond_details['val1'] = attr # add chosen attribute to conds array
 
         nullOrVal = random.choice(['null', 'val']) # Choose between ensuring the attribute value 
         # is not null and ensuring it has a given value
@@ -267,7 +269,7 @@ class ISQLQuery(ABC):
             
             cond_details['operator'] = operator
             # Select a required value for the attribute
-            reqVal = self.selectAttrVal(relation, self.conds['val1'])
+            reqVal = self.selectAttrVal(relation, cond_details['val1'])
             cond_details['val2'] = str(reqVal) # add chosen required value to array instance variable
         return cond_details
 

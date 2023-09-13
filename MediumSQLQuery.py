@@ -71,6 +71,8 @@ class MediumSQLQuery(ISQLQuery):
             case 'or':
                 relation = self.getRel() # select random relation from database
                 self.conds['cond'] = 'where'
+                astOrAttr = random.choice([ISQLQuery.asterisk, relation.getAttribute()]) 
+                self.attrs.append(astOrAttr) # add chosen attribute function / * to array instance variable
                 self.createWhereCond(relation, self.conds)
                 self.createOrCond(relation)
                 
@@ -79,6 +81,8 @@ class MediumSQLQuery(ISQLQuery):
     
     def createOrCond(self, relation):
         self.conds['or']={}
+        self.conds['or']['cond']='or'
+        self.createWhereCond(relation, self.conds['or'])
         
         
     
@@ -155,6 +159,8 @@ class MediumSQLQuery(ISQLQuery):
         q += ' FROM ' + self.rels['rel1'].name
         if self.conds:
             q += self.formatQueryConds(self.conds)
+        if self.conds["or"]:
+            q += self.formatQueryConds(self.conds['or'])
         return q
     
     
