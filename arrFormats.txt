@@ -6,7 +6,12 @@ Formats for arrays sent to EasyEnglishQuery():
         'val1': attribute name to look at
         'operator': operator('=','>','is not',etc.) or 'asc'/'desc'
         'val2': what to compare to val1. can be attribute or value.
-        'likeDict'
+        'likeDict': {'type', 'startswith', 'num_underscore', 'wildcard_free_string'}
+            'type': '%', '%%', '_%'
+            'startswith': boolean indicating if starts with or ends with wildcare free string
+            'num_underscore': the number of inserted underscores
+            'wildcard_free_string': the string (not wildard) part of the string to match
+
 
     relations:
         'rel1': relation name
