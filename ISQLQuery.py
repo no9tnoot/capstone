@@ -136,6 +136,8 @@ class ISQLQuery(ABC):
                 cond = ' ' + conds['cond'] + ' ' + conds['val2']
             case 'order by':
                 cond = ' ' + conds['cond'] + ' ' + conds['val1'].name + ' ' + conds['operator']
+            case _:
+                print('Invalid condition')
             case 'or':
                 cond = ' ' + conds['cond'] + ' ' + conds['val1'].name + ' ' + conds['operator'] + ' ' + conds['val2']
         return cond

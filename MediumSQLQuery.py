@@ -56,7 +56,7 @@ class MediumSQLQuery(ISQLQuery):
     def mediumBuilder(self):
         # Randomly select either an aggregate fn or conds or neither
         #components = random.choice(['distinct', 'like', 'or']) # distinct, as
-        components= 'or'
+        components= 'like'
         match components:
             case 'distinct':
                 self.distinct = True
@@ -75,6 +75,9 @@ class MediumSQLQuery(ISQLQuery):
                 self.attrs.append(astOrAttr) # add chosen attribute function / * to array instance variable
                 self.createWhereCond(relation, self.conds)
                 self.createOrCond(relation)
+
+            case _:
+                print('Invalid component')
                 
                 
         self.query = self.toQuery()
@@ -146,6 +149,9 @@ class MediumSQLQuery(ISQLQuery):
                             self.conds['likeDict']['wildcard_free_string'] = ''.join(val[1:])
                             for i in range(0,num_underscore):
                                 val.append('_')
+
+                case _:
+                    print('Invalid like type')
                             
         self.conds['val2']=''.join(val)
         self.conds['likeDict']['type']=likeType
