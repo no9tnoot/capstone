@@ -28,12 +28,14 @@ class ISQLQuery(ABC):
 
         # Ordered list of conditions used in the query
         self.conds = {}
+        self.conds['likeDict']={}
 
         # Ordered list of attributes used in the query
         self.attrs = []
 
         # Ordered list of relations used in the query
         self.rels = {}
+  
 
         
     
@@ -86,7 +88,7 @@ class ISQLQuery(ABC):
         
         val = cursor.fetchall()[0][0]
         
-        if val: # hopefully this works
+        if val is not None: # hopefully this works
             return val
         
         else: 

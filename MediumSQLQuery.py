@@ -54,14 +54,13 @@ class MediumSQLQuery(ISQLQuery):
         return super().getDict()
         
     def mediumBuilder(self):
-        # Randomly select either an aggregate fn or condition or neither
-        #components = random.choice(['agg&cond', 'like']) # distinct, as
-        components= 'like'
+        # Randomly select either an aggregate fn or conds or neither
+        #components = random.choice(['distinct', 'like']) # distinct, as
+        components= 'distinct'
         match components:
-            # If the random selection is an aggregate fn
-            case 'agg&cond':
-                self.createAgg() # create the agg component, and return the chosen relation
-                self.createCond(self.rels['rel1']) #create the cond component using the chosen relation
+            case 'distinct':
+                relation = self.getRel() # select random relation from database
+                self.createSimple(relation)
             
             case 'like':
                 relation = self.getRel(string=True) # select random relation from database
@@ -87,43 +86,55 @@ class MediumSQLQuery(ISQLQuery):
         
         # if val is only 1 character long, don't remove any characters
         if len(val)==1:
-            startswith = random.choice([True,False])
+            likeType = '%'
+            ends_with_perc = random.choice([True,False])
             num_char_to_remove = 0
-            self.insertPercentWildCard(val, startswith, num_char_to_remove)
+            val = self.insertPercentWildCard(val, ends_with_perc, num_char_to_remove)
         
         # if val is longer than 1 character long
         else:
-            likeType = random.choice(['%', '%%', '_%', 'x%'])
+            likeType = random.choice(['%', '%%', '_%'])
             
             match likeType:
                 
                 #Either 'starts with' or 'ends with' a string
                 case '%':
-                    startswith = random.choice([True,False])
+                    ends_with_perc = random.choice([True,False])
                     num_char_to_remove = random.randint(1, len(val)-1)
-                    self.insertPercentWildCard(val, startswith, num_char_to_remove)
+                    val = self.insertPercentWildCard(val, ends_with_perc, num_char_to_remove)
 
                 # 'Contains' a string
                 case '%%': 
+                    ends_with_perc=False # this both ends and starts with perc, doesn't matter
                     num_char_to_remove = random.randint(1, math.floor(0.5*len(val)))
-                    self.insertPercentWildCard(val, True, num_char_to_remove)
+                    val = self.insertPercentWildCard(val, True, num_char_to_remove)
                     num_char_to_remove = random.randint(1, math.floor(0.5*len(val)))
-                    self.insertPercentWildCard(val, False, num_char_to_remove)
+                    val = self.insertPercentWildCard(val, False, num_char_to_remove)
+                    self.conds['likeDict']['wildcard_free_string'] = val[1:-2]
                 
                 # First/Second/Third/Fourth etc letter is x USE NUM_CHAR_TO_REMOVE AS INDEX TO ARRAY OF STRINGS ['FIRST',SECOND'...]
                 case '_%':
-                    startswith = random.choice([True,False])
-                    num_char_to_remove = random.randint(0, min(10, len(val)-1))
-                    self.insertPercentWildCard(val, startswith, num_char_to_remove)
-                    match startswith:
+                    ends_with_perc = random.choice([True,False]) 
+                    num_underscore = random.randint(1, min(4, len(val)-1))
+                    self.conds['likeDict']['num_underscore'] = num_underscore
+                    val = self.insertPercentWildCard(val, ends_with_perc, len(val)-num_underscore-1)
+                    match ends_with_perc:
                         case True:
-                            for i in range(0,num_char_to_remove):
+                            val = val[num_underscore:]
+                            self.conds['likeDict']['wildcard_free_string'] = val
+                            for i in range(0,num_underscore):
                                 val.insert(0, '_')
                         case False:
-                            for i in range(0,num_char_to_remove):
+                            val = val[:-num_underscore]
+                            self.conds['likeDict']['wildcard_free_string'] = val
+                            for i in range(0,num_underscore):
                                 val.append('_')
                             
         self.conds['val2']=''.join(val)
+        self.conds['likeDict']['type']=likeType
+        self.conds['likeDict']['starts_with_string']=ends_with_perc
+        self.conds['likeDict']['wildcard_free_string']="".join(self.conds['likeDict']['wildcard_free_string'])
+        
     
 
     def toQuery(self):
@@ -140,21 +151,25 @@ class MediumSQLQuery(ISQLQuery):
         and remove a number of characters wither before (startswith True) or after (startswith 
         False) the percentage wildcard.
     """
-    def insertPercentWildCard(self, value, startswith, num_char_to_remove):
+    def insertPercentWildCard(self, value, ends_with_perc, num_char_to_remove):
         
-        match startswith: # fix this name
+        match ends_with_perc: 
             
-            case True:
+            case False: # insert percentage at start ('ends with string')
                 #remove the first n characters
                 for i in range(0, num_char_to_remove):
-                    value.pop(i)
+                    value.pop(0)
+                self.conds['likeDict']['wildcard_free_string'] = value
                 value.insert(0, '%') # insert % at beginning
                 
-            case False:
+            case True: # insert percentage at end ('starts with string')
                 #remove the last n characters
                 for i in range(len(value)-num_char_to_remove,len(value)):
-                    value.pop(i)
+                    value.pop(-1)
+                self.conds['likeDict']['wildcard_free_string'] = value
                 value.append('%') # insert % at end
+                
+        return value
 
 
 # #temp for testing
