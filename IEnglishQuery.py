@@ -86,7 +86,7 @@ class IEnglishQuery(ABC):
         if condition['operator'] == 'like':
             return "'" + condition['likeDict']['wildcard_free_string'] + "'"
         else:
-            return 'val2'
+            return condition['val2']
 
     @abstractmethod
     def translateLike(self, like):
