@@ -56,7 +56,6 @@ class MediumSQLQuery(ISQLQuery):
     def mediumBuilder(self):
         # Randomly select either an aggregate fn or conds or neither
         components = random.choice(['distinct', 'like', 'or']) # distinct, as
-        components = 'or'
         match components:
             case 'distinct':
                 self.distinct = True
