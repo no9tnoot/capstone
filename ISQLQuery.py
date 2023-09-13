@@ -28,7 +28,6 @@ class ISQLQuery(ABC):
 
         # Ordered list of conditions used in the query
         self.conds = {}
-        self.conds['likeDict']={}
 
         # Ordered list of attributes used in the query
         self.attrs = []

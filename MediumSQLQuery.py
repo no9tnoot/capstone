@@ -71,6 +71,7 @@ class MediumSQLQuery(ISQLQuery):
     
 
     def createLikeCond(self, relation):
+        self.conds['likeDict']={}
         self.conds['cond']='where'
         self.conds['operator']='like'
         
