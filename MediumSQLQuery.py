@@ -102,9 +102,7 @@ class MediumSQLQuery(ISQLQuery):
         
         val = self.selectAttrVal(relation, attr)  #select an attribute from the relation
         val = [char for char in val]  # turn string into an array of characters
-        
-        print(val) #for testing
-        
+                
         # if val is only 1 character long, don't remove any characters
         if len(val)==1:
             likeType = '%'
