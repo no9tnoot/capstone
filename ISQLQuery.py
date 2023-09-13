@@ -291,7 +291,8 @@ class ISQLQuery(ABC):
         dict = {'attributes': self.attrs, 
                 'aggregates': self.aggFns,
                 'relation': self.rels,
-                'condition': self.conds,}
+                'condition': self.conds,
+                'distinct': self.distinct}
         
         return dict
     
