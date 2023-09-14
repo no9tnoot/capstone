@@ -65,7 +65,7 @@ class MediumSQLQuery(ISQLQuery):
             case 'like':
                 relation = self.getRel(string=True) # select random relation from database
                 self.createSimple(relation)
-                self.createLikeCond(relation)
+                self.createLikeCond(relation, self.conds)
                 
             case 'or':
                 choice = random.choice(['like', 'where'])
