@@ -76,7 +76,7 @@ class IEnglishQuery(ABC):
     def translateOperator(self, condition):
         match condition['operator']:
             case '=':
-                return 'is equal to'
+                return 'is'
             case '<':
                 return 'is less than'
             case '>':
@@ -119,9 +119,9 @@ class IEnglishQuery(ABC):
             
             case '_%':
                 if like['starts_with_string']:
-                    s = 'the ' + self.likePos[like['num_underscore']-1] + ' character from the beginning of the string is'
+                    s = 'has a value where the ' + self.likePos[like['num_underscore']-1] + ' character from the beginning is'
                 else:
-                    s = 'the ' + self.likePos[like['num_underscore']-1] + ' character from the end of the string is'
+                    s = 'has a value where the ' + self.likePos[like['num_underscore']-1] + ' character from the end is'
 
             case _:
                 print('Invalid like type')
