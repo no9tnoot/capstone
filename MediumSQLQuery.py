@@ -94,10 +94,12 @@ class MediumSQLQuery(ISQLQuery):
         self.conds['or']={}
         like = random.choice([True, False])
         if string and like:
-            while self.conds['val2']!=self.conds['or']['val2']:
+            self.createLikeCond(relation, self.conds['or'])
+            while self.conds['val2']==self.conds['or']['val2']:
                 self.createLikeCond(relation, self.conds['or'])
         else:
-            while self.conds['val2']!=self.conds['or']['val2']:
+            self.createWhereCond(relation, self.conds['or'])
+            while self.conds['val2']==self.conds['or']['val2']:
                 self.createWhereCond(relation, self.conds['or'])
         self.conds['or']['cond']='or'
         
