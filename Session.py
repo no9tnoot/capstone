@@ -32,7 +32,7 @@ class Session:
         return int(datetime.date.now().strftime("%Y%m%d"))
     
     #generate an easy question
-    def genQuestion(self):
+    def genEasyQuestion(self):
         return Question.EasyQuestion(self.database, self.seed)
     
     def  markQuery(self, stuAns,  modalAns):
