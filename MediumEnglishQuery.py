@@ -11,13 +11,20 @@ class MediumEnglishQuery(IEnglishQuery):
     def __init__(self, sqlQuery):
         super().__init__(sqlQuery)
         self.englishQuery = 'Show '
+
         if sqlQuery['aggregates']:
             self.englishQuery += self.attrsAndAggs(sqlQuery['attributes'][0], sqlQuery['aggregates'][0])
         else:
             self.englishQuery += self.onlyAttrs(sqlQuery['attributes'])
+
         self.englishQuery += ' in the ' + sqlQuery['relation']['rel1'].name + ' table'
+
         if sqlQuery['condition']:
             self.englishQuery += self.translateCond(sqlQuery['condition'])
+
+        if sqlQuery['distinct']:
+            self.englishQuery += ' but only once for each value of ' + sqlQuery['attributes'][-1].name
+
         self.englishQuery += '.'
 
     def englishToString(self, english):
