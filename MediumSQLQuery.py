@@ -92,12 +92,12 @@ class MediumSQLQuery(ISQLQuery):
     def createOrCond(self, relation, string=False):
         self.orCond=True
         self.conds['or']={}
-        self.conds['or']['cond']='or'
         like = random.choice([True, False])
         if string and like:
             self.createLikeCond(relation, self.conds['or'])
         else:
             self.createWhereCond(relation, self.conds['or'])
+        self.conds['or']['cond']='or'
         
         
     
