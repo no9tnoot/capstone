@@ -9,9 +9,10 @@ class EasySQLQuery(ISQLQuery):
     
     operators = ['=']
     
-    def __init__(self, database, seed):
+    def __init__(self, database, seed, relation = None):
         super().__init__(database, seed)
-        relation = self.getRel() # select random relation from database
+        if relation is None:
+            relation = self.getRel() # select random relation from database
         self.easyBuilder(relation)
         
     def getRel(self, numeric=False):
