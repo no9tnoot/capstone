@@ -255,7 +255,8 @@ class ISQLQuery(ABC):
         # (can be the same as attr_1)
         cond_details['val1'] = attr # add chosen attribute to conds array
 
-        nullOrVal = random.choice(['null', 'val']) # Choose between ensuring the attribute value 
+        #nullOrVal = random.choice(['null', 'val']) # Choose between ensuring the attribute value 
+        nullOrVal = 'null'
         # is not null and ensuring it has a given value
         # If null option chosen and attribute contains null values
         if nullOrVal == 'null' and cond_details['val1'].null == 'YES':
@@ -292,7 +293,8 @@ class ISQLQuery(ABC):
                 'aggregates': self.aggFns,
                 'relation': self.rels,
                 'condition': self.conds,
-                'distinct': self.distinct}
+                'distinct': self.distinct,
+                'orCond': self.orCond}
         
         return dict
     

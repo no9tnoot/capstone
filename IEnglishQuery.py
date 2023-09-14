@@ -8,6 +8,7 @@ class IEnglishQuery(ABC):
 
     def __init__(self,sqlQuery):
         self.englishQuery = ''
+        self.sqlQuery = sqlQuery
     
     @abstractmethod
     def englishToString(self, english):
@@ -58,6 +59,8 @@ class IEnglishQuery(ABC):
 
             case 'where':
                 engCond += ' but only for rows where ' + condition['val1'].name + ' ' + self.translateOperator(condition) + ' ' + self.translateVal2(condition)
+                if self.sqlQuery['orCond']:
+                    engCond += ' or ' + condition['or']['val1'].name + ' ' + self.translateOperator(condition['or']) + ' ' + self.translateVal2(condition['or'])
             
             case 'order by':
                 if condition['operator'].lower() == 'desc':
@@ -84,6 +87,10 @@ class IEnglishQuery(ABC):
                 return 'is greater than or equal to'
             case 'like':
                 return self.translateLike(condition['likeDict'])
+            case 'is':
+                return 'does not'
+            case 'is not':
+                return 'does'
             case _:
                 return condition['operator']
             
@@ -91,6 +98,9 @@ class IEnglishQuery(ABC):
     def translateVal2(self, condition):
         if condition['operator'] == 'like':
             return "'" + condition['likeDict']['wildcard_free_string'] + "'"
+        
+        elif condition['val2'] == 'NULL':
+            return 'exist'
         else:
             return condition['val2']
 
@@ -109,9 +119,9 @@ class IEnglishQuery(ABC):
             
             case '_%':
                 if like['starts_with_string']:
-                    s = 'the ' + self.likePos[like['num_underscore']-1] + ' character from the beginning of the string is '
+                    s = 'the ' + self.likePos[like['num_underscore']-1] + ' character from the beginning of the string is'
                 else:
-                    s = 'the ' + self.likePos[like['num_underscore']-1] + ' character from the end of the string is '
+                    s = 'the ' + self.likePos[like['num_underscore']-1] + ' character from the end of the string is'
 
             case _:
                 print('Invalid like type')
@@ -130,6 +140,7 @@ class IEnglishQuery(ABC):
 
     @abstractmethod
     def onlyAttrs(self, attrs):
+        engAttrs = 'the values of '
         engAttrs = self.translateAttr(attrs[0])
         if len(attrs) == 2:
             engAttrs += ' and ' + self.translateAttr(attrs[1])
