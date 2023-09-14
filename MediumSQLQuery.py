@@ -52,6 +52,9 @@ class MediumSQLQuery(ISQLQuery):
     
     def getDict(self):
         return super().getDict()
+    
+    def easyBuilder(self, relation):
+        return super().easyBuilder(relation)
         
     def mediumBuilder(self):
         # Randomly select either an aggregate fn or conds or neither
@@ -60,11 +63,11 @@ class MediumSQLQuery(ISQLQuery):
             case 'distinct':
                 self.distinct = True
                 relation = self.getRel() # select random relation from database
-                self.createSimple(relation)
+                self.easyBuilder(relation)
             
             case 'like':
                 relation = self.getRel(string=True) # select random relation from database
-                self.createSimple(relation)
+                self.easyBuilder(relation)
                 self.createLikeCond(relation, self.conds)
                 
             case 'or':
@@ -79,15 +82,25 @@ class MediumSQLQuery(ISQLQuery):
                         self.createOrCond(relation)
                     case 'like':
                         relation = self.getRel(string=True) # select random relation from database
-                        self.createSimple(relation)
+                        self.easyBuilder(relation)
                         self.createLikeCond(relation, self.conds)
                         self.createOrCond(relation, string=True)
+            
+            #case 'round':
+                
 
             case _:
                 print('Invalid component')
-                
+            
                 
         self.query = self.toQuery()
+        
+    # def createRound(self):
+    #     self.aggFns.append('round(')  # get a random aggreegate func and storing it in aggFns
+    #     relation = self.getRel(numeric = True) # select relation that countains a numeric attribute from database
+    #     attr = relation.getAttribute(numeric=True) # select numeric attribute from relation
+    #     self.attrs.append(attr) # add chosen attribute function to array instance variable
+    
     
     def createOrCond(self, relation, string=False):
         self.orCond=True

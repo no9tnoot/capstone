@@ -11,7 +11,8 @@ class EasySQLQuery(ISQLQuery):
     
     def __init__(self, database, seed):
         super().__init__(database, seed)
-        self.easyBuilder()
+        relation = self.getRel() # select random relation from database
+        self.easyBuilder(relation)
         
     def getRel(self, numeric=False):
         return super().getRel(numeric)
@@ -52,6 +53,9 @@ class EasySQLQuery(ISQLQuery):
     def createSimple(self, relation):
         return super().createSimple(relation)
     
+    def easyBuilder(self, relation):
+        super().easyBuilder(relation)
+    
     def toQuery(self):
         q = 'SELECT '
         q += self.formatQueryAggs(self.attrs, self.aggFns)
@@ -61,26 +65,7 @@ class EasySQLQuery(ISQLQuery):
         return q
     
         
-    def easyBuilder(self):
-        # Randomly select either an aggregate fn or condition or neither
-        aggOrCond = random.choice(['agg', 'cond', ''])
-        #aggOrCond='cond'  # for testing
-
-        match aggOrCond:
-            # If the random selection is an aggregate fn
-            case 'agg':
-                self.createAgg()
-            
-            # If the random selection is a condition
-            case 'cond':
-                relation = self.getRel() # select random relation from database
-                self.createCond(relation)
-        
-            case '':
-                relation = self.getRel() # get random relation
-                self.createSimple(relation)
-                
-        self.query = self.toQuery()
+    
     
     
 

@@ -277,7 +277,28 @@ class ISQLQuery(ABC):
             cond_details['val2'] = str(reqVal) # add chosen required value to array instance variable
         return cond_details
 
+    @abstractmethod
+    def easyBuilder(self, relation):
+        # Randomly select either an aggregate fn or condition or neither
+        aggOrCond = random.choice(['agg', 'cond', ''])
+        #aggOrCond='cond'  # for testing
 
+        match aggOrCond:
+            # If the random selection is an aggregate fn
+            case 'agg':
+                self.createAgg()
+            
+            # If the random selection is a condition
+            case 'cond':
+                #relation = self.getRel() # select random relation from database
+                self.createCond(relation)
+        
+            case '':
+                #relation = self.getRel() # get random relation
+                self.createSimple(relation)
+                
+        self.query = self.toQuery()
+    
     @abstractmethod
     def toQuery(self):
         pass
