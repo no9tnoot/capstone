@@ -1,8 +1,31 @@
-Formats for arrays sent to englishQuestion():
-    array = [[aggregate functions],[conditions],[attributes],[relations]]
+Formats for arrays sent to EasyEnglishQuery():
+    dict = ['attributes', 'aggregates', 'relation', 'condition']
 
-    conditions:
-        order by:['order by', attribute_2, ASC] or ['order by', attribute_2, DESC]
-        where:['where', 'val', attribute_2, val_that_attr_2_must_equal] or 
-              ['where', 'null', attribute_2]
-        limit:['limit', number_value_of_limit]
+    conds:
+        'cond': 'limit'/'where'/'order by'/'like' etc.
+        'val1': attribute name to look at
+        'operator': operator('=','>','is not',etc.) or 'asc'/'desc'
+        'val2': what to compare to val1. can be attribute or value.
+        'likeDict': {'type', 'startswith', 'num_underscore', 'wildcard_free_string'}
+            'type': '%', '%%', '_%'
+            'starts_with_string': boolean indicating if starts with or ends with wildcare free string
+            'num_underscore': the number of inserted underscores
+            'wildcard_free_string': the string (not wildard) part of the string to match
+        'or': {'cond', 'val1', 'operator', 'val2', 'likeDict'} (same as above, but cond is always 'or')
+
+
+    relations:
+        'rel1': relation name
+
+    attributes:
+        attrs = []
+                        attrs and aggs are parallel arrays
+    aggregates:
+        aggs = []
+
+Formats for arrays sent to MediumEnglishQuery():
+    dictionary = {'attributes', 'aggregates', 'relation', 'condition', 'asNames'}
+
+    asNames:
+        'name': what to call it e.g.: 'vat'
+        'function': function that defines the value of name e.g.: round(buyprice * 15,2)
