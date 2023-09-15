@@ -63,11 +63,7 @@ class MediumSQLQuery(ISQLQuery):
             case 'distinct':
                 self.distinct = True
                 relation = self.getRel() # select random relation from database
-                where = random.choice([True, False])
-                if where:
-                    self.createWhereCond(relation, self.conds)
-                else:
-                    self.createSimple(relation)
+                self.createSimple(relation)
             
             case 'like':
                 relation = self.getRel(string=True) # select random relation from database
