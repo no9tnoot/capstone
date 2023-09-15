@@ -126,10 +126,6 @@ class IEnglishQuery(ABC):
             case _:
                 print('Invalid like type')
         return s
-    
-    @abstractmethod
-    def translateRound(self, roundTo):
-        s = 'rounded to ' + roundTo + ' decimal places'
 
     @abstractmethod
     def getEnglishQuery(self):

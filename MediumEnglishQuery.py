@@ -27,6 +27,13 @@ class MediumEnglishQuery(IEnglishQuery):
 
         self.englishQuery += '.'
 
+    def translateRound(self, roundTo):
+        if roundTo == 1:
+            s = ' rounded to ' + roundTo + ' decimal place'
+        else:
+            s = ' rounded to ' + roundTo + ' decimal places'
+        return s
+
     def englishToString(self, english):
         return super().englishToString(english)
     
@@ -49,12 +56,13 @@ class MediumEnglishQuery(IEnglishQuery):
         return super().translateLike(like)
     
     def attrsAndAggs(self, attrs, agg, roundTo):
-        if agg[0] != 'round(':
+        if agg != 'round(':
             engAttrs = self.translateAgg(agg)
             engAttrs += self.translateAttr(attrs)
         else:
-            engAttrs = self.translateAttr(attrs)
-            engAttrs += self.translateRound()
+            engAttrs = self.translateAgg('')
+            engAttrs += self.translateAttr(attrs)
+            engAttrs += self.translateRound(roundTo)
         return engAttrs
     
     def onlyAttrs(self, attrs):
