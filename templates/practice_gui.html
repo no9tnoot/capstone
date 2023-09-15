@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewpoint" content="width=device-width, initial-scale=1.0" />
+    <title>Practice</title>
+    <link rel="stylesheet" href="/static/practice_style.css" />
+    <link rel="stylesheet" href="../static/practice_style.css" />
+
+</head>
+
+<body>
+
+    <nav>
+        <a href="/home" class="btn">home</a>
+
+        <form class="next_q_form">
+            <select class="difficulty" id="difficulty">
+                <option value="easy">easy</option>
+                <option value="medium">medium</option>
+                <option value="hard">hard</option>
+            </select>
+        </form>
+    </nav>
+
+    <p>Input the equivalent SQL query for this English question: </p>
+
+    <h1 class="eng_question">{{ engQuestion }}</h1>
+
+    <form class="q_and_a_form" method="post">
+        <div class="question_input">
+            <input type="text" name="sql" class="form_input" placeholder="Input SQL Query Here..." />
+            <input class="mark_button btn" type="submit" value="mark">
+        </div>
+    </form>
+
+    <div class="receive_result">
+        <div class="result_output">
+            <div class="result">Result</div>
+            <div class="result_data">Lorem ipsum dolor sit amet consectetur adipisicing elit. Adipisci vel nisi quo
+                debitis facilis placeat amet? Excepturi obcaecati laudantium, nulla perspiciatis esse deserunt ipsam
+                nesciunt impedit consequatur adipisci velit voluptas iusto suscipit reprehenderit neque inventore vero
+                quis magnam libero molestias, corrupti cum nemo. Nostrum tenetur dicta iure nihil repudiandae quia nobis
+                non aspernatur ratione, at a, quisquam minus, nam minima facilis veniam perferendis eius iste obcaecati
+                provident. Sint ad, vel ea neque beatae voluptatem ex. Tenetur nesciunt repellendus accusamus quos quis
+                similique recusandae assumenda ratione quod quibusdam, adipisci magnam fugit molestias! Esse, illo rerum
+                id nobis debitis ullam adipisci asperiores.</div>
+        </div>
+        <div class="next_button_div">
+            <button class="next_button btn" type="button" form="next_q_form">next >></button>
+        </div>
+    </div>
+
+
+</body>
+
+</html>
