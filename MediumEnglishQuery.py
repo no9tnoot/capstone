@@ -13,7 +13,7 @@ class MediumEnglishQuery(IEnglishQuery):
         self.englishQuery = 'Show '
 
         if sqlQuery['aggregates']:
-            self.englishQuery += self.attrsAndAggs(sqlQuery['attributes'][0], sqlQuery['aggregates'][0])
+            self.englishQuery += self.attrsAndAggs(sqlQuery['attributes'][0], sqlQuery['aggregates'][0], sqlQuery['roundTo'][1:])
         else:
             self.englishQuery += self.onlyAttrs(sqlQuery['attributes'])
 
@@ -48,8 +48,14 @@ class MediumEnglishQuery(IEnglishQuery):
     def translateLike(self, like):
         return super().translateLike(like)
     
-    def attrsAndAggs(self, attrs, agg):
-        return super().attrsAndAggs(attrs, agg)
+    def attrsAndAggs(self, attrs, agg, roundTo):
+        if agg[0] != 'round(':
+            engAttrs = self.translateAgg(agg)
+            engAttrs += self.translateAttr(attrs)
+        else:
+            engAttrs = self.translateAttr(attrs)
+            engAttrs += self.translateRound()
+        return engAttrs
     
     def onlyAttrs(self, attrs):
         return super().onlyAttrs(attrs)

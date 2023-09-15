@@ -314,7 +314,8 @@ class ISQLQuery(ABC):
                 'relation': self.rels,
                 'condition': self.conds,
                 'distinct': self.distinct,
-                'orCond': self.orCond}
+                'orCond': self.orCond,
+                'roundTo': self.roundTo}
         
         return dict
     
