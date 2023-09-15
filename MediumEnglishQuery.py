@@ -28,7 +28,7 @@ class MediumEnglishQuery(IEnglishQuery):
         self.englishQuery += '.'
 
     def translateRound(self, roundTo):
-        if roundTo == 1:
+        if roundTo == '1':
             s = ' rounded to ' + roundTo + ' decimal place'
         else:
             s = ' rounded to ' + roundTo + ' decimal places'
