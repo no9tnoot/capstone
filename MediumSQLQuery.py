@@ -14,8 +14,8 @@ class MediumSQLQuery(ISQLQuery):
         self.asNames = [] #names for AS aggregates
         self.mediumBuilder()
         
-    def getRel(self, numeric=False, string=False):
-        return super().getRel(numeric, string)
+    def getRel(self, numeric=False, string=False, roundable=False):
+        return super().getRel(numeric, string, roundable)
     
     def selectAttrVal(self, relation, attribute):
         return super().selectAttrVal(relation, attribute)
@@ -58,12 +58,16 @@ class MediumSQLQuery(ISQLQuery):
         
     def mediumBuilder(self):
         # Randomly select either an aggregate fn or conds or neither
-        components = random.choice(['distinct', 'like', 'or']) # distinct, as
+        components = random.choice(['distinct', 'like', 'or', 'round']) # distinct, as
         match components:
             case 'distinct':
                 self.distinct = True
                 relation = self.getRel() # select random relation from database
-                self.easyBuilder(relation)
+                where = random.choice([True, False])
+                if where:
+                    self.createWhereCond(relation, self.conds)
+                else:
+                    self.createSimple(relation)
             
             case 'like':
                 relation = self.getRel(string=True) # select random relation from database
@@ -86,7 +90,9 @@ class MediumSQLQuery(ISQLQuery):
                         self.createLikeCond(relation, self.conds)
                         self.createOrCond(relation, string=True)
             
-            #case 'round':
+            case 'round':
+                relation = self.getRel(roundable=True) # select random relation from database
+                self.createRoundAgg(relation)
                 
 
             case _:
@@ -94,12 +100,12 @@ class MediumSQLQuery(ISQLQuery):
             
                 
         self.query = self.toQuery()
-        
-    # def createRound(self):
-    #     self.aggFns.append('round(')  # get a random aggreegate func and storing it in aggFns
-    #     relation = self.getRel(numeric = True) # select relation that countains a numeric attribute from database
-    #     attr = relation.getAttribute(numeric=True) # select numeric attribute from relation
-    #     self.attrs.append(attr) # add chosen attribute function to array instance variable
+    
+    def createRoundAgg(self, relation):
+        self.aggFns.append('round(')
+        attr = relation.getAttribute(roundable=True)
+        self.attrs.append(attr)
+        self.roundTo = random.choice([',0',',1',',2'])
     
     
     def createOrCond(self, relation, string=False):

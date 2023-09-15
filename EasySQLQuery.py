@@ -15,8 +15,8 @@ class EasySQLQuery(ISQLQuery):
             relation = self.getRel() # select random relation from database
         self.easyBuilder(relation)
         
-    def getRel(self, numeric=False):
-        return super().getRel(numeric)
+    def getRel(self, numeric=False, string=False, roundable=False):
+        return super().getRel(numeric, string, roundable)
     
     def selectAttrVal(self, relation, attribute):
         return super().selectAttrVal(relation, attribute)
