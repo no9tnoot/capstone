@@ -29,8 +29,8 @@ class MediumSQLQuery(ISQLQuery):
     def formatQueryConds(self, conds):
         return super().formatQueryConds(conds)
     
-    def createAgg(self):
-        return super().createAgg()
+    def createAgg(self, aggFn=None):
+        return super().createAgg(aggFn)
     
     def createCond(self, relation):
         return super().createCond(relation)
@@ -62,8 +62,12 @@ class MediumSQLQuery(ISQLQuery):
         match components:
             case 'distinct':
                 self.distinct = True
-                relation = self.getRel() # select random relation from database
-                self.createSimple(relation)
+                count = random.choice([True, False])
+                if count:
+                    self.createAgg('count(')
+                else:
+                    relation = self.getRel() # select random relation from database
+                    self.createSimple(relation)
             
             case 'like':
                 relation = self.getRel(string=True) # select random relation from database
