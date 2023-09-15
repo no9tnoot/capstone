@@ -22,6 +22,7 @@ class Attribute:
         self.null=null
         self.key=k
         self.numeric = Attribute.isNumeric(self)
+        self.roundable = Attribute.isRoundable(self)
         self.string = Attribute.isString(self)
     
     def getName(self):
@@ -49,14 +50,29 @@ class Attribute:
         
         isString = False
         
-        numDataType = ['char', 'varchar', 'text', 'tinytext', 'mediumtext', 'longtext']
+        stringDataType = ['char', 'varchar', 'text', 'tinytext', 'mediumtext', 'longtext']
         
         # search to see if the dataType contains one of the above strings - indicating numeric attribute
-        for dt in numDataType:
+        for dt in stringDataType:
             if dt in self.dataType.lower():  # set the dataType to lower case to include all string cases in search
                 isString = True
         
         return isString
+    
+    # Sets numeric to True if the attribute is numeric (not a string/date/time/boolean)
+    def isRoundable(self):
+        
+        isRoundable = False
+        
+        roundableDataType = ['float', 'double']
+        
+        # search to see if the dataType contains one of the above strings - indicating numeric attribute
+        for dt in roundableDataType:
+            if dt in self.dataType.lower():  # set the dataType to lower case to include all string cases in search
+                isRoundable = True
+        
+        return isRoundable
+    
 
 
 
@@ -72,6 +88,7 @@ class Relation:
         self.attributes=[]
         self.numericAttributes=[]
         self.stringAttributes=[]
+        self.roundableAttributes=[]
         self.numRows = nrow
     
     def ___str___(self):
@@ -83,6 +100,8 @@ class Relation:
         # If attribute is numeric, add to numericAttributes array
         if (attribute.numeric):
             self.numericAttributes.append(attribute)
+            if (attribute.roundable):
+                self.roundableAttributes.append(attribute)
         # If attribute is string, add to stringAttributes array
         if (attribute.string):
             self.stringAttributes.append(attribute)
@@ -95,11 +114,15 @@ class Relation:
     # Returns if the relation has string attributes
     def hasString(self):
         return len(self.stringAttributes)>0
+    
+    # Returns if the relation has numeric attributes
+    def hasRoundable(self):
+        return len(self.roundableAttributes)>0
 
         
-    def getAttribute(self, numeric = False, string = False):
+    def getAttribute(self, numeric = False, string = False, roundable = False):
         # check that the attribute number asked for is not out of bounds
-        if not numeric and not string:
+        if not numeric and not string and not roundable:
             i = random.randrange(0, self.getNumAttributes()-1, 1)
             return self.attributes[i]
 
@@ -110,6 +133,10 @@ class Relation:
         elif string:
             i = random.randrange(0, len(self.stringAttributes), 1)
             return self.stringAttributes[i]
+        
+        elif roundable:
+            i = random.randrange(0, len(self.roundableAttributes), 1)
+            return self.roundableAttributes[i]
 
             
         

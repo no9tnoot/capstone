@@ -38,31 +38,38 @@ class ISQLQuery(ABC):
         # Flags
         self.distinct = False
         self.orCond = False
+        self.roundTo = ''
   
 
         
     
     # Randomly selects a relation from the loaded database
     # by default does not require relation to contain numeric attributes    @abstractmethod
-    def getRel(self, numeric = False, string = False):
+    def getRel(self, numeric = False, string = False, roundable = False):
         # select relation
         relation = random.randrange(0, self.db.numRelations()-1, 1)
         relation = self.db.getRelation(relation)
-        if not numeric and not string:
-            self.rels['rel1'] = relation
-            return relation
-        elif numeric:
+        if numeric:
             if relation.hasNumeric():
                 self.rels['rel1'] = relation
                 return relation
             else:
                 return self.getRel(numeric=True)
-        else:
+        elif string:
             if relation.hasString():
                 self.rels['rel1'] = relation
                 return relation
             else:
                 return self.getRel(string=True)
+        elif roundable:
+            if relation.hasRoundable():
+                self.rels['rel1'] = relation
+                return relation
+            else:
+                return self.getRel(roundable=True)
+        else:
+            self.rels['rel1'] = relation
+            return relation
 
 
     ''' For questions where 2+ attributes are chosen from one relation, must include logic to prevent the
@@ -117,7 +124,7 @@ class ISQLQuery(ABC):
         d=''
         if self.distinct: d='distinct '
         if aggregates:
-            aggs += aggregates[0] + d + attributes[0].name + ')'
+            aggs += aggregates[0] + d + attributes[0].name + self.roundTo + ')'
         else:
             for att in attributes[:-1]:
                 aggs += att.name + ", "
