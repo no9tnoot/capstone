@@ -176,8 +176,10 @@ class ISQLQuery(ABC):
         Relation put in rels[0]
     """    
     @abstractmethod
-    def createAgg(self):
-        self.aggFns.append(self.setAgg())  # get a random aggreegate func and storing it in aggFns
+    def createAgg(self, aggFn=None):
+        if aggFn is not None:
+            self.aggFns.append(aggFn)
+        else: self.aggFns.append(self.setAgg())  # get a random aggreegate func and storing it in aggFns
         
         # If doing a count agg, account for *
         if self.aggFns[0] == 'count(':

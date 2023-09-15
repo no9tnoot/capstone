@@ -30,8 +30,8 @@ class EasySQLQuery(ISQLQuery):
     def formatQueryConds(self, conds):
         return super().formatQueryConds(conds)
     
-    def createAgg(self):
-        return super().createAgg()
+    def createAgg(self, aggFn=None):
+        return super().createAgg(aggFn)
     
     def createCond(self, relation):
         return super().createCond(relation)
