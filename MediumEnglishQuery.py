@@ -6,7 +6,7 @@ from IEnglishQuery import IEnglishQuery
 
 class MediumEnglishQuery(IEnglishQuery):
 
-    likePos = ['second','third','fourth','fifth','sixth']
+    #likePos = ['second','third','fourth','fifth','sixth']
 
     def __init__(self, sqlQuery):
         super().__init__(sqlQuery)

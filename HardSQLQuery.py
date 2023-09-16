@@ -55,7 +55,7 @@ class HardSQLQuery(ISQLQuery):
         return super().getSqlQuery()
     
     def getDict(self):
-        return super().getDict()
+        return self.sqlQuery1.getDict()
     
     def easyBuilder(self, relation, attribute = None, aggOrCond=None):
         super().easyBuilder(relation, attribute, aggOrCond)
@@ -70,17 +70,17 @@ class HardSQLQuery(ISQLQuery):
         match type:
             
             case 'nested':
-                sqlQuery1 = EasySQLQuery(self.db, 'seed', aggOrCond = 'nestedWhereCond')
+                self.sqlQuery1 = EasySQLQuery(self.db, 'seed', aggOrCond = 'nestedWhereCond')
                 # ensure not doing a null comparison
-                while sqlQuery1.conds['operator'] not in ISQLQuery.operators:
-                    sqlQuery1 = EasySQLQuery(self.db, 'seed', aggOrCond = 'nestedWhereCond')
+                while self.sqlQuery1.conds['operator'] not in ISQLQuery.operators:
+                    self.sqlQuery1 = EasySQLQuery(self.db, 'seed', aggOrCond = 'nestedWhereCond')
                             
-                sqlQuery2 = self.createNestedQuery(sqlQuery1)
+                sqlQuery2 = self.createNestedQuery(self.sqlQuery1)
                 
-                sqlQuery1.conds['val2']=sqlQuery2
-                sqlQuery1.nested = True
+                self.sqlQuery1.conds['val2']=sqlQuery2
+                self.sqlQuery1.nested = True
                 
-                self.query =  sqlQuery1.toQuery()
+                self.query =  self.sqlQuery1.toQuery()
 
             
     
@@ -125,7 +125,7 @@ class HardSQLQuery(ISQLQuery):
     
     
     # #temp for testing
-from Session import Session     
-d = Session.loadDatabase()
-s = HardSQLQuery(d, 'seed')
-print(s.getSqlQuery())
+# from Session import Session     
+# d = Session.loadDatabase()
+# s = HardSQLQuery(d, 'seed')
+# print(s.getSqlQuery())

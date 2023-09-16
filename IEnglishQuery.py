@@ -6,6 +6,8 @@ from abc import ABC, abstractmethod
 
 class IEnglishQuery(ABC):
 
+    likePos = ['second','third','fourth','fifth','sixth']
+
     def __init__(self,sqlQuery):
         self.englishQuery = ''
         self.sqlQuery = sqlQuery
@@ -18,7 +20,7 @@ class IEnglishQuery(ABC):
             self.englishQuery += self.onlyAttrs(sqlQuery['attributes'])
         self.englishQuery += ' in the ' + sqlQuery['relation']['rel1'].name + ' table'
         if sqlQuery['condition']:
-            self.englishQuery += self.translateCond(sqlQuery['condition'])
+            self.englishQuery += self.translateCond(sqlQuery['condition'], sqlQuery['nested'])
         return self.englishQuery
     
     @abstractmethod
@@ -58,7 +60,7 @@ class IEnglishQuery(ABC):
     
     #translate SQL condition to english
     @abstractmethod
-    def translateCond(self, condition):
+    def translateCond(self, condition, nested = False):
         engCond = ''
         match condition['cond']:
 
@@ -69,9 +71,9 @@ class IEnglishQuery(ABC):
                     engCond += ' but only show ' + condition['val2'] + ' rows'
 
             case 'where':
-                engCond += ' but only for rows where ' + condition['val1'].name + ' ' + self.translateOperator(condition) + ' ' + self.translateVal2(condition)
+                engCond += ' but only for rows where ' + condition['val1'].name + ' ' + self.translateOperator(condition) + ' ' + self.translateVal2(condition, nested)
                 if self.sqlQuery['orCond']:
-                    engCond += ' or ' + condition['or']['val1'].name + ' ' + self.translateOperator(condition['or']) + ' ' + self.translateVal2(condition['or'])
+                    engCond += ' or ' + condition['or']['val1'].name + ' ' + self.translateOperator(condition['or']) + ' ' + self.translateVal2(condition['or'], nested)
             
             case 'order by':
                 if condition['operator'].lower() == 'desc':
@@ -108,7 +110,7 @@ class IEnglishQuery(ABC):
     @abstractmethod
     def translateVal2(self, condition, nested = False):
         if nested:
-            return self.easyEnglish(condition['val2'])
+            return self.easyEnglish(condition['val2'].getDict())
         
         elif condition['operator'] == 'like':
             return "'" + condition['likeDict']['wildcard_free_string'] + "'"
@@ -155,7 +157,7 @@ class IEnglishQuery(ABC):
     @abstractmethod
     def onlyAttrs(self, attrs):
         engAttrs = 'the values of '
-        engAttrs = self.translateAttr(attrs[0])
+        engAttrs += self.translateAttr(attrs[0])
         if len(attrs) == 2:
             engAttrs += ' and ' + self.translateAttr(attrs[1])
         return engAttrs

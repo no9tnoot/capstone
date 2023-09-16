@@ -8,7 +8,7 @@ from MediumSQLQuery import MediumSQLQuery
 from HardSQLQuery import HardSQLQuery
 from EasyEnglishQuery import EasyEnglishQuery
 from MediumEnglishQuery import MediumEnglishQuery
-#from HardEnglishQuery import HardEnglishQuery
+from HardEnglishQuery import HardEnglishQuery
 from Question import Question
 
 class QuestionFactory:
@@ -30,7 +30,7 @@ class QuestionFactory:
             
             case 'hard':
                 sqlQuery = HardSQLQuery(self.database, 'seed')
-                #engQuery = HardEnglishQuery(sqlQuery)
+                engQuery = HardEnglishQuery(sqlQuery.getDict())
 
             case _:
                 print('Invalid difficulty')
@@ -42,7 +42,7 @@ class QuestionFactory:
 from Session import Session
 d = Session.loadDatabase()
 factory = QuestionFactory(d)
-q = factory.getQuestion('medium')
+q = factory.getQuestion('hard')
 print(q.getSqlQuery())
 print(q.getEnglishQuery())
 

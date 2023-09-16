@@ -6,6 +6,7 @@ from abc import ABC, abstractmethod
 import mysql.connector
 import random
 import Database
+import math
 
 class ISQLQuery(ABC):
     
@@ -473,7 +474,8 @@ class ISQLQuery(ABC):
                 'condition': self.conds,
                 'distinct': self.distinct,
                 'orCond': self.orCond,
-                'roundTo': self.roundTo}
+                'roundTo': self.roundTo,
+                'nested': self.nested}
         
         return dict
     
