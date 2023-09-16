@@ -160,17 +160,21 @@ class ISQLQuery(ABC):
         Create an attribute with neither a condition nor an aggregate function
     """
     @abstractmethod
-    def createSimple(self, relation):
+    def createSimple(self, relation, attribute = None):
         
-        numAttr = random.choice([1,2])  # will we ask for one or 2 relations
-        self.attrs.append(relation.getAttribute())
+        if attribute is None:
+            numAttr = random.choice([1,2])  # will we ask for one or 2 relations
+            self.attrs.append(relation.getAttribute())
+             # select and set the second relation if one is needed
+            while numAttr==2:
+                attr2 = relation.getAttribute()
+                if (attr2 != self.attrs[0]): # don't set the same relation as the first one
+                    self.attrs.append(attr2)
+                    numAttr = 0
         
-        # select and set the second relation if one is needed
-        while numAttr==2:
-            attr2 = relation.getAttribute()
-            if (attr2 != self.attrs[0]): # don't set the same relation as the first one
-                self.attrs.append(attr2)
-                numAttr = 0
+        else: self.attrs.append(attribute)
+        
+       
     
     
         
@@ -402,7 +406,7 @@ class ISQLQuery(ABC):
                 self.createCond(relation, attribute, 'where', numeric=True)
         
             case '':
-                self.createSimple(relation)
+                self.createSimple(relation, attribute)
                 
         self.rels['rel1']=relation
         self.query = self.toQuery()
@@ -419,7 +423,7 @@ class ISQLQuery(ABC):
                     self.createAgg('count(')
                 else:
                     relation = self.getRel() # select random relation from database
-                    self.createSimple(relation)
+                    self.createSimple(relation, attribute)
             
             case 'like':
                 if relation is None: relation = self.getRel(string=True) # select random relation from database

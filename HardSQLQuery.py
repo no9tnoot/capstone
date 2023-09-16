@@ -33,8 +33,8 @@ class HardSQLQuery(ISQLQuery):
     def createCond(self, relation, astOrAttr=None, condType=None, numeric=False):
         super().createCond(relation, astOrAttr, condType, numeric)
     
-    def createSimple(self, relation):
-        return super().createSimple(relation)
+    def createSimple(self, relation, attribute=None):
+        return super().createSimple(relation, attribute)
     
     def createOrderByCond(self, relation):
         return super().createOrderByCond(relation)
@@ -96,10 +96,15 @@ class HardSQLQuery(ISQLQuery):
             case _:
                 aggFn = 'avg('
         
-        nestedQuery = EasySQLQuery(self.db, 'seed', relation = relation, attribute = attribute, aggFn = aggFn, aggOrCond='nestedWhereCond')
-        while nestedQuery.conds['val1']==outerQuery.attrs[0] or nestedQuery.conds['val1']==outerQuery.conds['val1']:
-            nestedQuery = EasySQLQuery(self.db, 'seed', relation = relation, attribute = attribute, aggFn = aggFn, aggOrCond='nestedWhereCond')
+        aggOrCond = random.choice(['agg','nestedWhereCond'])
+        
+        nestedQuery = EasySQLQuery(self.db, 'seed', relation = relation, attribute = attribute, aggFn = aggFn, aggOrCond=aggOrCond)
+        if nestedQuery.conds:
+            while nestedQuery.conds['val1']==outerQuery.attrs[0] or nestedQuery.conds['val1']==outerQuery.conds['val1']:
+                nestedQuery = EasySQLQuery(self.db, 'seed', relation = relation, attribute = attribute, aggFn = aggFn, aggOrCond=aggOrCond)
 
+        nestedQuery.aggFns.append(aggFn)
+        
         nestedQuery.rels['rel1']=relation
         #nestedQuery.aggFns.append(aggFn)
 

@@ -58,8 +58,8 @@ class EasySQLQuery(ISQLQuery):
     def getDict(self):
         return super().getDict()
     
-    def createSimple(self, relation):
-        return super().createSimple(relation)
+    def createSimple(self, relation, attribute=None):
+        return super().createSimple(relation, attribute)
     
     def easyBuilder(self, relation, attribute=None, aggOrCond=None, aggFn=None):
         return super().easyBuilder(relation, attribute, aggOrCond, aggFn)
