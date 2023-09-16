@@ -10,6 +10,7 @@ class HardEnglishQuery(IEnglishQuery):
         super().__init__(sqlQuery)
         self.englishQuery = 'Show '
         self.englishQuery += self.nested(sqlQuery)
+        self.englishQuery += '.'
 
     def nested(self, query):
         q = self.easyEnglish(query)

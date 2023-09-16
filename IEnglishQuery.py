@@ -14,14 +14,15 @@ class IEnglishQuery(ABC):
 
     @abstractmethod
     def easyEnglish(self, sqlQuery):
+        eq = ''
         if sqlQuery['aggregates']:
-            self.englishQuery += self.attrsAndAggs(sqlQuery['attributes'][0], sqlQuery['aggregates'][0])
+            eq += self.attrsAndAggs(sqlQuery['attributes'][0], sqlQuery['aggregates'][0])
         else:
-            self.englishQuery += self.onlyAttrs(sqlQuery['attributes'])
-        self.englishQuery += ' in the ' + sqlQuery['relation']['rel1'].name + ' table'
+            eq += self.onlyAttrs(sqlQuery['attributes'])
+        eq += ' in the ' + sqlQuery['relation']['rel1'].name + ' table'
         if sqlQuery['condition']:
-            self.englishQuery += self.translateCond(sqlQuery['condition'], sqlQuery['nested'])
-        return self.englishQuery
+            eq += self.translateCond(sqlQuery['condition'], sqlQuery['nested'])
+        return eq
     
     @abstractmethod
     def englishToString(self, english):
