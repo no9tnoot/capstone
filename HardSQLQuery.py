@@ -70,16 +70,12 @@ class HardSQLQuery(ISQLQuery):
         match type:
             
             case 'nested':
-                sqlQuery1 = EasySQLQuery(self.db, 'seed', aggOrCond = 'whereCond')
+                sqlQuery1 = EasySQLQuery(self.db, 'seed', aggOrCond = 'nestedWhereCond')
                 # ensure not doing a null comparison
                 while sqlQuery1.conds['operator'] not in ISQLQuery.operators:
-                    sqlQuery1 = EasySQLQuery(self.db, 'seed', aggOrCond = 'whereCond')
-                
-                sqlQuery1.rels['rel1']=sqlQuery1.rels['rel1']
-            
-                sqlQuery2 = self.createNestedQuery(sqlQuery1.rels['rel1'], sqlQuery1.conds['val1'], sqlQuery1.conds['operator'])
-                
-                
+                    sqlQuery1 = EasySQLQuery(self.db, 'seed', aggOrCond = 'nestedWhereCond')
+                            
+                sqlQuery2 = self.createNestedQuery(sqlQuery1)
                 
                 sqlQuery1.conds['val2']=sqlQuery2
                 sqlQuery1.nested = True
@@ -88,16 +84,24 @@ class HardSQLQuery(ISQLQuery):
 
             
     
-    def createNestedQuery(self, relation, attribute, operator):
+    def createNestedQuery(self, outerQuery):
+        
+        relation = outerQuery.rels['rel1']
+        attribute = outerQuery.conds['val1']
+        operator = outerQuery.conds['operator']
 
         match operator:
             case '=':
-                if attribute.numeric:
-                    aggFn=random.choice(['max(', 'min(', 'avg('])
+                aggFn=random.choice(['max(', 'min(', 'avg('])
             case _:
                 aggFn = 'avg('
         
-        nestedQuery = EasySQLQuery(self.db, 'seed', relation = relation, attribute = attribute, aggFn = aggFn)
+        nestedQuery = EasySQLQuery(self.db, 'seed', relation = relation, attribute = attribute, aggFn = aggFn, aggOrCond='nestedWhereCond')
+        while nestedQuery.conds['val1']==outerQuery.attrs[0] or nestedQuery.conds['val1']==outerQuery.conds['val1']:
+            nestedQuery = EasySQLQuery(self.db, 'seed', relation = relation, attribute = attribute, aggFn = aggFn, aggOrCond='nestedWhereCond')
+
+        nestedQuery.rels['rel1']=relation
+        #nestedQuery.aggFns.append(aggFn)
 
         return nestedQuery
         
@@ -116,7 +120,7 @@ class HardSQLQuery(ISQLQuery):
     
     
     # #temp for testing
-# from Session import Session     
-# d = Session.loadDatabase()
-# s = HardSQLQuery(d, 'seed')
-# print(s.getSqlQuery())
+from Session import Session     
+d = Session.loadDatabase()
+s = HardSQLQuery(d, 'seed')
+print(s.getSqlQuery())

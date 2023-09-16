@@ -143,7 +143,7 @@ class ISQLQuery(ABC):
         match conds['cond'].lower():
             case 'where':
                 if self.nested:
-                     cond = ' ' + conds['cond'] + ' ' + conds['val1'].name + ' ' + conds['operator'] + ' ' + conds['val2'].toQuery()
+                     cond = ' ' + conds['cond'] + ' ' + conds['val1'].name + ' ' + conds['operator'] + ' (' + conds['val2'].toQuery() +')'
                 else:
                     cond = ' ' + conds['cond'] + ' ' + conds['val1'].name + ' ' + conds['operator'] + ' ' + conds['val2']
             case 'limit':
@@ -212,8 +212,6 @@ class ISQLQuery(ABC):
         
         if condType is None: condType = random.choice(self.condition) # select a random condition
         self.conds['cond'] = condType # add chosen condition to array instance variable
-
-        #self.rels.append(relation) # add chosen relation to array instance variable
 
         # choose * or an attribute
         if astOrAttr is None: astOrAttr = random.choice([ISQLQuery.asterisk, relation.getAttribute()]) 
@@ -400,13 +398,13 @@ class ISQLQuery(ABC):
             case 'cond':
                 self.createCond(relation, attribute)
             
-            case 'whereCond':
-                self.createCond(relation,attribute, 'where', numeric=True)
+            case 'nestedWhereCond':
+                self.createCond(relation, attribute, 'where', numeric=True)
         
             case '':
-                #relation = self.getRel() # get random relation
                 self.createSimple(relation)
                 
+        self.rels['rel1']=relation
         self.query = self.toQuery()
     
     @abstractmethod
