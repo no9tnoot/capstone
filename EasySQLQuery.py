@@ -9,11 +9,11 @@ class EasySQLQuery(ISQLQuery):
     
     operators = ['=']
     
-    def __init__(self, database, seed, relation = None):
+    def __init__(self, database, seed, relation=None, attribute=None, aggOrCond = None, aggFn=None):
         super().__init__(database, seed)
         if relation is None:
             relation = self.getRel() # select random relation from database
-        self.easyBuilder(relation)
+        self.easyBuilder(relation,  attribute=attribute, aggOrCond = aggOrCond, aggFn = aggFn)
         
     def getRel(self, numeric=False, string=False, roundable=False):
         return super().getRel(numeric, string, roundable)
@@ -30,11 +30,11 @@ class EasySQLQuery(ISQLQuery):
     def formatQueryConds(self, conds):
         return super().formatQueryConds(conds)
     
-    def createAgg(self, aggFn=None):
-        return super().createAgg(aggFn)
+    def createAgg(self, relation=None, attribute=None, aggFn=None):
+        return super().createAgg(relation, attribute, aggFn)
     
-    def createCond(self, relation):
-        return super().createCond(relation)
+    def createCond(self, relation, astOrAttr=None, condType=None, numeric=False):
+        super().createCond(relation, astOrAttr, condType, numeric)
     
     def createOrderByCond(self, relation):
         return super().createOrderByCond(relation)
@@ -42,8 +42,14 @@ class EasySQLQuery(ISQLQuery):
     def createLimitCond(self, relation):
         return super().createLimitCond(relation)
     
-    def createWhereCond(self, relation, cond_details):
-        return super().createWhereCond(relation, cond_details)
+    def createWhereCond(self, relation, cond_details, numeric=False):
+        return super().createWhereCond(relation, cond_details, numeric)
+    
+    def createLikeCond(self, relation, cond_details):
+        super().createLikeCond(relation, cond_details)
+        
+    def insertPercentWildCard(self, value, ends_with_perc, num_char_to_remove, cond_details):
+         super().insertPercentWildCard(self, value, ends_with_perc, num_char_to_remove, cond_details)
     
     def getSqlQuery(self):
         return super().getSqlQuery()
@@ -54,8 +60,11 @@ class EasySQLQuery(ISQLQuery):
     def createSimple(self, relation):
         return super().createSimple(relation)
     
-    def easyBuilder(self, relation):
-        super().easyBuilder(relation)
+    def easyBuilder(self, relation, attribute=None, aggOrCond=None, aggFn=None):
+        return super().easyBuilder(relation, attribute, aggOrCond, aggFn)
+        
+    def mediumBuilder(self, relation=None, attribute=None, components=None):
+        return super().mediumBuilder(relation, attribute, components)
     
     def toQuery(self):
         q = 'SELECT '
