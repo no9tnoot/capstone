@@ -106,8 +106,11 @@ class IEnglishQuery(ABC):
                 return condition['operator']
             
     @abstractmethod
-    def translateVal2(self, condition):
-        if condition['operator'] == 'like':
+    def translateVal2(self, condition, nested = False):
+        if nested:
+            return self.easyEnglish(condition['val2'])
+        
+        elif condition['operator'] == 'like':
             return "'" + condition['likeDict']['wildcard_free_string'] + "'"
         
         elif condition['val2'] == 'NULL':
