@@ -9,6 +9,17 @@ class IEnglishQuery(ABC):
     def __init__(self,sqlQuery):
         self.englishQuery = ''
         self.sqlQuery = sqlQuery
+
+    @abstractmethod
+    def easyEnglish(self, sqlQuery):
+        if sqlQuery['aggregates']:
+            self.englishQuery += self.attrsAndAggs(sqlQuery['attributes'][0], sqlQuery['aggregates'][0])
+        else:
+            self.englishQuery += self.onlyAttrs(sqlQuery['attributes'])
+        self.englishQuery += ' in the ' + sqlQuery['relation']['rel1'].name + ' table'
+        if sqlQuery['condition']:
+            self.englishQuery += self.translateCond(sqlQuery['condition'])
+        return self.englishQuery
     
     @abstractmethod
     def englishToString(self, english):
