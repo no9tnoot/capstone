@@ -1,0 +1,78 @@
+/* Sian Wood */
+/* 11/09/2023 */
+/* Styling testSQL home page */
+
+
+/* Section styling */
+
+html {
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 17px;
+}
+
+body {
+    margin: 0 auto;
+    background-color: rgb(235, 238, 241);
+    text-align: center;
+}
+
+/* Text styling */
+
+h1 {
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    font-size: 45px;
+    text-align: center;
+    padding-bottom: 100px;
+    padding-top: 50px;
+}
+
+/* Divider styling */
+
+div {
+    background-color: rgb(144, 165, 195);
+}
+
+/* Form styling */
+
+.form__fieldset {
+    padding: 15px 250px 10px;
+}
+
+.form__fieldset:is(:first-of-type) {
+    padding-top: 50px;
+    padding-bottom: 50px;
+}
+
+.form__fieldset:not(:last-of-type) {
+    padding-right: 320px;
+}
+
+
+.form__input {
+    font-size: 1rem;
+}
+
+.form__select {
+    padding: 4px 2px;
+}
+
+.form__label {
+    margin-right: 5px;
+}
+
+/* Form submit button styling */
+
+.form__submit {
+    padding: 8px 55px;
+    background-color: rgb(184, 196, 214);
+    border: 2px solid rgb(186, 191, 197);
+    border-radius: 4px;
+    float: none;
+    cursor: pointer;
+    color: black
+}
+
+.form__submit:hover {
+    background-color: rgb(255, 255, 255);
+    color: black;
+}

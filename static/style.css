@@ -1,0 +1,44 @@
+html {
+    font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+    font-size: 17px;
+}
+
+body {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.form__fieldset {
+    padding: 40px 20px
+}
+
+.form__fieldset:not(:last-of-type) {
+    border-bottom: 5px solid rgba(14, 34, 211, 0.1);
+}
+
+.form__input {
+    font-size: 1rem;
+}
+
+.form__select {
+    padding: 4px 2px;
+}
+
+.form__label {
+    margin-right: 20px;
+}
+
+.form__submit {
+    padding: 8px 16px;
+    background-color: unset;
+    border: 2px solid #b4184c;
+    border-radius: 4px;
+    float: right;
+    cursor: pointer;
+}
+
+.form__submit:hover {
+    background-color: #b4184c;
+    color: white;
+}
