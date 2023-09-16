@@ -16,13 +16,16 @@ class Quiz:
     def __init__(self, numEasy, numMed, numHard, user):
         self.difficultyDist = [numEasy,numMed,numHard]
         self.session = Session.Session(user)
+        # Array of numEasy, numMed and numHard Question objects
         self.questions = []
     
     def generateQuestions(self, difficultyDist):
         #Generate easy questions and store in array
         for i in range(0,difficultyDist[0]-1,1):
             question = self.session.genEasyQuestion()
-            self.questions.append([question.getQuery(), question.getQuestion()])
+            #Add question object to array
+            self.questions.append(question)
+            
         
         #Generate medium questions and store in array
         for i in range(0, difficultyDist[1]-1, 1):

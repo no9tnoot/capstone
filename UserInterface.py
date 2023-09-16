@@ -47,7 +47,6 @@ class UserInterface():
     
         
         
-ui = UserInterface()           
         
         
         
