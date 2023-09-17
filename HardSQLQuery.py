@@ -10,8 +10,6 @@ class HardSQLQuery(ISQLQuery):
         
     def __init__(self, database, seed):
         super().__init__(database, seed)
-        self.nested = False
-        self.join = False
         self.hardBuilder()
         
     def getRel(self, numeric=False, string=False):
@@ -67,7 +65,7 @@ class HardSQLQuery(ISQLQuery):
     
     def hardBuilder(self):
         
-        type = random.choice(['nested', 'join'])
+        type = random.choice(['nested', 'join', 'groupBy'])
         type = 'join'
         
         match type:
@@ -91,11 +89,12 @@ class HardSQLQuery(ISQLQuery):
                 self.rels['rel2'] = joinRelsAndAtts['rel2']
                 self.createJoin(joinRelsAndAtts)
                 self.query = self.toQuery()
+                
+            #case 'groupBy':
+                
             
 
     def createJoin(self, joinRelsAndAtts):
-        
-        
         
         if len(joinRelsAndAtts['joinAttributes'])==1:
             astOrAttr = ISQLQuery.asterisk

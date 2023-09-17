@@ -14,7 +14,7 @@ import mysql.connector # python3 --version, and then # pip3.8 install mysql-conn
 """
 class Attribute:
     
-    def __init__(self, name, dt='', null='', k=''):
+    def __init__(self, name, dt='', null='', k='', groupBy = False):
         self.name=name
         if not isinstance(dt, str):
             dt=dt.decode()
@@ -24,6 +24,7 @@ class Attribute:
         self.numeric = Attribute.isNumeric(self)
         self.roundable = Attribute.isRoundable(self)
         self.string = Attribute.isString(self)
+        self.groupBy = groupBy
     
     def getName(self):
         return self.name
@@ -100,6 +101,7 @@ class Relation:
         self.stringAttributes=[]
         self.roundableAttributes=[]
         self.numRows = nrow
+        self.groupByAttributes = []
     
     def ___str___(self):
         return self.name
@@ -195,13 +197,21 @@ class Relation:
                 if primary: joinAttributes.append(otherAttribute)
                 
         return joinAttributes
+    
+    
+    def getGroupByAttributes(self):
+        for attribute in self.attributes:
+            if attribute.groupBy:
+                self.groupByAttributes.append(attribute)
                 
+    def hasGroupByAttributes(self):
+        self.getGroupByAttributes()
+        return len(self.groupByAttributes)>0
 
 
 
 
-
-""" 
+"""
     Database
 """
 class Database:
@@ -214,8 +224,11 @@ class Database:
         self.user = user
         self.pword = pword
         self.db_name = db_name
+        self.groupByRelations = []
+        self.joinRelations = []
         self.loadRelations()
-        self.joinRelations = self.getJoinRelations()
+        self.getJoinRelations()
+        self.getGroupByRelations()
             
         
     """ Get the attributes and their types from SQL, as well as the relations"""
@@ -249,7 +262,13 @@ class Database:
             
             #create each attribute object for relation r
             for column in columns:
-                r.addAttribute(Attribute(column[0], column[1], column[2], column[3]))
+                # find out if attribute can be used for grouping
+                cursor.execute("SELECT COUNT(DISTINCT "+column[0]+") / COUNT(*) FROM "+r.name)
+                proportionDistinct = cursor.fetchall()
+                proportionDistinct = proportionDistinct[0][0]
+                groupBy = False
+                if proportionDistinct < 0.8: groupBy = True # if at most 80% of the values are unique, can use for grouping
+                r.addAttribute(Attribute(column[0], column[1], column[2], column[3], groupBy = groupBy))
             
             # if relation r contains at least 1 numeric attribute, add it to numericRelations array
             if (r.hasNumeric() > 0):
@@ -269,7 +288,6 @@ class Database:
         return self.numericRelations[i]
         
     def getJoinRelations(self):
-        joinRelations = []
         # For each relation pair
         for i in range(len(self.relations)):
             for j in range(i+1, len(self.relations)):
@@ -278,8 +296,14 @@ class Database:
                 joinAttributes = rel1.getJoinAttributes(rel2)
                 if len(joinAttributes)>0:
                     joinDict = dict(rel1=rel1, rel2=rel2, joinAttributes=joinAttributes)
-                    joinRelations.append(joinDict)
+                    self.joinRelations.append(joinDict)
                     
-        return joinRelations
+
+    
+    def getGroupByRelations(self):
+        for relation in self.relations:
+            if relation.hasGroupByAttributes():
+                self.groupByRelations.append(relation)
+        
                 
             

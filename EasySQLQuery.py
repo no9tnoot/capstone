@@ -14,7 +14,6 @@ class EasySQLQuery(ISQLQuery):
         if relation is None:
             if aggOrCond == 'nestedWhereCond': 
                 relation = self.getRel(numeric=True)
-                self.nested=True
             else: relation = self.getRel() # select random relation from database
         self.easyBuilder(relation = relation,  attribute=attribute, aggOrCond = aggOrCond, aggFn = aggFn)
         

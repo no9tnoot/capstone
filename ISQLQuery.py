@@ -39,6 +39,8 @@ class ISQLQuery(ABC):
         # Flags
         self.distinct = False
         self.orCond = False
+        self.nested=False
+        self.join = False
         
         self.roundTo = ''
   
