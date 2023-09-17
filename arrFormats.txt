@@ -29,3 +29,9 @@ Formats for arrays sent to MediumEnglishQuery():
     asNames:
         'name': what to call it e.g.: 'vat'
         'function': function that defines the value of name e.g.: round(buyprice * 15,2)
+
+
+Format for join array in Database class (used for HardSQLQuery):
+    joinRelations[]: array of join dictionaries (one for each joinable relation pair)
+        each join dict = {'rel1', 'rel2', 'sharedAttributes'}
+            'sharedAttributes' is an array of attributes shared by rel1 and rel2
