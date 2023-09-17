@@ -14,8 +14,13 @@ Formats for arrays sent to EasyEnglishQuery():
         'or': {'cond', 'val1', 'operator', 'val2', 'likeDict'} (same as above, but cond is always 'or')
 
 
-    relations:
+    rels:
         'rel1': relation name
+        'rel2': second relation (for join)
+        'joinType': 'natural inner join', 'full outer join', 'left outer join', 'right outer join'
+        'operator': 'on'
+        'attr': shared attribute to join on
+
 
     attributes:
         attrs = []
@@ -29,3 +34,9 @@ Formats for arrays sent to MediumEnglishQuery():
     asNames:
         'name': what to call it e.g.: 'vat'
         'function': function that defines the value of name e.g.: round(buyprice * 15,2)
+
+
+Format for join array in Database class (used for HardSQLQuery):
+    joinRelations[]: array of join dictionaries (one for each joinable relation pair)
+        each join dict = {'rel1', 'rel2', 'sharedAttributes'}
+            'joinAttributes' is an array of attributes shared by rel1 and rel2

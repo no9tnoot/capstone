@@ -5,10 +5,10 @@
 import ISQLQuery
 from EasySQLQuery import EasySQLQuery
 from MediumSQLQuery import MediumSQLQuery
-#import HardSQLQuery
+from HardSQLQuery import HardSQLQuery
 from EasyEnglishQuery import EasyEnglishQuery
 from MediumEnglishQuery import MediumEnglishQuery
-#import HardEnglishQuery
+from HardEnglishQuery import HardEnglishQuery
 from Question import Question
 
 class QuestionFactory:

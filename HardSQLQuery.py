@@ -2,18 +2,14 @@
 # 31 August 2023
 # ISQLQuery
 
-from EasyEnglishQuery import EasyEnglishQuery
 from EasySQLQuery import EasySQLQuery
-import ISQLQuery
+from ISQLQuery import ISQLQuery
 import random
-
-from QuestionFactory import QuestionFactory
 
 class HardSQLQuery(ISQLQuery):
         
     def __init__(self, database, seed):
         super().__init__(database, seed)
-        self.asNames = [] #names for AS aggregates
         self.hardBuilder()
         
     def getRel(self, numeric=False, string=False):
@@ -31,14 +27,14 @@ class HardSQLQuery(ISQLQuery):
     def formatQueryConds(self, conds):
         return super().formatQueryConds(conds)
     
-    def createAgg(self):
-        return super().createAgg()
+    def createAgg(self, relation=None, attribute=None, aggFn=None):
+        return super().createAgg(relation, attribute, aggFn)
     
-    def createCond(self, relation):
-        return super().createCond(relation)
+    def createCond(self, relation, astOrAttr=None, condType=None, numeric=False):
+        super().createCond(relation, astOrAttr, condType, numeric)
     
-    def createSimple(self, relation):
-        return super().createSimple(relation)
+    def createSimple(self, relation, attribute=None):
+        return super().createSimple(relation, attribute)
     
     def createOrderByCond(self, relation):
         return super().createOrderByCond(relation)
@@ -46,32 +42,148 @@ class HardSQLQuery(ISQLQuery):
     def createLimitCond(self, relation):
         return super().createLimitCond(relation)
     
-    def createWhereCond(self, relation, cond_details):
-        return super().createWhereCond(relation, cond_details)
+    def createWhereCond(self, relation, cond_details, numeric=False):
+        return super().createWhereCond(relation, cond_details, numeric)
+    
+    def createLikeCond(self, relation, cond_details):
+        super().createLikeCond(relation, cond_details)
+        
+    def insertPercentWildCard(self, value, ends_with_perc, num_char_to_remove, cond_details):
+        super().insertPercentWildCard(value, ends_with_perc, num_char_to_remove, cond_details)
     
     def getSqlQuery(self):
         return super().getSqlQuery()
     
     def getDict(self):
-        return super().getDict()
+        return self.sqlQuery1.getDict()
     
-    def easyBuilder(self, relation):
-        return super().easyBuilder(relation)
+    def easyBuilder(self, relation, attribute = None, aggOrCond=None, aggFn = None):
+        super().easyBuilder(relation, attribute, aggOrCond, aggFn)
+        
+    def mediumBuilder(self, relation = None, attribute = None, components = None):
+        super().mediumBuilder(relation, attribute, components)
     
     def hardBuilder(self):
         
-        type = 'nested'
+        type = random.choice(['nested', 'join', 'groupBy'])
+        type = 'join'
         
         match type:
             
             case 'nested':
-                sqlQuery1 = EasySQLQuery(self.database, 'seed')
-                sqlQuery2 = EasySQLQuery(self.database, 'seed', relation = sqlQuery1.rels['rel1'])
+                self.sqlQuery1 = EasySQLQuery(self.db, 'seed', aggOrCond = 'nestedWhereCond')
+                # ensure not doing a null comparison
+                while self.sqlQuery1.conds['operator'] not in ISQLQuery.operators:
+                    self.sqlQuery1 = EasySQLQuery(self.db, 'seed', aggOrCond = 'nestedWhereCond')
+                            
+                sqlQuery2 = self.createNestedQuery(self.sqlQuery1)
                 
+                self.sqlQuery1.conds['val2']=sqlQuery2
+                self.sqlQuery1.nested = True
+                
+                self.query =  self.sqlQuery1.toQuery()
+                
+            case 'join':
+                joinRelsAndAtts = random.choice(self.db.joinRelations)
+                self.rels['rel1'] = joinRelsAndAtts['rel1']
+                self.rels['rel2'] = joinRelsAndAtts['rel2']
+                self.createJoin(joinRelsAndAtts)
+                self.query = self.toQuery()
+                
+            #case 'groupBy':
+                
+            
+
+    def createJoin(self, joinRelsAndAtts):
         
+        if len(joinRelsAndAtts['joinAttributes'])==1:
+            astOrAttr = ISQLQuery.asterisk
+            # Could maybe have an option for a not shared shared attribute from one of them here? would that break the logic of the query? my brain is tired
+                    
+        else:
+            astOrAttr = random.choice(joinRelsAndAtts['joinAttributes'])
+        
+        aggFn = None
+        
+        if astOrAttr == ISQLQuery.asterisk: aggFn='count('
+        
+        self.easyBuilder(relation = self.rels['rel1'], 
+                         attribute=astOrAttr, 
+                         aggOrCond = random.choice(['','agg']), 
+                         aggFn=aggFn)
+                
+        joinType = random.choice(['natural inner join', 'inner join', 'left outer join', 'right outer join'])
+        
+              
+        if joinType != 'natural inner join':
+            self.rels['operator']='on'
+            self.rels['attr'] = random.choice(joinRelsAndAtts['joinAttributes'])
+            while self.rels['attr'].isEqual(astOrAttr):
+                self.rels['attr'] = random.choice(joinRelsAndAtts['joinAttributes'])
+        
+            # if astOrAttr != ISQLQuery.asterisk:
+            #     attr_from_rel1 = self.rels['rel1'].getAttributeWithName(self.rels['attr'].name)
+            #     attr_from_rel2 = self.rels['rel2'].getAttributeWithName(self.rels['attr'].name)
+            #     if attr_from_rel1.isPrimary() and attr_from_rel2.isPrimary():
+            #         self.attrs.append(self.rels['rel1'].getAttribute(secondary=True))
+
+        
+        self.rels['joinType'] = joinType
+        self.join=True
+            
+        
+    def createNestedQuery(self, outerQuery):
+        
+        relation = outerQuery.rels['rel1']
+        attribute = outerQuery.conds['val1']
+        operator = outerQuery.conds['operator']
+
+        match operator:
+            case '=':
+                aggFn=random.choice(['max(', 'min(', 'avg('])
+            case _:
+                aggFn = 'avg('
+        
+        aggOrCond = random.choice(['agg','nestedWhereCond'])
+        
+        nestedQuery = EasySQLQuery(self.db, 'seed', relation = relation, attribute = attribute, aggFn = aggFn, aggOrCond=aggOrCond)
+        if nestedQuery.conds:
+            while nestedQuery.conds['val1']==outerQuery.attrs[0] or nestedQuery.conds['val1']==outerQuery.conds['val1']:
+                nestedQuery = EasySQLQuery(self.db, 'seed', relation = relation, attribute = attribute, aggFn = aggFn, aggOrCond=aggOrCond)
+
+        nestedQuery.aggFns.append(aggFn)
+        
+        nestedQuery.rels['rel1']=relation
+
+        return nestedQuery
+        
+                
+    
     def toQuery(self):
-        q = 'SELECT '
-        q += self.formatQueryAggs(self.attrs, self.aggFns, self.asNames)
-        q += 'FROM' + self.queryRels(self.rels[0], self.rels[1], self.rels[2])
-        q += self.formatQueryConds(self.conds)
+        q = ''
+        if self.nested: q += '('  
+        q += 'SELECT '
+        q += self.formatQueryAggs(self.attrs, self.aggFns)
+        q += ' FROM ' + self.rels['rel1'].name
+        
+        if self.conds:
+            q += self.formatQueryConds(self.conds)
+        
+        if self.orCond:
+            q += self.formatQueryConds(self.conds['or'])
+        
+        if self.join:
+            q += ' ' + self.rels['joinType'] + ' ' + self.rels['rel2'].name 
+            if self.rels['joinType'] != 'natural inner join':
+                q += ' ON ' + self.rels['rel1'].name + '.' + self.rels['attr'].name + ' = ' + self.rels['rel2'].name + '.' + self.rels['attr'].name
+            
+        if self.nested: q += ')'
+        
         return q
+    
+    
+    # #temp for testing
+from Session import Session     
+d = Session.loadDatabase()
+s = HardSQLQuery(d, 'seed')
+print(s.getSqlQuery())

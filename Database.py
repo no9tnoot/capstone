@@ -14,7 +14,7 @@ import mysql.connector # python3 --version, and then # pip3.8 install mysql-conn
 """
 class Attribute:
     
-    def __init__(self, name, dt='', null='', k=''):
+    def __init__(self, name, dt='', null='', k='', groupBy = False):
         self.name=name
         if not isinstance(dt, str):
             dt=dt.decode()
@@ -24,12 +24,16 @@ class Attribute:
         self.numeric = Attribute.isNumeric(self)
         self.roundable = Attribute.isRoundable(self)
         self.string = Attribute.isString(self)
+        self.groupBy = groupBy
     
     def getName(self):
         return self.name
         
     def getDataType(self):
         return self.dataType
+    
+    def isPrimary(self):
+        return (self.key == 'PRI')
 
     # Sets numeric to True if the attribute is numeric (not a string/date/time/boolean)
     def isNumeric(self):
@@ -73,6 +77,13 @@ class Attribute:
         
         return isRoundable
     
+    def isEqual(self, attribute):
+        if self.name != attribute.name: return False
+        if self.dataType != attribute.dataType: return False
+        if self.null != attribute.null: return False
+        return True
+        
+    
 
 
 
@@ -90,6 +101,7 @@ class Relation:
         self.stringAttributes=[]
         self.roundableAttributes=[]
         self.numRows = nrow
+        self.groupByAttributes = []
     
     def ___str___(self):
         return self.name
@@ -120,7 +132,12 @@ class Relation:
         return len(self.roundableAttributes)>0
 
         
-    def getAttribute(self, numeric = False, string = False, roundable = False):
+    def getAttribute(self, numeric = False, string = False, roundable = False, secondary = False):
+        
+        if secondary:
+            i = random.randrange(1,self.getNumAttributes()-1,1)
+            return self.attributes[i]
+        
         # check that the attribute number asked for is not out of bounds
         if not numeric and not string and not roundable:
             i = random.randrange(0, self.getNumAttributes()-1, 1)
@@ -137,19 +154,64 @@ class Relation:
         elif roundable:
             i = random.randrange(0, len(self.roundableAttributes), 1)
             return self.roundableAttributes[i]
-
-            
+    
+    
+    
+    """
+        Finds the attribute with the given name in self.attributes. Returns None if no
+        matching attribute found.
+    """
+    def getAttributeWithName(self, name):
+        for attribute in self.attributes:
+            if attribute.name == name:
+                return attribute
+        return None
         
     def getNumAttributes(self):
         return len(self.attributes)
     
     def getNumRows(self):
         return self.numRows
+    
+    """
+        Returns True if the passed attribute exists in this relation, and False otherwise.
+    """
+    def hasAttribute(self, attribute):
+        for att in self.attributes:
+            if att.isEqual(attribute): return True
+        return False
+        
+    """
+        Returns an array of attributes that are in both this relation and the passed relation.
+    """
+    def getJoinAttributes(self, otherRelation):
+        joinAttributes = []
+        primary = False
+        # go through every attribute in the given relation
+        for otherAttribute in otherRelation.attributes:
+            primary = otherAttribute.isPrimary() # check if the attribute is a primary attribute in the other relation
+            if self.hasAttribute(otherAttribute):
+                if not primary: 
+                    primary = self.getAttributeWithName(otherAttribute.name).isPrimary() # check if the attribute is primary in this relation
+                # if primary in at least one of the relations, append to joinAttributes
+                if primary: joinAttributes.append(otherAttribute)
+                
+        return joinAttributes
+    
+    
+    def getGroupByAttributes(self):
+        for attribute in self.attributes:
+            if attribute.groupBy:
+                self.groupByAttributes.append(attribute)
+                
+    def hasGroupByAttributes(self):
+        self.getGroupByAttributes()
+        return len(self.groupByAttributes)>0
 
 
 
 
-""" 
+"""
     Database
 """
 class Database:
@@ -162,7 +224,11 @@ class Database:
         self.user = user
         self.pword = pword
         self.db_name = db_name
+        self.groupByRelations = []
+        self.joinRelations = []
         self.loadRelations()
+        self.getJoinRelations()
+        self.getGroupByRelations()
             
         
     """ Get the attributes and their types from SQL, as well as the relations"""
@@ -196,7 +262,13 @@ class Database:
             
             #create each attribute object for relation r
             for column in columns:
-                r.addAttribute(Attribute(column[0], column[1], column[2], column[3]))
+                # find out if attribute can be used for grouping
+                cursor.execute("SELECT COUNT(DISTINCT "+column[0]+") / COUNT(*) FROM "+r.name)
+                proportionDistinct = cursor.fetchall()
+                proportionDistinct = proportionDistinct[0][0]
+                groupBy = False
+                if proportionDistinct < 0.8: groupBy = True # if at most 80% of the values are unique, can use for grouping
+                r.addAttribute(Attribute(column[0], column[1], column[2], column[3], groupBy = groupBy))
             
             # if relation r contains at least 1 numeric attribute, add it to numericRelations array
             if (r.hasNumeric() > 0):
@@ -214,3 +286,24 @@ class Database:
     
     def getNumericRelation(self, i):
         return self.numericRelations[i]
+        
+    def getJoinRelations(self):
+        # For each relation pair
+        for i in range(len(self.relations)):
+            for j in range(i+1, len(self.relations)):
+                rel1=self.relations[i]
+                rel2=self.relations[j]
+                joinAttributes = rel1.getJoinAttributes(rel2)
+                if len(joinAttributes)>0:
+                    joinDict = dict(rel1=rel1, rel2=rel2, joinAttributes=joinAttributes)
+                    self.joinRelations.append(joinDict)
+                    
+
+    
+    def getGroupByRelations(self):
+        for relation in self.relations:
+            if relation.hasGroupByAttributes():
+                self.groupByRelations.append(relation)
+        
+                
+            

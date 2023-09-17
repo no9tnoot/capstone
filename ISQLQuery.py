@@ -6,6 +6,7 @@ from abc import ABC, abstractmethod
 import mysql.connector
 import random
 import Database
+import math
 
 class ISQLQuery(ABC):
     
@@ -38,6 +39,8 @@ class ISQLQuery(ABC):
         # Flags
         self.distinct = False
         self.orCond = False
+        self.nested=False
+        self.join = False
         
         self.roundTo = ''
   
@@ -124,9 +127,9 @@ class ISQLQuery(ABC):
         aggs = ''
         d=''
         if self.distinct: d='distinct '
-        if aggregates:
+        if aggregates and attributes:
             aggs += aggregates[0] + d + attributes[0].name + self.roundTo + ')'
-        else:
+        elif attributes:
             for att in attributes[:-1]:
                 aggs += att.name + ", "
             aggs += d+ attributes[-1].name
@@ -141,7 +144,10 @@ class ISQLQuery(ABC):
         cond = ''
         match conds['cond'].lower():
             case 'where':
-                cond = ' ' + conds['cond'] + ' ' + conds['val1'].name + ' ' + conds['operator'] + ' ' + conds['val2']
+                if self.nested:
+                     cond = ' ' + conds['cond'] + ' ' + conds['val1'].name + ' ' + conds['operator'] + ' (' + conds['val2'].toQuery() +')'
+                else:
+                    cond = ' ' + conds['cond'] + ' ' + conds['val1'].name + ' ' + conds['operator'] + ' ' + conds['val2']
             case 'limit':
                 cond = ' ' + conds['cond'] + ' ' + conds['val2']
             case 'order by':
@@ -156,17 +162,21 @@ class ISQLQuery(ABC):
         Create an attribute with neither a condition nor an aggregate function
     """
     @abstractmethod
-    def createSimple(self, relation):
+    def createSimple(self, relation, attribute = None):
         
-        numAttr = random.choice([1,2])  # will we ask for one or 2 relations
-        self.attrs.append(relation.getAttribute())
+        if attribute is None:
+            numAttr = random.choice([1,2])  # will we ask for one or 2 relations
+            self.attrs.append(relation.getAttribute())
+             # select and set the second relation if one is needed
+            while numAttr==2:
+                attr2 = relation.getAttribute()
+                if (attr2 != self.attrs[0]): # don't set the same relation as the first one
+                    self.attrs.append(attr2)
+                    numAttr = 0
         
-        # select and set the second relation if one is needed
-        while numAttr==2:
-            attr2 = relation.getAttribute()
-            if (attr2 != self.attrs[0]): # don't set the same relation as the first one
-                self.attrs.append(attr2)
-                numAttr = 0
+        else: self.attrs.append(attribute)
+        
+       
     
     
         
@@ -176,14 +186,15 @@ class ISQLQuery(ABC):
         Relation put in rels[0]
     """    
     @abstractmethod
-    def createAgg(self, aggFn=None):
-        if aggFn is not None:
-            self.aggFns.append(aggFn)
-        else: self.aggFns.append(self.setAgg())  # get a random aggreegate func and storing it in aggFns
+    def createAgg(self, relation=None, attribute=None, aggFn=None):
+        
+        if aggFn is None: aggFn = self.setAgg() # get a random aggreegate func 
+        
+        self.aggFns.append(aggFn)  # store it in aggFns
         
         # If doing a count agg, account for *
         if self.aggFns[0] == 'count(':
-            relation = self.getRel(self) # select random relation from database
+            if relation is None: relation = self.getRel(self) # select random relation from database
             
             # choose * or an attribute
             astOrAttr = random.choice([ISQLQuery.asterisk, relation.getAttribute()]) 
@@ -191,9 +202,9 @@ class ISQLQuery(ABC):
         
         # if not doing a count
         else:
-            relation = self.getRel(numeric = True) # select relation that countains a numeric attribute from database
-            attr = relation.getAttribute(numeric=True) # select numeric attribute from relation
-            self.attrs.append(attr) # add chosen attribute function to array instance variable
+            if relation is None: relation = self.getRel(numeric = True) # select relation that countains a numeric attribute from database
+            if attribute is None: attribute = relation.getAttribute(numeric=True) # select numeric attribute from relation
+            self.attrs.append(attribute) # add chosen attribute function to array instance variable
         
 
         
@@ -203,15 +214,13 @@ class ISQLQuery(ABC):
         Relation put in rels[0]
     """  
     @abstractmethod
-    def createCond(self, relation):
+    def createCond(self, relation, astOrAttr = None, condType=None, numeric=False):
         
-        condType = random.choice(self.condition) # select a random condition
+        if condType is None: condType = random.choice(self.condition) # select a random condition
         self.conds['cond'] = condType # add chosen condition to array instance variable
 
-        #self.rels.append(relation) # add chosen relation to array instance variable
-
         # choose * or an attribute
-        astOrAttr = random.choice([ISQLQuery.asterisk, relation.getAttribute()]) 
+        if astOrAttr is None: astOrAttr = random.choice([ISQLQuery.asterisk, relation.getAttribute()]) 
         self.attrs.append(astOrAttr) # add chosen attribute function / * to array instance variable
         
         match condType:
@@ -224,7 +233,7 @@ class ISQLQuery(ABC):
                 self.createLimitCond(relation)
             
             case 'where':
-                self.cond = self.createWhereCond(relation, self.conds)
+                self.cond = self.createWhereCond(relation, self.conds, numeric=numeric)
                 self.conds['cond'] = condType
             
             case _:
@@ -260,8 +269,8 @@ class ISQLQuery(ABC):
 
     # If this is a "where" condition
     @abstractmethod
-    def createWhereCond(self, relation, cond_details):        
-        attr = relation.getAttribute() # select a second random attribute 
+    def createWhereCond(self, relation, cond_details, numeric=False):        
+        attr = relation.getAttribute(numeric) # select a second random attribute 
         # (can be the same as attr_1)
         cond_details['val1'] = attr # add chosen attribute to conds array
 
@@ -286,26 +295,167 @@ class ISQLQuery(ABC):
             reqVal = self.selectAttrVal(relation, cond_details['val1'])
             cond_details['val2'] = str(reqVal) # add chosen required value to array instance variable
         return cond_details
+    
+    @abstractmethod
+    def createLikeCond(self, relation, cond_details):
+        cond_details['likeDict']={}
+        cond_details['cond']='where'
+        cond_details['operator']='like'
+        
+        attr = relation.getAttribute(string = True) # select a second random attribute 
+        # (can be the same as attr_1)
+        cond_details['val1'] = attr # add chosen attribute to conds array
+
+        
+        val = self.selectAttrVal(relation, attr)  #select an attribute from the relation
+        val = [char for char in val]  # turn string into an array of characters
+                
+        # if val is only 1 character long, don't remove any characters
+        if len(val)==1:
+            likeType = '%'
+            ends_with_perc = random.choice([True,False])
+            num_char_to_remove = 0
+            val = self.insertPercentWildCard(val, ends_with_perc, num_char_to_remove, cond_details)
+        
+        # if val is longer than 1 character long
+        else:
+            likeType = random.choice(['%', '%%', '_%'])
+            
+            match likeType:
+                
+                #Either 'starts with' or 'ends with' a string
+                case '%':
+                    ends_with_perc = random.choice([True,False])
+                    num_char_to_remove = random.randint(1, len(val)-1)
+                    val = self.insertPercentWildCard(val, ends_with_perc, num_char_to_remove, cond_details)
+
+                # 'Contains' a string
+                case '%%': 
+                    ends_with_perc=False # this both ends and starts with perc, doesn't matter
+                    num_char_to_remove = random.randint(1, math.floor(0.5*len(val)))
+                    val = self.insertPercentWildCard(val, True, num_char_to_remove, cond_details)
+                    num_char_to_remove = random.randint(1, math.floor(0.5*len(val)))
+                    val = self.insertPercentWildCard(val, False, num_char_to_remove, cond_details)
+                    cond_details['likeDict']['wildcard_free_string'] = ''.join(val[1:-1])
+                
+                # First/Second/Third/Fourth etc letter is x USE NUM_CHAR_TO_REMOVE AS INDEX TO ARRAY OF STRINGS ['FIRST',SECOND'...]
+                case '_%':
+                    ends_with_perc = random.choice([True,False]) 
+                    num_underscore = random.randint(1, min(4, len(val)-1))
+                    cond_details['likeDict']['num_underscore'] = num_underscore
+                    val = self.insertPercentWildCard(val, ends_with_perc, len(val)-num_underscore-1, cond_details)
+                    match ends_with_perc:
+                        case True:
+                            val = val[num_underscore:]
+                            cond_details['likeDict']['wildcard_free_string'] = ''.join(val[:-1])
+                            for i in range(0,num_underscore):
+                                val.insert(0, '_')
+                        case False:
+                            val = val[:-num_underscore]
+                            cond_details['likeDict']['wildcard_free_string'] = ''.join(val[1:])
+                            for i in range(0,num_underscore):
+                                val.append('_')
+
+                case _:
+                    print('Invalid like type')
+                            
+        cond_details['val2']=''.join(val)
+        cond_details['likeDict']['type']=likeType
+        cond_details['likeDict']['starts_with_string']=ends_with_perc
+        
+        
+    """
+        Insert a percentage wildcard at the given index in value (an array of characters),
+        and remove a number of characters wither before (startswith True) or after (startswith 
+        False) the percentage wildcard.
+    """
+    @abstractmethod
+    def insertPercentWildCard(self, value, ends_with_perc, num_char_to_remove, cond_details):
+        
+        match ends_with_perc: 
+            
+            case False: # insert percentage at start ('ends with string')
+                #remove the first n characters
+                for i in range(0, num_char_to_remove):
+                    value.pop(0)
+                cond_details['likeDict']['wildcard_free_string'] = ''.join(value)
+                value.insert(0, '%') # insert % at beginning
+                
+            case True: # insert percentage at end ('starts with string')
+                #remove the last n characters
+                for i in range(len(value)-num_char_to_remove,len(value)):
+                    value.pop(-1)
+                cond_details['likeDict']['wildcard_free_string'] = ''.join(value)
+                value.append('%') # insert % at end
+                
+        return value
 
     @abstractmethod
-    def easyBuilder(self, relation):
+    def easyBuilder(self, relation, attribute=None, aggOrCond = None, aggFn=None):
         # Randomly select either an aggregate fn or condition or neither
-        aggOrCond = random.choice(['agg', 'cond', ''])
-        #aggOrCond='cond'  # for testing
+        if aggOrCond is None: aggOrCond = random.choice(['agg', 'cond', ''])
 
         match aggOrCond:
             # If the random selection is an aggregate fn
             case 'agg':
-                self.createAgg()
+                self.createAgg(relation, attribute, aggFn)
             
             # If the random selection is a condition
             case 'cond':
-                #relation = self.getRel() # select random relation from database
-                self.createCond(relation)
+                self.createCond(relation, attribute)
+            
+            case 'nestedWhereCond':
+                self.createCond(relation, attribute, 'where', numeric=True)
         
             case '':
-                #relation = self.getRel() # get random relation
-                self.createSimple(relation)
+                self.createSimple(relation, attribute)
+                
+        self.rels['rel1']=relation
+        self.query = self.toQuery()
+    
+    @abstractmethod
+    def mediumBuilder(self, relation = None, attribute = None, components = None):
+        # Randomly select either an aggregate fn or conds or neither
+        if components is None: components = random.choice(['distinct', 'like', 'or', 'round']) # distinct, as
+        match components:
+            case 'distinct':
+                self.distinct = True
+                count = random.choice([True, False])
+                if count:
+                    self.createAgg('count(')
+                else:
+                    relation = self.getRel() # select random relation from database
+                    self.createSimple(relation, attribute)
+            
+            case 'like':
+                if relation is None: relation = self.getRel(string=True) # select random relation from database
+                self.easyBuilder(relation, attribute)
+                self.createLikeCond(relation, self.conds)
+                
+            case 'or':
+                choice = random.choice(['like', 'where'])
+                match choice:
+                    case 'where':
+                        relation = self.getRel() # select random relation from database
+                        self.conds['cond'] = 'where'
+                        astOrAttr = random.choice([ISQLQuery.asterisk, relation.getAttribute()]) 
+                        self.attrs.append(astOrAttr) # add chosen attribute function / * to array instance variable
+                        self.createWhereCond(relation, self.conds)
+                        self.createOrCond(relation)
+                    case 'like':
+                        relation = self.getRel(string=True) # select random relation from database
+                        self.easyBuilder(relation)
+                        self.createLikeCond(relation, self.conds)
+                        self.createOrCond(relation, string=True)
+            
+            case 'round':
+                relation = self.getRel(roundable=True) # select random relation from database
+                self.createRoundAgg(relation)
+                
+
+            case _:
+                print('Invalid component')
+            
                 
         self.query = self.toQuery()
     
@@ -325,7 +475,8 @@ class ISQLQuery(ABC):
                 'condition': self.conds,
                 'distinct': self.distinct,
                 'orCond': self.orCond,
-                'roundTo': self.roundTo}
+                'roundTo': self.roundTo,
+                'nested': self.nested}
         
         return dict
     
