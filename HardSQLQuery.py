@@ -92,6 +92,8 @@ class HardSQLQuery(ISQLQuery):
                 
             #case 'groupBy':
                 
+                
+                
             
 
     def createJoin(self, joinRelsAndAtts):

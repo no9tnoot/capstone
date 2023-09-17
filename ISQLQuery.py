@@ -129,6 +129,11 @@ class ISQLQuery(ABC):
         if self.distinct: d='distinct '
         if aggregates and attributes:
             aggs += aggregates[0] + d + attributes[0].name + self.roundTo + ')'
+            # if still some attributes to do
+            if len(attributes)>1:
+                for att in attributes[1:-1]:
+                    aggs += att.name + ", "
+                aggs += d+ attributes[-1].name
         elif attributes:
             for att in attributes[:-1]:
                 aggs += att.name + ", "
@@ -417,12 +422,13 @@ class ISQLQuery(ABC):
     def mediumBuilder(self, relation = None, attribute = None, components = None):
         # Randomly select either an aggregate fn or conds or neither
         if components is None: components = random.choice(['distinct', 'like', 'or', 'round']) # distinct, as
+        components='distinct'
         match components:
             case 'distinct':
                 self.distinct = True
                 count = random.choice([True, False])
                 if count:
-                    self.createAgg('count(')
+                    self.createAgg(aggFn = 'count(')
                 else:
                     relation = self.getRel() # select random relation from database
                     self.createSimple(relation, attribute)
