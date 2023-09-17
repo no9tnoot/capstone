@@ -109,11 +109,9 @@ class HardSQLQuery(ISQLQuery):
                          aggOrCond = random.choice(['','agg']), 
                          aggFn=aggFn)
                 
-        joinType = random.choice(['natural inner join', ''])
-        joinType=''
+        joinType = random.choice(['natural inner join', 'inner join', 'full outer join', 'left outer join', 'right outer join'])
                 
-        if joinType == '':
-            joinType = random.choice(['inner join', 'full outer join', 'left outer join', 'right outer join'])
+        if joinType != 'natural inner join':
             self.rels['operator']='on'
             self.rels['attr'] = random.choice(joinRelsAndAtts['joinAttributes'])
             while self.rels['attr'].isEqual(astOrAttr):
