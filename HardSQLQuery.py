@@ -95,10 +95,11 @@ class HardSQLQuery(ISQLQuery):
 
     def createJoin(self, joinRelsAndAtts):
         
-        if len(joinRelsAndAtts['joinAttributes'])==1:
+        if len(joinRelsAndAtts['joinAttributes'])<=1:
             astOrAttr = ISQLQuery.asterisk
-            
-        astOrAttr = random.choice([ISQLQuery.asterisk, random.choice(joinRelsAndAtts['joinAttributes'])]) 
+                    
+        else:
+            astOrAttr = random.choice([ISQLQuery.asterisk, random.choice(joinRelsAndAtts['joinAttributes'])]) 
         
         aggFn = None
         
@@ -110,7 +111,8 @@ class HardSQLQuery(ISQLQuery):
                          aggFn=aggFn)
                 
         joinType = random.choice(['natural inner join', 'inner join', 'full outer join', 'left outer join', 'right outer join'])
-                
+        
+              
         if joinType != 'natural inner join':
             self.rels['operator']='on'
             self.rels['attr'] = random.choice(joinRelsAndAtts['joinAttributes'])
@@ -154,16 +156,20 @@ class HardSQLQuery(ISQLQuery):
         q += 'SELECT '
         q += self.formatQueryAggs(self.attrs, self.aggFns)
         q += ' FROM ' + self.rels['rel1'].name
+        
         if self.conds:
             q += self.formatQueryConds(self.conds)
+        
         if self.orCond:
             q += self.formatQueryConds(self.conds['or'])
+        
         if self.join:
             q += ' ' + self.rels['joinType'] + ' ' + self.rels['rel2'].name 
             if self.rels['joinType'] != 'natural inner join':
                 q += ' ON ' + self.rels['rel1'].name + '.' + self.rels['attr'].name + ' = ' + self.rels['rel2'].name + '.' + self.rels['attr'].name
             
         if self.nested: q += ')'
+        
         return q
     
     
