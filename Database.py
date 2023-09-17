@@ -130,7 +130,12 @@ class Relation:
         return len(self.roundableAttributes)>0
 
         
-    def getAttribute(self, numeric = False, string = False, roundable = False):
+    def getAttribute(self, numeric = False, string = False, roundable = False, secondary = False):
+        
+        if secondary:
+            i = random.randrange(1,self.getNumAttributes()-1,1)
+            return self.attributes[i]
+        
         # check that the attribute number asked for is not out of bounds
         if not numeric and not string and not roundable:
             i = random.randrange(0, self.getNumAttributes()-1, 1)
@@ -147,6 +152,9 @@ class Relation:
         elif roundable:
             i = random.randrange(0, len(self.roundableAttributes), 1)
             return self.roundableAttributes[i]
+    
+    
+    
     """
         Finds the attribute with the given name in self.attributes. Returns None if no
         matching attribute found.

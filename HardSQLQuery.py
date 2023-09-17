@@ -95,11 +95,14 @@ class HardSQLQuery(ISQLQuery):
 
     def createJoin(self, joinRelsAndAtts):
         
-        if len(joinRelsAndAtts['joinAttributes'])<=1:
+        
+        
+        if len(joinRelsAndAtts['joinAttributes'])==1:
             astOrAttr = ISQLQuery.asterisk
+            # Could maybe have an option for a not shared shared attribute from one of them here? would that break the logic of the query? my brain is tired
                     
         else:
-            astOrAttr = random.choice([ISQLQuery.asterisk, random.choice(joinRelsAndAtts['joinAttributes'])]) 
+            astOrAttr = random.choice(joinRelsAndAtts['joinAttributes'])
         
         aggFn = None
         
@@ -110,7 +113,7 @@ class HardSQLQuery(ISQLQuery):
                          aggOrCond = random.choice(['','agg']), 
                          aggFn=aggFn)
                 
-        joinType = random.choice(['natural inner join', 'inner join', 'full outer join', 'left outer join', 'right outer join'])
+        joinType = random.choice(['natural inner join', 'inner join', 'left outer join', 'right outer join'])
         
               
         if joinType != 'natural inner join':
@@ -118,6 +121,13 @@ class HardSQLQuery(ISQLQuery):
             self.rels['attr'] = random.choice(joinRelsAndAtts['joinAttributes'])
             while self.rels['attr'].isEqual(astOrAttr):
                 self.rels['attr'] = random.choice(joinRelsAndAtts['joinAttributes'])
+        
+            # if astOrAttr != ISQLQuery.asterisk:
+            #     attr_from_rel1 = self.rels['rel1'].getAttributeWithName(self.rels['attr'].name)
+            #     attr_from_rel2 = self.rels['rel2'].getAttributeWithName(self.rels['attr'].name)
+            #     if attr_from_rel1.isPrimary() and attr_from_rel2.isPrimary():
+            #         self.attrs.append(self.rels['rel1'].getAttribute(secondary=True))
+
         
         self.rels['joinType'] = joinType
         self.join=True
