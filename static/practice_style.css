@@ -84,6 +84,7 @@ nav {
 select {
     display: inline-block;
     height: 100%;
+    min-width: 100px;
 }
 
 /* Link styling */
