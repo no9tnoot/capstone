@@ -476,7 +476,8 @@ class ISQLQuery(ABC):
                 'distinct': self.distinct,
                 'orCond': self.orCond,
                 'roundTo': self.roundTo,
-                'nested': self.nested}
+                'nested': self.nested,
+                'join': self.join}
         
         return dict
     

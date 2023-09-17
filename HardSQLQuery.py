@@ -55,7 +55,7 @@ class HardSQLQuery(ISQLQuery):
         return super().getSqlQuery()
     
     def getDict(self):
-        return self.sqlQuery1.getDict()
+        return super().getDict()
     
     def easyBuilder(self, relation, attribute = None, aggOrCond=None, aggFn = None):
         super().easyBuilder(relation, attribute, aggOrCond, aggFn)
@@ -71,17 +71,18 @@ class HardSQLQuery(ISQLQuery):
         match type:
             
             case 'nested':
-                self.sqlQuery1 = EasySQLQuery(self.db, 'seed', aggOrCond = 'nestedWhereCond')
+                relation = self.getRel(numeric=True)
+                self.easyBuilder(relation = relation, aggOrCond = 'nestedWhereCond')
                 # ensure not doing a null comparison
-                while self.sqlQuery1.conds['operator'] not in ISQLQuery.operators:
-                    self.sqlQuery1 = EasySQLQuery(self.db, 'seed', aggOrCond = 'nestedWhereCond')
+                while self.conds['operator'] not in ISQLQuery.operators:
+                    self.easyBuilder(relation = relation, aggOrCond = 'nestedWhereCond')
                             
-                sqlQuery2 = self.createNestedQuery(self.sqlQuery1)
+                sqlQuery2 = self.createNestedQuery(self.rels, self.conds, self.attrs)
                 
-                self.sqlQuery1.conds['val2']=sqlQuery2
-                self.sqlQuery1.nested = True
+                self.conds['val2']=sqlQuery2
+                self.nested = True
                 
-                self.query =  self.sqlQuery1.toQuery()
+                self.query =  self.toQuery()
                 
             case 'join':
                 joinRelsAndAtts = random.choice(self.db.joinRelations)
@@ -132,11 +133,10 @@ class HardSQLQuery(ISQLQuery):
         self.join=True
             
         
-    def createNestedQuery(self, outerQuery):
+    def createNestedQuery(self, relation, conds, attrs):
         
-        relation = outerQuery.rels['rel1']
-        attribute = outerQuery.conds['val1']
-        operator = outerQuery.conds['operator']
+        attribute = conds['val1']
+        operator = conds['operator']
 
         match operator:
             case '=':
@@ -148,7 +148,7 @@ class HardSQLQuery(ISQLQuery):
         
         nestedQuery = EasySQLQuery(self.db, 'seed', relation = relation, attribute = attribute, aggFn = aggFn, aggOrCond=aggOrCond)
         if nestedQuery.conds:
-            while nestedQuery.conds['val1']==outerQuery.attrs[0] or nestedQuery.conds['val1']==outerQuery.conds['val1']:
+            while nestedQuery.conds['val1']==attrs[0] or nestedQuery.conds['val1']==conds['val1']:
                 nestedQuery = EasySQLQuery(self.db, 'seed', relation = relation, attribute = attribute, aggFn = aggFn, aggOrCond=aggOrCond)
 
         nestedQuery.aggFns.append(aggFn)

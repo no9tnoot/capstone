@@ -18,6 +18,12 @@ class HardEnglishQuery(IEnglishQuery):
     
     def join(self, query):
         q = self.easyEnglish(query)
+        match query['rels']['joinType']:
+            case 'left outer join':
+                q += ' along with the ' + query['rels']['rels2'] + ' records with the associated ' + query['rels']['attr']
+            case 'right outer join':
+                q += ' along with the ' + query['rels']['rels1'] + ' records with the associated ' + query['rels']['attr']
+            
     
     def englishToString(self, english):
         return super().englishToString(english)
