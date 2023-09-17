@@ -16,6 +16,9 @@ class HardEnglishQuery(IEnglishQuery):
         q = self.easyEnglish(query)
         return q
     
+    def join(self, query):
+        q = self.easyEnglish(query)
+    
     def englishToString(self, english):
         return super().englishToString(english)
     

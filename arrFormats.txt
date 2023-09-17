@@ -18,7 +18,7 @@ Formats for arrays sent to EasyEnglishQuery():
         'rel1': relation name
         'rel2': second relation (for join)
         'joinType': 'natural inner join', 'full outer join', 'left outer join', 'right outer join'
-        'operator': 'on'
+        #'operator': 'on'
         'attr': shared attribute to join on
 
 
