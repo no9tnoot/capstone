@@ -10,6 +10,8 @@ class HardSQLQuery(ISQLQuery):
         
     def __init__(self, database, seed):
         super().__init__(database, seed)
+        self.nested = False
+        self.join = False
         self.hardBuilder()
         
     def getRel(self, numeric=False, string=False):
@@ -57,15 +59,16 @@ class HardSQLQuery(ISQLQuery):
     def getDict(self):
         return self.sqlQuery1.getDict()
     
-    def easyBuilder(self, relation, attribute = None, aggOrCond=None):
-        super().easyBuilder(relation, attribute, aggOrCond)
+    def easyBuilder(self, relation, attribute = None, aggOrCond=None, aggFn = None):
+        super().easyBuilder(relation, attribute, aggOrCond, aggFn)
         
     def mediumBuilder(self, relation = None, attribute = None, components = None):
         super().mediumBuilder(relation, attribute, components)
     
     def hardBuilder(self):
         
-        type = 'nested'
+        type = random.choice(['nested', 'join'])
+        type = 'join'
         
         match type:
             
@@ -81,9 +84,44 @@ class HardSQLQuery(ISQLQuery):
                 self.sqlQuery1.nested = True
                 
                 self.query =  self.sqlQuery1.toQuery()
-
+                
+            case 'join':
+                joinRelsAndAtts = random.choice(self.db.joinRelations)
+                self.rels['rel1'] = joinRelsAndAtts['rel1']
+                self.rels['rel2'] = joinRelsAndAtts['rel2']
+                self.createJoin(joinRelsAndAtts)
+                self.query = self.toQuery()
             
-    
+
+    def createJoin(self, joinRelsAndAtts):
+        
+        if len(joinRelsAndAtts['joinAttributes'])==1:
+            astOrAttr = ISQLQuery.asterisk
+            
+        astOrAttr = random.choice([ISQLQuery.asterisk, random.choice(joinRelsAndAtts['joinAttributes'])]) 
+        
+        aggFn = None
+        
+        if astOrAttr == ISQLQuery.asterisk: aggFn='count('
+        
+        self.easyBuilder(relation = self.rels['rel1'], 
+                         attribute=astOrAttr, 
+                         aggOrCond = random.choice(['','agg']), 
+                         aggFn=aggFn)
+                
+        joinType = random.choice(['natural inner join', ''])
+                
+        if joinType == '':
+            joinType = random.choice(['inner join', 'full outer join', 'left outer join', 'right outer join'])
+            self.rels['operator']='on'
+            self.rels['attr'] = random.choice(joinRelsAndAtts['joinAttributes'])
+            while self.rels['attr'].isEqual(astOrAttr):
+                self.rels['attr'] = random.choice(joinRelsAndAtts['joinAttributes'])
+        
+        self.rels['joinType'] = joinType
+        self.join=True
+            
+        
     def createNestedQuery(self, outerQuery):
         
         relation = outerQuery.rels['rel1']
@@ -106,26 +144,32 @@ class HardSQLQuery(ISQLQuery):
         nestedQuery.aggFns.append(aggFn)
         
         nestedQuery.rels['rel1']=relation
-        #nestedQuery.aggFns.append(aggFn)
 
         return nestedQuery
         
                 
     
     def toQuery(self):
-        q = '(SELECT '
+        q = ''
+        if self.nested: q += '('  
+        q += 'SELECT '
         q += self.formatQueryAggs(self.attrs, self.aggFns)
         q += ' FROM ' + self.rels['rel1'].name
         if self.conds:
             q += self.formatQueryConds(self.conds)
         if self.orCond:
             q += self.formatQueryConds(self.conds['or'])
-        q += ')'
+        if self.join:
+            q += ' ' + self.rels['joinType'] + ' ' + self.rels['rel2'].name 
+            if self.rels['joinType'] != 'natural inner join':
+                q += ' ON ' + self.rels['attr'].name
+            
+        if self.nested: q += ')'
         return q
     
     
     # #temp for testing
-# from Session import Session     
-# d = Session.loadDatabase()
-# s = HardSQLQuery(d, 'seed')
-# print(s.getSqlQuery())
+from Session import Session     
+d = Session.loadDatabase()
+s = HardSQLQuery(d, 'seed')
+print(s.getSqlQuery())
