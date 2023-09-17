@@ -33,6 +33,9 @@ class EasyEnglishQuery(IEnglishQuery):
     def translateVal2(self, condition):
         return super().translateVal2(condition)
     
+    def easyEnglish(self, sqlQuery):
+        return super().easyEnglish(sqlQuery)
+    
     def __init__(self, sqlQuery):
         super().__init__(sqlQuery)
         self.englishQuery = 'Show '
