@@ -110,6 +110,7 @@ class HardSQLQuery(ISQLQuery):
                          aggFn=aggFn)
                 
         joinType = random.choice(['natural inner join', ''])
+        joinType=''
                 
         if joinType == '':
             joinType = random.choice(['inner join', 'full outer join', 'left outer join', 'right outer join'])
@@ -162,7 +163,7 @@ class HardSQLQuery(ISQLQuery):
         if self.join:
             q += ' ' + self.rels['joinType'] + ' ' + self.rels['rel2'].name 
             if self.rels['joinType'] != 'natural inner join':
-                q += ' ON ' + self.rels['attr'].name
+                q += ' ON ' + self.rels['rel1'].name + '.' + self.rels['attr'].name + ' = ' + self.rels['rel2'].name + '.' + self.rels['attr'].name
             
         if self.nested: q += ')'
         return q
