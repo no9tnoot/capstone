@@ -21,8 +21,8 @@ class MediumSQLQuery(ISQLQuery):
     def selectAttrVal(self, relation, attribute):
         return super().selectAttrVal(relation, attribute)
     
-    def setAgg(self):
-        return super().setAgg()
+    def getAgg(self):
+        return super().getAgg()
     
     def formatQueryAggs(self, attributes, aggregates):
         return super().formatQueryAggs(attributes, aggregates)
@@ -60,8 +60,8 @@ class MediumSQLQuery(ISQLQuery):
     def getDict(self):
         return super().getDict()
     
-    def easyBuilder(self, relation, attribute=None, aggOrCond=None, aggFn=None):
-        return super().easyBuilder(relation, attribute, aggOrCond, aggFn)
+    def easyBuilder(self, relation, attribute=None, aggOrCond=None, aggFn=None, condType = None):
+        return super().easyBuilder(relation, attribute, aggOrCond, aggFn, condType)
         
     def mediumBuilder(self, components=None):
         super().mediumBuilder(components)
