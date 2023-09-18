@@ -42,8 +42,8 @@ class EasySQLQuery(ISQLQuery):
     def createLimitCond(self, relation):
         return super().createLimitCond(relation)
     
-    def createWhereCond(self, relation, cond_details, numeric=False):
-        return super().createWhereCond(relation, cond_details, numeric)
+    def createWhereCond(self, relation, cond_details, numeric=False, whereAttr=None):
+        return super().createWhereCond(relation, cond_details, numeric, whereAttr)
     
     def createLikeCond(self, relation, cond_details):
         super().createLikeCond(relation, cond_details)

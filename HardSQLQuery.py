@@ -66,18 +66,19 @@ class HardSQLQuery(ISQLQuery):
     def hardBuilder(self):
         
         type = random.choice(['nested', 'join'])
-        type = 'groupBy'
+        #type = 'nested'
         
         match type:
             
             case 'nested':
                 relation = self.getRel(numeric=True)
+                #self.rels['rel1']=relation
                 self.easyBuilder(relation = relation, aggOrCond = 'nestedWhereCond')
                 # ensure not doing a null comparison
                 while self.conds['operator'] not in ISQLQuery.operators:
                     self.easyBuilder(relation = relation, aggOrCond = 'nestedWhereCond')
                             
-                sqlQuery2 = self.createNestedQuery(self.rels, self.conds, self.attrs)
+                sqlQuery2 = self.createNestedQuery(self.rels['rel1'], self.conds, self.attrs)
                 
                 self.conds['val2']=sqlQuery2
                 self.nested = True
@@ -204,9 +205,7 @@ class HardSQLQuery(ISQLQuery):
                 
     
     def toQuery(self):
-        q = ''
-        if self.nested: q += '('  
-        q += 'SELECT '
+        q = 'SELECT '
         q += self.formatQueryAggs(self.attrs, self.aggFns)
         q += ' FROM ' + self.rels['rel1'].name
         
@@ -221,7 +220,6 @@ class HardSQLQuery(ISQLQuery):
             if self.rels['joinType'] != 'natural inner join':
                 q += ' ON ' + self.rels['rel1'].name + '.' + self.rels['attr'].name + ' = ' + self.rels['rel2'].name + '.' + self.rels['attr'].name
             
-        if self.nested: q += ')'
         
         if self.groupBy:
             q += ' GROUP BY ' + self.attrs[1].name
