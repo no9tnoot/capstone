@@ -45,8 +45,7 @@ class ISQLQuery(ABC):
         
         self.roundTo = ''
   
-
-        
+  
     
     """
         Randomly selects and returns a relation from the loaded database.
@@ -168,7 +167,7 @@ class ISQLQuery(ABC):
                 if self.nested: # if doing a nested conditional, add brackets and turn the nested query (conds['val2']) into a string
                      cond = ' ' + conds['cond'] + ' ' + conds['val1'].name + ' ' + conds['operator'] + ' (' + conds['val2'].toQuery() +')'
                 else:
-                    if conds['val1'].string: # add ' ' around string value to compare (e.g. 'Greg')
+                    if conds['val2']!='NULL': # add ' ' around string value to compare (e.g. 'Greg')
                         cond = ' ' + conds['cond'] + ' ' + conds['val1'].name + ' ' + conds['operator'] + ' \'' + conds['val2'] + '\''
                     else: cond = ' ' + conds['cond'] + ' ' + conds['val1'].name + ' ' + conds['operator'] + ' ' + conds['val2']
             

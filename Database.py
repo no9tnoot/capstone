@@ -267,7 +267,7 @@ class Database:
                 proportionDistinct = cursor.fetchall()
                 proportionDistinct = proportionDistinct[0][0]
                 groupBy = False
-                if proportionDistinct < 0.8: groupBy = True # if at most 80% of the values are unique, can use for grouping
+                if proportionDistinct < 0.5: groupBy = True # if at most 80% of the values are unique, can use for grouping
                 r.addAttribute(Attribute(column[0], column[1], column[2], column[3], groupBy = groupBy))
             
             # if relation r contains at least 1 numeric attribute, add it to numericRelations array

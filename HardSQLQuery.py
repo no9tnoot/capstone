@@ -65,8 +65,8 @@ class HardSQLQuery(ISQLQuery):
     
     def hardBuilder(self):
         
-        type = random.choice(['nested', 'join'])
-        #type = 'nested'
+        type = random.choice(['nested', 'join', 'groupBy'])
+        #type = 'groupBy'
         
         match type:
             
