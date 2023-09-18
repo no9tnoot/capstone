@@ -9,61 +9,80 @@ import random
 class HardSQLQuery(ISQLQuery):
         
     def __init__(self, database, seed):
+        print('__init__')
         super().__init__(database, seed)
         self.hardBuilder()
         
     def getRel(self, numeric=False, string=False):
+        print('getRel')
         return super().getRel(numeric, string)
     
     def selectAttrVal(self, relation, attribute):
+        print('selectAttrVal')
         return super().selectAttrVal(relation, attribute)
     
     def setAgg(self):
+        print('setAgg')
         return super().setAgg()
     
     def formatQueryAggs(self, attributes, aggregates):
+        print('formatQueryAggs')
         return super().formatQueryAggs(attributes, aggregates)
     
     def formatQueryConds(self, conds):
+        print('formatQueryConds')
         return super().formatQueryConds(conds)
     
     def createAgg(self, relation=None, attribute=None, aggFn=None):
+        print('createAgg')
         return super().createAgg(relation, attribute, aggFn)
     
     def createCond(self, relation, astOrAttr=None, condType=None, numeric=False):
+        print('createCond')
         super().createCond(relation, astOrAttr, condType, numeric)
     
     def createSimple(self, relation, attribute=None):
+        print('createSimple')
         return super().createSimple(relation, attribute)
     
     def createOrderByCond(self, relation):
+        print('createOrderByCond')
         return super().createOrderByCond(relation)
     
     def createLimitCond(self, relation):
+        print('createLimitCond')
         return super().createLimitCond(relation)
     
     def createWhereCond(self, relation, cond_details, numeric=False):
+        print('createWhereCond')
         return super().createWhereCond(relation, cond_details, numeric)
     
     def createLikeCond(self, relation, cond_details):
+        print('createLikeCond')
         super().createLikeCond(relation, cond_details)
         
     def insertPercentWildCard(self, value, ends_with_perc, num_char_to_remove, cond_details):
+        print('insertPercentWildCard')
         super().insertPercentWildCard(value, ends_with_perc, num_char_to_remove, cond_details)
     
     def getSqlQuery(self):
+        print('getSqlQuery')
         return super().getSqlQuery()
     
     def getDict(self):
+        print('getDict')
         return self.sqlQuery1.getDict()
     
     def easyBuilder(self, relation, attribute = None, aggOrCond=None, aggFn = None):
+        print('easyBuilder')
         super().easyBuilder(relation, attribute, aggOrCond, aggFn)
         
     def mediumBuilder(self, relation = None, attribute = None, components = None):
+        print('mediumBuilder')
         super().mediumBuilder(relation, attribute, components)
     
     def hardBuilder(self):
+        print('hardBuilder')
         
         type = random.choice(['nested', 'join', 'groupBy'])
         type = 'join'
@@ -88,6 +107,7 @@ class HardSQLQuery(ISQLQuery):
                 self.rels['rel1'] = joinRelsAndAtts['rel1']
                 self.rels['rel2'] = joinRelsAndAtts['rel2']
                 self.createJoin(joinRelsAndAtts)
+                print('about to to Query')
                 self.query = self.toQuery()
                 
             #case 'groupBy':
@@ -97,30 +117,41 @@ class HardSQLQuery(ISQLQuery):
             
 
     def createJoin(self, joinRelsAndAtts):
+        print('createJoin')
         
+        astOrAttr = random.choice([ISQLQuery.asterisk,joinRelsAndAtts['rel1'].getAttribute()])
+        # make sure that the chosen attribute is not the only joinable attribute
         if len(joinRelsAndAtts['joinAttributes'])==1:
-            astOrAttr = ISQLQuery.asterisk
-            # Could maybe have an option for a not shared shared attribute from one of them here? would that break the logic of the query? my brain is tired
-                    
-        else:
-            astOrAttr = random.choice(joinRelsAndAtts['joinAttributes'])
+            while astOrAttr.isEqual(joinRelsAndAtts['joinAttributes'][0]):
+                astOrAttr = joinRelsAndAtts['rel1'].getAttribute()
+                
+        aggFn=None
         
-        aggFn = None
-        
-        if astOrAttr == ISQLQuery.asterisk: aggFn='count('
+        if astOrAttr.isEqual(ISQLQuery.asterisk): aggFn='count('
         
         self.easyBuilder(relation = self.rels['rel1'], 
                          attribute=astOrAttr, 
                          aggOrCond = random.choice(['','agg']), 
                          aggFn=aggFn)
+        
+        print('finished create easy')
+        # select second attribute
+        if not astOrAttr.isEqual(ISQLQuery.asterisk):
+            print('in if')
+            attr2 = joinRelsAndAtts['rel2'].getAttribute()
+            while astOrAttr.isEqual(attr2):
+                print('in while')
+                attr2 = joinRelsAndAtts['rel2'].getAttribute()
+            self.attrs.append(attr2)
                 
         joinType = random.choice(['natural inner join', 'inner join', 'left outer join', 'right outer join'])
-        
+        print('picks joinType '+joinType)
               
         if joinType != 'natural inner join':
             self.rels['operator']='on'
             self.rels['attr'] = random.choice(joinRelsAndAtts['joinAttributes'])
             while self.rels['attr'].isEqual(astOrAttr):
+                print('in second while')
                 self.rels['attr'] = random.choice(joinRelsAndAtts['joinAttributes'])
         
             # if astOrAttr != ISQLQuery.asterisk:
@@ -132,9 +163,11 @@ class HardSQLQuery(ISQLQuery):
         
         self.rels['joinType'] = joinType
         self.join=True
+        print('finishedCreateJoin')
             
         
     def createNestedQuery(self, outerQuery):
+        print('createNestedQuery')
         
         relation = outerQuery.rels['rel1']
         attribute = outerQuery.conds['val1']
@@ -162,6 +195,7 @@ class HardSQLQuery(ISQLQuery):
                 
     
     def toQuery(self):
+        print('toQuery')
         q = ''
         if self.nested: q += '('  
         q += 'SELECT '

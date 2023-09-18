@@ -13,6 +13,7 @@ class MediumSQLQuery(ISQLQuery):
         super().__init__(database, seed)
         self.asNames = [] #names for AS aggregates
         self.mediumBuilder()
+        self.query = self.toQuery()
         
     def getRel(self, numeric=False, string=False, roundable=False):
         return super().getRel(numeric, string, roundable)

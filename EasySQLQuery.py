@@ -13,6 +13,7 @@ class EasySQLQuery(ISQLQuery):
         super().__init__(database, seed)
          # select random relation from database
         self.easyBuilder(relation = relation,  attribute=attribute, aggOrCond = aggOrCond, aggFn = aggFn)
+        self.query = self.toQuery()
         
     def getRel(self, numeric=False, string=False, roundable=False):
         return super().getRel(numeric, string, roundable)
