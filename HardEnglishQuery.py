@@ -17,8 +17,32 @@ class HardEnglishQuery(IEnglishQuery):
         return q
     
     def join(self, query):
-        q = self.easyEnglish(query)
-    
+        q = self.translateAgg(query['aggregates'][0]) + ' ' + self.translateAttr(query['attributes'][0])
+        
+        match query['relation']['joinType']:
+            case 'left outer join':
+                #agg and attr
+                q = self.translateAgg(query['aggregates'][0]) + ' ' + self.translateAttr(query['attributes'][0])
+                #first relation
+                q += ' in the ' + query['relation']['rel1'].name + ' table'
+                q += ' along with the ' + self.translateAttr(query['attributes'][1]) + ' values in the ' + query['relation']['rel2'] + ' table that have a corresponding ' + query['relation']['attr'] + ' value'
+            case 'right outer join':
+                q = self.translateAgg(query['aggregates'][0]) + ' ' + self.translateAttr(query['attributes'][1])
+                
+                q += ' in the ' + query['relation']['rel2'].name + ' table'
+                q += ' along with the ' + self.translateAttr(query['attributes'][0]) + ' values in the ' + query['relation']['rel1'] + ' table that have a corresponding ' + query['relation']['attr'] + ' value'
+            case 'inner join':
+                q = self.translateAgg(query['aggregates'][0]) + ' ' + self.translateAttr(query['attributes'][0])
+                q += ' in the ' + query['relation']['rel1'].name + ' table'
+                q += ' and in the ' + query['relation']['rel2'] + ' table where they have a matching value of ' + query['relation']['attr']
+                
+            case 'natural inner join':
+                q = self.translateAgg(query['aggregates'][0]) + ' ' + self.translateAttr(query['attributes'][0])
+                q += ' in the ' + query['relation']['rel1'].name + ' table'
+                q += ' and the associated values of ' + self.translateAttr(query['attributes'][1]) + 'in the ' + query['relation']['rel2'] + ' table'
+                
+     
+
     def englishToString(self, english):
         return super().englishToString(english)
     
