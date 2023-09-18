@@ -35,9 +35,10 @@
         </div>
     </form>
 
+    {% if showResult %}
     <div class="receive_result">
         <div class="result_output">
-            <div class="result">Result</div>
+            <div class="result">{{ correct }}</div>
             <div class="result_data">Lorem ipsum dolor sit amet consectetur adipisicing elit. Adipisci vel nisi quo
                 debitis facilis placeat amet? Excepturi obcaecati laudantium, nulla perspiciatis esse deserunt ipsam
                 nesciunt impedit consequatur adipisci velit voluptas iusto suscipit reprehenderit neque inventore vero
@@ -52,6 +53,7 @@
             <!-- <button class="next_button btn" type="submit" form="next_q_form">next >></button> -->
         </div>
     </div>
+    {% endif %}
 
 
 </body>
