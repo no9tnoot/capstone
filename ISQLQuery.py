@@ -198,7 +198,7 @@ class ISQLQuery(ABC):
         Relation put in rels[0]
     """    
     @abstractmethod
-    def createAgg(self, relation=None, attribute=None, aggFn=None):
+    def createAgg(self, relation=None, astOrAttr=None, aggFn=None):
         
         if aggFn is None: aggFn = self.setAgg() # get a random aggreegate func 
         
@@ -209,14 +209,15 @@ class ISQLQuery(ABC):
             if relation is None: relation = self.getRel(self) # select random relation from database
             
             # choose * or an attribute
-            astOrAttr = random.choice([ISQLQuery.asterisk, relation.getAttribute()]) 
+            if astOrAttr is None:
+                astOrAttr = random.choice([ISQLQuery.asterisk, relation.getAttribute()]) 
             self.attrs.append(astOrAttr) # add chosen attribute function / * to array instance variable
         
         # if not doing a count
         else:
             if relation is None: relation = self.getRel(numeric = True) # select relation that countains a numeric attribute from database
-            if attribute is None: attribute = relation.getAttribute(numeric=True) # select numeric attribute from relation
-            self.attrs.append(attribute) # add chosen attribute function to array instance variable
+            if astOrAttr is None: astOrAttr = relation.getAttribute(numeric=True) # select numeric attribute from relation
+            self.attrs.append(astOrAttr) # add chosen attribute function to array instance variable
         
 
         

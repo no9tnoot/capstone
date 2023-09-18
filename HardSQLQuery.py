@@ -113,28 +113,38 @@ class HardSQLQuery(ISQLQuery):
             #case 'groupBy':
                 
                 
-                
             
 
     def createJoin(self, joinRelsAndAtts):
         print('createJoin')
         
         astOrAttr = random.choice([ISQLQuery.asterisk,joinRelsAndAtts['rel1'].getAttribute()])
+        print('astOrAttr = ' + astOrAttr.name)
         # make sure that the chosen attribute is not the only joinable attribute
         if len(joinRelsAndAtts['joinAttributes'])==1:
             while astOrAttr.isEqual(joinRelsAndAtts['joinAttributes'][0]):
                 astOrAttr = joinRelsAndAtts['rel1'].getAttribute()
-                
-        aggFn=None
-        
+    
         if astOrAttr.isEqual(ISQLQuery.asterisk): aggFn='count('
+        elif not astOrAttr.numeric: aggFn = random.choice(['count(', 'max(', 'min('])
+        else: aggFn = None
+        
+        if aggFn is not None: print('aggFn before is '+aggFn)
+        else: print('aggFn none before')
+        
+        aggOrCond = random.choice(['','agg'])
         
         self.easyBuilder(relation = self.rels['rel1'], 
                          attribute=astOrAttr, 
-                         aggOrCond = random.choice(['','agg']), 
+                         #aggOrCond = random.choice(['','agg']), 
+                         aggOrCond = aggOrCond,
                          aggFn=aggFn)
         
         print('finished create easy')
+        print('aggOrCond = '+ aggOrCond)
+        #print('agg Fn  is '+self.aggFns[0])
+        print('attr1 is '+self.attrs[0].name)
+        
         # select second attribute
         if not astOrAttr.isEqual(ISQLQuery.asterisk):
             print('in if')
@@ -143,6 +153,11 @@ class HardSQLQuery(ISQLQuery):
                 print('in while')
                 attr2 = joinRelsAndAtts['rel2'].getAttribute()
             self.attrs.append(attr2)
+            
+        if not astOrAttr.isEqual(ISQLQuery.asterisk):
+            print('attr2 is '+self.attrs[1].name)
+        print('attr1 is '+self.attrs[0].name)
+        
                 
         joinType = random.choice(['natural inner join', 'inner join', 'left outer join', 'right outer join'])
         print('picks joinType '+joinType)
