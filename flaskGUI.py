@@ -3,109 +3,130 @@
 # Flask: web pages for testSQL capstone
 
 from flask import Flask, render_template, request
+from QuizSetup import QuizSetup
 from Session import Session
-from QuestionFactory import QuestionFactory
 
 from test_login import check_login_details #, get_eng
 app = Flask(__name__, template_folder="templates")
 
-class flaskGUI():
-    
-    def __init__(self, session, factory):
-        self.session = Session("user") # Create session
-        db = session.database # Load the database
-        self.factory = QuestionFactory(db) # Create the question factory
+def rmvDuplicates(arr):
+    # Compare items in an array, ensuring that there are no duplicates
+    for i in range(len(arr)):
+        for j in range(i+1, len(arr)):
+            if arr[i] == arr[j]:
+                return i
+    return -1
 
-    # Login page:
-    @app.route("/", methods=["GET", "POST"])
-    def login():
-        #print(request.args)
-        print(request.form.get("username"))
-        if request.method == "POST":
-            print(request.form.get("username"))
-            # If the username and password are valid, return home page
-            if check_login_details(request.form.get("username"), request.form.get("password")):
-                return render_template("home_gui.html")
-            else:
-                return """
-                    <h1>Invalid login details</h1>
-                    <a href="/">back to login</a>
-                    """
-        return render_template("login_gui.html")
 
-    # Home page:
-    @app.route("/home", methods=["GET", "POST"])
-    def home():
-        return render_template("home_gui.html")
+# Login page:
+@app.route("/", methods=["GET", "POST"])
+def login():
+    #print(request.args)
+    #print(request.form.get("username"))
+    if request.method == "POST":
+        #print(request.form.get("username"))
+        # If the username and password are valid, return home page
+        if check_login_details(request.form.get("username"), request.form.get("password")):
+            return render_template("home_gui.html")
+        else:
+            return """
+                <h1>Invalid login details</h1>
+                <a href="/">back to login</a>
+                """
+    return render_template("login_gui.html")
 
-    # Practice quiz page:
-    @app.route("/practice", methods=["GET", "POST"])
-    def practice(self):
+# Home page:
+@app.route("/home", methods=["GET", "POST"])
+def home():
+    return render_template("home_gui.html")
 
-        # SETUP
-        qLevel = "easy" # Set the initial question level to easy, and generate the first question
-        question = self.factory.getQuestion(qLevel) # Generate the first question
-        marked = False # Flag to indicate whether results should be showing
+# Practice quiz page:
+@app.route("/practice", methods=["GET", "POST"])
+def practice():
 
-        if request.method == "POST":
-            print(request.form)
-            
-            if "mark_button" in request.form:
-                # Mark the student's inputted SQL query
-                stuAns = request.form.get("sql") # Get student's input
-                modelAns = self.session.getSqlQuery() # Get model answer
-                mark = Session.markQuery(self.session, stuAns, modelAns) # Mark
+    global setup
+    # global result
+    setup.marked = False
+    print(setup.qLevel)
 
-                print(mark)
-
-                marked = True # Set flag
-
-                print("\"marked\" set to True. \n Results should be showing.")
-            
-            elif "next_button" in request.form:
-                # Store question and results
-                # Generate new question of selected difficulty level
-                print("Next button pressed")
-
-            elif "difficulty_changed" in request.form:
-                qLevel = request.form.get("difficulty") # Get the new difficulty set by user -> update qLevel
-                newQuestion = self.factory.getQuestion(qLevel) # Generate question
-                return newQuestion.getEnglishQuery() # Return Eng query of question
-
+    if request.method == "POST":
+        #print(request.form)
         
-        # Render a practice page which displays the generated English query
-        return render_template("practice_gui.html", engQuestion=question.getEnglishQuery(), showResult = marked) 
+        if "mark_button" in request.form:
+            # Mark the student's inputted SQL query
+            modelSQL = setup.question.getSqlQuery()
+            stuSQL = request.form.get("sql")
+            setup.result = Session.markQuery(setup.session, stuSQL, modelSQL) # Mark
+            # Change true to correct, false to incorrect
 
-    # Test quiz page:
-    @app.route("/test", methods=["GET", "POST"])
-    def test(self):
+            if setup.result[0]:
+                setup.result[0] = "Correct!"
+            else:
+                if setup.result[0] == False:
+                    setup.result[2] = "The model output for this query was \"" + modelSQL + ";\" You inputted \"" + stuSQL + "\""
+                setup.result[0] = "Incorrect"
+            setup.marked = True # Set flag
+        
+        elif "next_button" in request.form:
+            # Store question and results
+            # Generate new question of selected difficulty level
+            setup.question = setup.factory.getQuestion(setup.qLevel)
+            setup.marked = False # Reset flag
 
-        # Generate questions
-        easy1 = self.factory.getQuestion("easy") 
-        easy2 = self.factory.getQuestion("easy")
-        easy3 = self.factory.getQuestion("easy")
-        med1 = self.factory.getQuestion("medium")
-        med2 = self.factory.getQuestion("medium")
-        med3 = self.factory.getQuestion("medium")
-        med4 = self.factory.getQuestion("medium")
-        med5 = self.factory.getQuestion("medium")
-        hard1 = self.factory.getQuestion("hard")
-        hard2 = self.factory.getQuestion("hard")
+        elif "difficulty_changed" in request.form:
+            setup.qLevel = request.form.get("difficulty") # Get the new difficulty set by user -> update qLevel
+            setup.question = setup.factory.getQuestion(setup.qLevel) # Generate question
+            setup.marked = False # Reset flag
+            return setup.question.getEnglishQuery() # Return Eng query of question
 
-        print(request.form) 
-        return render_template("test_gui.html", engE1 = easy1.getEnglishQuery(), engE2 = easy2.getEnglishQuery(), engE3 = easy3.getEnglishQuery(), engM1 = med1.getEnglishQuery(), engM2 = med2.getEnglishQuery(), engM3 = med3.getEnglishQuery(), engM4 = med4.getEnglishQuery(), engM5 = med5.getEnglishQuery(), engH1 = hard1.getEnglishQuery(), engH2 = hard2.getEnglishQuery())
+    
+    # Render a practice page which displays the generated English query
+    return render_template("practice_gui.html", engQuestion=setup.question.getEnglishQuery(), correct = setup.result[0], explanation = setup.result[1], model = setup.result[2], showResult = setup.marked) 
 
-    # Statistics page:
-    @app.route("/statistics", methods=["GET", "POST"])
-    def stats():
-        return """
-        <h1>STATISTIC</h1>
-        """
-        print(request.form) 
-        return render_template("stats_gui.html")
+# Test quiz page:
+@app.route("/test", methods=["GET", "POST"])
+def test():
+    numQs = 10 # Must be divisible by 10
+    questionList = []
 
-    def main():
-        app.run()
+    # Generate questions
+    for i in range(int(0.3*numQs)):
+        # Generate 30% easy questions
+        questionList.append(setup.factory.getQuestion("easy"))
+        # Compare current question to previous questions
+        for x in range(i-1):
+            # If duplicate, replace
+            if questionList[i] == questionList[x]:
+                questionList[i] = setup.factory.getQuestion("easy")
+            
+    for i in range(int(0.5*numQs)):
+        questionList.append(setup.factory.getQuestion("medium"))
+    for i in range(int(0.2*numQs)):
+        # questionList.append(factory.getQuestion("hard"))
+        questionList.append("Hard question here")
 
-    if __name__ == "__main__":
-        main()
+    print(request.form) 
+    return render_template("test_gui.html", engE1 = questionList[0].getEnglishQuery(), 
+                            engE2 = questionList[1].getEnglishQuery(), engE3 = questionList[2].getEnglishQuery(), 
+                            engM1 = questionList[3].getEnglishQuery(), engM2 = questionList[4].getEnglishQuery(), 
+                            engM3 = questionList[5].getEnglishQuery(), engM4 = questionList[6].getEnglishQuery(), 
+                            engM5 = questionList[7].getEnglishQuery(), engH1 = questionList[8], 
+                            engH2 = questionList[9])
+
+# Statistics page:
+@app.route("/statistics", methods=["GET", "POST"])
+def stats():
+    return """
+    <h1>STATISTIC</h1>
+    """
+    print(request.form) 
+    return render_template("stats_gui.html")
+
+def main():
+    global setup
+    setup = QuizSetup()
+    app.run()
+
+if __name__ == "__main__":
+    main()
+

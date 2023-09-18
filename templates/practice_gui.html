@@ -24,7 +24,7 @@
         </form>
     </nav>
 
-    <p>Input the equivalent SQL query for this English question: </p>
+    <p>Input the equivalent SQL query for this English question:</p>
 
     <h1 class="eng_question">{{ engQuestion }}</h1>
 
@@ -35,25 +35,18 @@
         </div>
     </form>
 
-    {% if showResult %}
-    <div class="receive_result">
+    <!-- {% if showResult %} -->
+    <div class="receive_result {{'visible' if showResult else ''}}">
         <div class="result_output">
             <div class="result">{{ correct }}</div>
-            <div class="result_data">Lorem ipsum dolor sit amet consectetur adipisicing elit. Adipisci vel nisi quo
-                debitis facilis placeat amet? Excepturi obcaecati laudantium, nulla perspiciatis esse deserunt ipsam
-                nesciunt impedit consequatur adipisci velit voluptas iusto suscipit reprehenderit neque inventore vero
-                quis magnam libero molestias, corrupti cum nemo. Nostrum tenetur dicta iure nihil repudiandae quia nobis
-                non aspernatur ratione, at a, quisquam minus, nam minima facilis veniam perferendis eius iste obcaecati
-                provident. Sint ad, vel ea neque beatae voluptatem ex. Tenetur nesciunt repellendus accusamus quos quis
-                similique recusandae assumenda ratione quod quibusdam, adipisci magnam fugit molestias! Esse, illo rerum
-                id nobis debitis ullam adipisci asperiores.</div>
+            <div class="result_data">{{ explanation }} <br> {{ model }}</div>
         </div>
         <div class="next_button_div">
             <input class="next_button btn" type="submit" name="next_button" form="next_q_form" value="next >>">
             <!-- <button class="next_button btn" type="submit" form="next_q_form">next >></button> -->
         </div>
     </div>
-    {% endif %}
+    <!-- {% endif %} -->
 
 
 </body>
@@ -62,6 +55,7 @@
     const select = document.querySelector("#difficulty");
     const next_q_form = document.querySelector("#next_q_form");
     const eng_question = document.querySelector(".eng_question");
+    const receive_result = document.querySelector(".receive_result");
 
     select.addEventListener("change", async function () {
         const form_data = new FormData(next_q_form);
@@ -71,6 +65,7 @@
             body: form_data,
         });
         eng_question.textContent = await response.text();
+        receive_result.classList.remove("visible");
         // this is where we will need to reset the output fields
     })
 </script>

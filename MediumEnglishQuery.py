@@ -71,8 +71,8 @@ class MediumEnglishQuery(IEnglishQuery):
     def onlyAttrs(self, attrs):
         return super().onlyAttrs(attrs)
     
-    def translateVal2(self, condition):
-        return super().translateVal2(condition)
+    def translateVal2(self, condition, nested=False):
+        return super().translateVal2(condition, nested)
 
 
     #show (function) as (asName)

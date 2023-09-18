@@ -140,9 +140,13 @@ a:active {
 
 .receive_result {
     padding: var(--padding);
-    display: flex;
+    display: none;
     flex-direction: column;
     flex: 1;
+}
+
+.receive_result.visible {
+    display: flex;
 }
 
 .result_output {
