@@ -18,8 +18,8 @@ class HardSQLQuery(ISQLQuery):
     def selectAttrVal(self, relation, attribute):
         return super().selectAttrVal(relation, attribute)
     
-    def setAgg(self):
-        return super().setAgg()
+    def getAgg(self):
+        return super().getAgg()
     
     def formatQueryAggs(self, attributes, aggregates):
         return super().formatQueryAggs(attributes, aggregates)
@@ -42,8 +42,8 @@ class HardSQLQuery(ISQLQuery):
     def createLimitCond(self, relation):
         return super().createLimitCond(relation)
     
-    def createWhereCond(self, relation, cond_details, numeric=False):
-        return super().createWhereCond(relation, cond_details, numeric)
+    def createWhereCond(self, relation, cond_details, numeric=False, whereAttr=None):
+        return super().createWhereCond(relation, cond_details, numeric, whereAttr)
     
     def createLikeCond(self, relation, cond_details):
         super().createLikeCond(relation, cond_details)
@@ -57,8 +57,8 @@ class HardSQLQuery(ISQLQuery):
     def getDict(self):
         return self.sqlQuery1.getDict()
     
-    def easyBuilder(self, relation, attribute = None, aggOrCond=None, aggFn = None):
-        super().easyBuilder(relation, attribute, aggOrCond, aggFn)
+    def easyBuilder(self, relation, attribute = None, aggOrCond=None, aggFn = None, condType = None):
+        super().easyBuilder(relation, attribute, aggOrCond, aggFn, condType)
         
     def mediumBuilder(self, relation = None, attribute = None, components = None):
         super().mediumBuilder(relation, attribute, components)
@@ -66,7 +66,7 @@ class HardSQLQuery(ISQLQuery):
     def hardBuilder(self):
         
         type = random.choice(['nested', 'join'])
-        type = 'join'
+        type = 'groupBy'
         
         match type:
             
@@ -90,10 +90,44 @@ class HardSQLQuery(ISQLQuery):
                 self.createJoin(joinRelsAndAtts)
                 self.query = self.toQuery()
                 
-            #case 'groupBy':
+            case 'groupBy':
+                relation = random.choice(self.db.groupByRelations)
+                self.createGroupBy(relation)
+                self.groupBy=True
+                self.query = self.toQuery()
                 
                 
-            
+    def createGroupBy(self, relation):
+        
+        groupAttr = random.choice(relation.groupByAttributes)
+        
+        if len(relation.groupByAttributes) > 1:
+            aggOrCond = random.choice(['','cond'])
+        else:
+            aggOrCond = ''
+        
+        self.easyBuilder(relation = relation, 
+                         attribute=groupAttr, 
+                         aggOrCond = aggOrCond, 
+                         condType = 'where')
+        
+        # select second attribute
+        attr2 = relation.getAttribute()
+        while groupAttr.isEqual(attr2):
+            attr2 = relation.getAttribute()
+        
+        # get an appropriate aggregate function
+        if attr2.numeric: aggFn = self.getAgg()
+        else: aggFn = random.choice(['count(', 'max(', 'min('])
+        
+        self.attrs.insert(0, attr2)
+        self.aggFns.insert(0, aggFn)
+        
+        
+        
+        
+        
+        
 
     def createJoin(self, joinRelsAndAtts):
         
@@ -107,12 +141,10 @@ class HardSQLQuery(ISQLQuery):
         elif not astOrAttr.numeric: aggFn = random.choice(['count(', 'max(', 'min('])
         else: aggFn = None
                 
-        aggOrCond = random.choice(['','agg'])
         
         self.easyBuilder(relation = self.rels['rel1'], 
                          attribute=astOrAttr, 
-                         #aggOrCond = random.choice(['','agg']), 
-                         aggOrCond = aggOrCond,
+                         aggOrCond = random.choice(['','agg']), 
                          aggFn=aggFn)
         
         
@@ -190,6 +222,9 @@ class HardSQLQuery(ISQLQuery):
             
         if self.nested: q += ')'
         
+        if self.groupBy:
+            q += ' GROUP BY ' + self.attrs[1].name
+        
         return q
     
     
@@ -198,3 +233,4 @@ from Session import Session
 d = Session.loadDatabase()
 s = HardSQLQuery(d, 'seed')
 print(s.getSqlQuery())
+ 

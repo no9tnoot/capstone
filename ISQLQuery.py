@@ -41,6 +41,7 @@ class ISQLQuery(ABC):
         self.orCond = False
         self.nested=False
         self.join = False
+        self.groupBy = False
         
         self.roundTo = ''
   
@@ -113,7 +114,7 @@ class ISQLQuery(ABC):
         Returns a random aggregate function
     """
     @abstractmethod
-    def setAgg(self):
+    def getAgg(self, numeric=False):
         
         aggType = random.choice(self.aggregateFunctions) # select the type of aggregate function
         return aggType # add chosen aggregate function to array instance variable
@@ -192,7 +193,7 @@ class ISQLQuery(ABC):
     @abstractmethod
     def createAgg(self, relation=None, astOrAttr=None, aggFn=None):
         
-        if aggFn is None: aggFn = self.setAgg() # get a random aggreegate func 
+        if aggFn is None: aggFn = self.getAgg() # get a random aggreegate func 
         
         self.aggFns.append(aggFn)  # store it in aggFns
         
@@ -219,7 +220,7 @@ class ISQLQuery(ABC):
         Relation put in rels[0]
     """  
     @abstractmethod
-    def createCond(self, relation, astOrAttr = None, condType=None, numeric=False):
+    def createCond(self, relation, astOrAttr = None, condType=None, numeric=False, whereAttr = None):
         
         if condType is None: condType = random.choice(self.condition) # select a random condition
         self.conds['cond'] = condType # add chosen condition to array instance variable
@@ -238,7 +239,7 @@ class ISQLQuery(ABC):
                 self.createLimitCond(relation)
             
             case 'where':
-                self.cond = self.createWhereCond(relation, self.conds, numeric=numeric)
+                self.cond = self.createWhereCond(relation, self.conds, numeric=numeric, whereAttr=whereAttr)
                 self.conds['cond'] = condType
             
             case _:
@@ -274,10 +275,10 @@ class ISQLQuery(ABC):
 
     # If this is a "where" condition
     @abstractmethod
-    def createWhereCond(self, relation, cond_details, numeric=False):        
-        attr = relation.getAttribute(numeric) # select a second random attribute 
+    def createWhereCond(self, relation, cond_details, numeric=False, whereAttr=None):        
+        if whereAttr is None: whereAttr = relation.getAttribute(numeric) # select a second random attribute 
         # (can be the same as attr_1)
-        cond_details['val1'] = attr # add chosen attribute to conds array
+        cond_details['val1'] = whereAttr # add chosen attribute to conds array
 
         nullOrVal = random.choice(['null', 'val']) # Choose between ensuring the attribute value 
         # is not null and ensuring it has a given value
@@ -289,7 +290,7 @@ class ISQLQuery(ABC):
         #If value option chosen or attribute does not contain any nulls
         else:
             
-            if attr.numeric:
+            if whereAttr.numeric:
                 operator = random.choice(self.operators)
             
             else:
@@ -396,7 +397,7 @@ class ISQLQuery(ABC):
         return value
 
     @abstractmethod
-    def easyBuilder(self, relation, attribute=None, aggOrCond = None, aggFn=None):
+    def easyBuilder(self, relation, attribute=None, aggOrCond = None, aggFn=None, condType = None):
         # Randomly select either an aggregate fn or condition or neither
         if aggOrCond is None: aggOrCond = random.choice(['agg', 'cond', ''])
 
@@ -409,11 +410,17 @@ class ISQLQuery(ABC):
             # If the random selection is a condition
             case 'cond':
                 if relation is None: relation = self.getRel()
-                self.createCond(relation, attribute)
+                self.createCond(relation, attribute, condType)
             
             case 'nestedWhereCond':
                 if relation is None: relation = self.getRel(numeric=True)
                 self.createCond(relation, attribute, 'where', numeric=True)
+            
+            case 'groupByWhereCond':
+                whereAttr = random.choice(relation.groupByAttributes)
+                while whereAttr.isEqual(attribute): 
+                    whereAttr = random.choice(relation.groupByAttributes)
+                self.createCond(relation, attribute, 'where', whereAttr = whereAttr)
         
             case '':
                 if relation is None: relation = self.getRel()

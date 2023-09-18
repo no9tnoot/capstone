@@ -28,6 +28,7 @@ Formats for arrays sent to EasyEnglishQuery():
     aggregates:
         aggs = []
 
+
 Formats for arrays sent to MediumEnglishQuery():
     dictionary = {'attributes', 'aggregates', 'relation', 'condition', 'asNames'}
 
