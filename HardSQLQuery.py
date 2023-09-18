@@ -113,12 +113,13 @@ class HardSQLQuery(ISQLQuery):
                          condType = 'where')
         
         # select second attribute
-        attr2 = relation.getAttribute()
+        attr2 = random.choice([ISQLQuery.asterisk, relation.getAttribute()])
         while groupAttr.isEqual(attr2):
             attr2 = relation.getAttribute()
         
         # get an appropriate aggregate function
-        if attr2.numeric: aggFn = self.getAgg()
+        if attr2.isEqual(ISQLQuery.asterisk): aggFn = 'count('
+        elif attr2.numeric: aggFn = self.getAgg()
         else: aggFn = random.choice(['count(', 'max(', 'min('])
         
         self.attrs.insert(0, attr2)
