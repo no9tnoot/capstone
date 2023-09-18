@@ -152,7 +152,9 @@ class ISQLQuery(ABC):
                 if self.nested:
                      cond = ' ' + conds['cond'] + ' ' + conds['val1'].name + ' ' + conds['operator'] + ' (' + conds['val2'].toQuery() +')'
                 else:
-                    cond = ' ' + conds['cond'] + ' ' + conds['val1'].name + ' ' + conds['operator'] + ' ' + conds['val2']
+                    if conds['val1'].string:
+                        cond = ' ' + conds['cond'] + ' ' + conds['val1'].name + ' ' + conds['operator'] + ' \'' + conds['val2'] + '\''
+                    else: cond = ' ' + conds['cond'] + ' ' + conds['val1'].name + ' ' + conds['operator'] + ' ' + conds['val2']
             case 'limit':
                 cond = ' ' + conds['cond'] + ' ' + conds['val2']
             case 'order by':
