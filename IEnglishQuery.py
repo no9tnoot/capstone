@@ -21,7 +21,7 @@ class IEnglishQuery(ABC):
             eq += self.onlyAttrs(sqlQuery['attributes'])
         
         if sqlQuery['join']:
-            match sqlQuery['rels']['joinType']:
+            match sqlQuery['relation']['joinType']:
                 case 'left outer join':
                     eq += ' in the ' + sqlQuery['relation']['rel1'].name + ' table'
                 case 'right outer join':
