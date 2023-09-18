@@ -168,11 +168,6 @@ class ISQLQuery(ABC):
     @abstractmethod
     def createSimple(self, relation, attribute = None):
         
-        print('attrubute is: ')
-        print(attribute)
-        print('relation is: ')
-        print(relation)
-        
         if attribute is None:
             numAttr = random.choice([1,2])  # will we ask for one or 2 relations
             self.attrs.append(relation.getAttribute())
@@ -184,9 +179,6 @@ class ISQLQuery(ABC):
                     numAttr = 0
         
         else: self.attrs.append(attribute)
-        
-        print('we appended ')
-        print(attribute)
         
        
     
@@ -426,7 +418,6 @@ class ISQLQuery(ABC):
             case '':
                 if relation is None: relation = self.getRel()
                 self.createSimple(relation, attribute)
-                print('finished create simple')
                 
         self.rels['rel1']=relation
         #self.query = self.toQuery()
