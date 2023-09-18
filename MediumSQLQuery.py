@@ -35,8 +35,8 @@ class MediumSQLQuery(ISQLQuery):
     def createCond(self, relation, astOrAttr=None, condType=None, numeric=False):
         super().createCond(relation, astOrAttr, condType, numeric)
     
-    def createSimple(self, relation):
-        return super().createSimple(relation)
+    def createSimple(self, relation, attribute=None):
+        return super().createSimple(relation, attribute)
     
     def createOrderByCond(self, relation):
         return super().createOrderByCond(relation)
