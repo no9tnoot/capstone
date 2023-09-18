@@ -48,41 +48,48 @@ class ISQLQuery(ABC):
 
         
     
-    # Randomly selects a relation from the loaded database
-    # by default does not require relation to contain numeric attributes    @abstractmethod
+    """
+        Randomly selects and returns a relation from the loaded database.
+        By default does not require relation to contain numeric, string, or roundable attributes.
+    """
+    @abstractmethod
     def getRel(self, numeric = False, string = False, roundable = False):
-        # select relation
-        relation = random.randrange(0, self.db.numRelations()-1, 1)
-        relation = self.db.getRelation(relation)
+
+        relation = random.randrange(0, self.db.numRelations()-1, 1) # select a random relation index to get from database
+        relation = self.db.getRelation(relation) # get relation from database
+        
+        # if the relation needs to be numeric, ensure it has at least 1 numeric attribute
         if numeric:
             if relation.hasNumeric():
                 self.rels['rel1'] = relation
                 return relation
             else:
-                return self.getRel(numeric=True)
+                return self.getRel(numeric=True) # recurse until a numeric relation is selected
+        
+        # if the relation needs to be a string, ensure it has at least 1 string attribute
         elif string:
             if relation.hasString():
                 self.rels['rel1'] = relation
                 return relation
             else:
-                return self.getRel(string=True)
+                return self.getRel(string=True) # recurse until a string relation is selected
+            
+        # if the relation needs to be roundable, ensure it has at least 1 numeric roundable
         elif roundable:
             if relation.hasRoundable():
                 self.rels['rel1'] = relation
                 return relation
             else:
-                return self.getRel(roundable=True)
+                return self.getRel(roundable=True) # recurse until a roundable relation is selected
+        
+        # if there are no special requirements, just select a random relation
         else:
             self.rels['rel1'] = relation
             return relation
 
 
-    ''' For questions where 2+ attributes are chosen from one relation, must include logic to prevent the
-        attribute being selected twice'''
-
-    
     """
-        Selects a possible value from an attribute.
+        Selects a possible value from an attribute in the database.
     """
     @abstractmethod
     def selectAttrVal(self, relation, attribute):
@@ -97,18 +104,15 @@ class ISQLQuery(ABC):
         
         cursor = database.cursor()  # Create a cursor to interact with the database
         
-        reqVal = str( random.randint(0, relation.getNumRows()-1) ) #Select a random value between 0 and the total number of values -1
+        reqVal = str( random.randint(0, relation.getNumRows()-1) ) #Select a random value between 0 and the total number of values in the attribute -1
 
-        cursor.execute("SELECT " + attribute.name + " FROM " + relation.name + " limit 1 offset " + reqVal + ";")   # SQL: print the table names
+        cursor.execute("SELECT " + attribute.name + " FROM " + relation.name + " limit 1 offset " + reqVal + ";")   # SQL: print a single value at index reqVal from the attribute
         
-        val = cursor.fetchall()[0][0]
+        val = cursor.fetchall()[0][0] # get the value from the SQL output
         
-        if val is not None: # hopefully this works
-            return val
-        
-        else: 
-            return self.selectAttrVal(relation, attribute)
-            # return the 
+        if val is not None: return val # if the value isn't a null value
+        else: return self.selectAttrVal(relation, attribute) # recurse until a non null value is selected
+
 
     """
         Returns a random aggregate function
@@ -118,97 +122,114 @@ class ISQLQuery(ABC):
         
         aggType = random.choice(self.aggregateFunctions) # select the type of aggregate function
         return aggType # add chosen aggregate function to array instance variable
-    
+
+
     """
         Formats attributes and aggregates into a readable string, 
         e.g. "max(customerNumber), customerName"
     """
     @abstractmethod
     def formatQueryAggs(self, attributes, aggregates):
-        aggs = ''
-        d=''
-        if self.distinct: d='distinct '
+        aggs = '' # initialise the string to empty
+        
+        # add keyword distinct if doing a distinct query
+        d='' # not distinct
+        if self.distinct: d='distinct '  # distinct
+        
+        # if there is an aggregate function
         if aggregates and attributes:
-            aggs += aggregates[0] + d + attributes[0].name + self.roundTo + ')'
+            aggs += aggregates[0] + d + attributes[0].name + self.roundTo + ')' # concatenate the aggregate and attribute to aggs
             # if still some attributes to do
             if len(attributes)>1:
                 for att in attributes[1:]:
                     aggs += ", " + att.name
+        
+        # if there is no aggregate function
         elif attributes:
             for att in attributes[:-1]:
                 aggs += att.name + ", "
             aggs += d + attributes[-1].name
             
-        return aggs
+        return aggs # return the string of aggregate function and attributes
     
     
-    #conditions to query form. will add a few extra spaces in some cases but shouldn't matter too much 
-    # still need to implement AND/OR for extra conditions   
+    """
+        Formats conditions and attributes into a readable string.
+        e.g. "where customerName = 'Greg'"
+    """
     @abstractmethod
     def formatQueryConds(self, conds):
-        cond = ''
+        cond = '' # initialise empty string
+        
+        # format depends on type of conditional
         match conds['cond'].lower():
+            
             case 'where':
-                if self.nested:
+                if self.nested: # if doing a nested conditional, add brackets and turn the nested query (conds['val2']) into a string
                      cond = ' ' + conds['cond'] + ' ' + conds['val1'].name + ' ' + conds['operator'] + ' (' + conds['val2'].toQuery() +')'
                 else:
-                    if conds['val1'].string:
+                    if conds['val1'].string: # add ' ' around string value to compare (e.g. 'Greg')
                         cond = ' ' + conds['cond'] + ' ' + conds['val1'].name + ' ' + conds['operator'] + ' \'' + conds['val2'] + '\''
                     else: cond = ' ' + conds['cond'] + ' ' + conds['val1'].name + ' ' + conds['operator'] + ' ' + conds['val2']
+            
             case 'limit':
                 cond = ' ' + conds['cond'] + ' ' + conds['val2']
+            
             case 'order by':
                 cond = ' ' + conds['cond'] + ' ' + conds['val1'].name + ' ' + conds['operator']
+            
             case 'or':
                 cond = ' ' + conds['cond'] + ' ' + conds['val1'].name + ' ' + conds['operator'] + ' ' + conds['val2']
+            
             case _:
                 print('Invalid condition')    
+        
         return cond
+    
     
     """
         Create an attribute with neither a condition nor an aggregate function
     """
     @abstractmethod
     def createSimple(self, relation, attribute = None):
-        
+        # if the attribute has not been specified
         if attribute is None:
-            numAttr = random.choice([1,2])  # will we ask for one or 2 relations
-            self.attrs.append(relation.getAttribute())
-             # select and set the second relation if one is needed
-            while numAttr==2:
+            numAttr = random.choice([1,2])  # will we ask for 1 or 2 relations
+            self.attrs.append(relation.getAttribute()) # get a random attribute and append it to attrs
+            
+            # select and set the second relation if one is needed
+            while numAttr==2: # loop until second attr different to first
                 attr2 = relation.getAttribute()
-                if (attr2 != self.attrs[0]): # don't set the same relation as the first one
+                if (attr2 != self.attrs[0]): 
                     self.attrs.append(attr2)
                     numAttr = 0
         
-        else: self.attrs.append(attribute)
+        # if the attribute has been specified, simply append it to attrs
+        else: self.attrs.append(attribute) 
         
-       
-    
-    
         
     """
         Chooses an aggregate and a relation that fits that aggregate (i.e. numeric). 
         Aggregate put in aggFns[0]
-        Relation put in rels[0]
+        Relation put in rels['rel1']
     """    
     @abstractmethod
     def createAgg(self, relation=None, astOrAttr=None, aggFn=None):
         
-        if aggFn is None: aggFn = self.getAgg() # get a random aggreegate func 
+        if aggFn is None: aggFn = self.getAgg() # if aggregate function not specified, get a random aggreegate func 
+        self.aggFns.append(aggFn)  # store the aggregate function in aggFns
         
-        self.aggFns.append(aggFn)  # store it in aggFns
-        
-        # If doing a count agg, account for *
+        # If doing a count agg, allow for the chosen attribute to be *
         if self.aggFns[0] == 'count(':
-            if relation is None: relation = self.getRel(self) # select random relation from database
-            
+            if relation is None: relation = self.getRel() # if relation not specified, select random relation from database
+
             # choose * or an attribute
             if astOrAttr is None:
                 astOrAttr = random.choice([ISQLQuery.asterisk, relation.getAttribute()]) 
+            
             self.attrs.append(astOrAttr) # add chosen attribute function / * to array instance variable
         
-        # if not doing a count
+        # if not doing a count (cannot have *)
         else:
             if relation is None: relation = self.getRel(numeric = True) # select relation that countains a numeric attribute from database
             if astOrAttr is None: astOrAttr = relation.getAttribute(numeric=True) # select numeric attribute from relation
@@ -217,29 +238,32 @@ class ISQLQuery(ABC):
 
         
     """
-        Chooses a condition and a relation.
-        Aggregate put in aggFns[0]
-        Relation put in rels[0]
+        Chooses a condition  (e.g. 'where', 'limit by') and a relation.
+        Puts the condition put in conds['cond']
+        Relation put in rels['rel1']
     """  
     @abstractmethod
     def createCond(self, relation, astOrAttr = None, condType=None, numeric=False, whereAttr = None):
         
-        if condType is None: condType = random.choice(self.condition) # select a random condition
-        self.conds['cond'] = condType # add chosen condition to array instance variable
+        if condType is None: condType = random.choice(self.condition) # select a random condition if no condition specified
+        self.conds['cond'] = condType # add chosen condition to dictionary instance variable
 
-        # choose * or an attribute
+        # choose * or an attribute (if not specified)
         if astOrAttr is None: astOrAttr = random.choice([ISQLQuery.asterisk, relation.getAttribute()]) 
-        self.attrs.append(astOrAttr) # add chosen attribute function / * to array instance variable
+        self.attrs.append(astOrAttr) # add chosen attribute function / * to attrs array instance variable
         
+        # creation depends on the type of condition
         match condType:
             
             # If this is an "order by" condition
             case 'order by':
                 self.createOrderByCond(relation)
-                
+            
+            # If this is a "limit by" condition
             case 'limit':
                 self.createLimitCond(relation)
             
+            # If this is a "where" condition
             case 'where':
                 self.cond = self.createWhereCond(relation, self.conds, numeric=numeric, whereAttr=whereAttr)
                 self.conds['cond'] = condType
@@ -249,33 +273,34 @@ class ISQLQuery(ABC):
                 
 
     """
-        Append an extra attribute and either ASC to DESC to the conds array.
+        Creates an 'order by' condition.
+        Adds an attribute by which to order the output, and either ASC to DESC, to the conds array.
     """  
     @abstractmethod
     def createOrderByCond(self, relation):
         
-
-        attr = relation.getAttribute() # select a second random attribute 
-        # (can be the same as attr_1)
-        self.conds['val1'] = attr # add chosen attribute to array instance variable
+        attr = relation.getAttribute() # select a second random attribute to order by (can be the same as attr_1)
+        self.conds['val1'] = attr # add chosen attribute to conditions dictionary
 
         orderBy = random.choice(['ASC', 'DESC']) # choose between ascending or descending order
-        self.conds['operator'] = orderBy # add chosen order to array instance variable
+        self.conds['operator'] = orderBy # add chosen order to conditions dictionary
 
 
-    # If this is a "limit" condition
     """
-        Append an extra attribute and either ASC to DESC to the conds array.
+        Creates a 'limit' condition.
+        Adds a value by which to limit the output to the conds array.
     """  
     @abstractmethod
     def createLimitCond(self, relation):
-        
         
         lim = random.randrange(1, min(10,relation.getNumRows()), 1) # choose a random value between 1 and 10 (if there are 10 rows)
         self.conds['val2'] = str(lim) # add chosen limit to array instance variable
 
 
-    # If this is a "where" condition
+    """
+        Creates a 'where' condition.
+        
+    """
     @abstractmethod
     def createWhereCond(self, relation, cond_details, numeric=False, whereAttr=None):        
         if whereAttr is None: whereAttr = relation.getAttribute(numeric) # select a second random attribute 
