@@ -131,13 +131,12 @@ class ISQLQuery(ABC):
             aggs += aggregates[0] + d + attributes[0].name + self.roundTo + ')'
             # if still some attributes to do
             if len(attributes)>1:
-                for att in attributes[1:-1]:
-                    aggs += att.name + ", "
-                aggs += d+ attributes[-1].name
+                for att in attributes[1:]:
+                    aggs += ", " + att.name
         elif attributes:
             for att in attributes[:-1]:
                 aggs += att.name + ", "
-            aggs += d+ attributes[-1].name
+            aggs += d + attributes[-1].name
             
         return aggs
     
@@ -403,16 +402,20 @@ class ISQLQuery(ABC):
         match aggOrCond:
             # If the random selection is an aggregate fn
             case 'agg':
+                if relation is None: relation = self.getRel(numeric=True)
                 self.createAgg(relation, attribute, aggFn)
             
             # If the random selection is a condition
             case 'cond':
+                if relation is None: relation = self.getRel()
                 self.createCond(relation, attribute)
             
             case 'nestedWhereCond':
+                if relation is None: relation = self.getRel(numeric=True)
                 self.createCond(relation, attribute, 'where', numeric=True)
         
             case '':
+                if relation is None: relation = self.getRel()
                 self.createSimple(relation, attribute)
                 
         self.rels['rel1']=relation
