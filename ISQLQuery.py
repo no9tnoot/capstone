@@ -129,10 +129,14 @@ class ISQLQuery(ABC):
         if self.distinct: d='distinct '
         if aggregates and attributes:
             aggs += aggregates[0] + d + attributes[0].name + self.roundTo + ')'
+            # if still some attributes to do
+            if len(attributes)>1:
+                for att in attributes[1:]:
+                    aggs += ", " + att.name
         elif attributes:
             for att in attributes[:-1]:
                 aggs += att.name + ", "
-            aggs += d+ attributes[-1].name
+            aggs += d + attributes[-1].name
             
         return aggs
     
@@ -186,7 +190,7 @@ class ISQLQuery(ABC):
         Relation put in rels[0]
     """    
     @abstractmethod
-    def createAgg(self, relation=None, attribute=None, aggFn=None):
+    def createAgg(self, relation=None, astOrAttr=None, aggFn=None):
         
         if aggFn is None: aggFn = self.setAgg() # get a random aggreegate func 
         
@@ -197,14 +201,15 @@ class ISQLQuery(ABC):
             if relation is None: relation = self.getRel(self) # select random relation from database
             
             # choose * or an attribute
-            astOrAttr = random.choice([ISQLQuery.asterisk, relation.getAttribute()]) 
+            if astOrAttr is None:
+                astOrAttr = random.choice([ISQLQuery.asterisk, relation.getAttribute()]) 
             self.attrs.append(astOrAttr) # add chosen attribute function / * to array instance variable
         
         # if not doing a count
         else:
             if relation is None: relation = self.getRel(numeric = True) # select relation that countains a numeric attribute from database
-            if attribute is None: attribute = relation.getAttribute(numeric=True) # select numeric attribute from relation
-            self.attrs.append(attribute) # add chosen attribute function to array instance variable
+            if astOrAttr is None: astOrAttr = relation.getAttribute(numeric=True) # select numeric attribute from relation
+            self.attrs.append(astOrAttr) # add chosen attribute function to array instance variable
         
 
         
@@ -398,31 +403,36 @@ class ISQLQuery(ABC):
         match aggOrCond:
             # If the random selection is an aggregate fn
             case 'agg':
+                if relation is None: relation = self.getRel(numeric=True)
                 self.createAgg(relation, attribute, aggFn)
             
             # If the random selection is a condition
             case 'cond':
+                if relation is None: relation = self.getRel()
                 self.createCond(relation, attribute)
             
             case 'nestedWhereCond':
+                if relation is None: relation = self.getRel(numeric=True)
                 self.createCond(relation, attribute, 'where', numeric=True)
         
             case '':
+                if relation is None: relation = self.getRel()
                 self.createSimple(relation, attribute)
                 
         self.rels['rel1']=relation
-        self.query = self.toQuery()
+        #self.query = self.toQuery()
     
     @abstractmethod
     def mediumBuilder(self, relation = None, attribute = None, components = None):
         # Randomly select either an aggregate fn or conds or neither
         if components is None: components = random.choice(['distinct', 'like', 'or', 'round']) # distinct, as
+        components='distinct'
         match components:
             case 'distinct':
                 self.distinct = True
                 count = random.choice([True, False])
                 if count:
-                    self.createAgg('count(')
+                    self.createAgg(aggFn = 'count(')
                 else:
                     relation = self.getRel() # select random relation from database
                     self.createSimple(relation, attribute)
@@ -457,7 +467,7 @@ class ISQLQuery(ABC):
                 print('Invalid component')
             
                 
-        self.query = self.toQuery()
+        #self.query = self.toQuery()
     
     @abstractmethod
     def toQuery(self):

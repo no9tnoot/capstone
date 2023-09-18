@@ -37,6 +37,9 @@ class MediumEnglishQuery(IEnglishQuery):
     def englishToString(self, english):
         return super().englishToString(english)
     
+    def easyEnglish(self, sqlQuery):
+        return super().easyEnglish(sqlQuery)
+    
     def getEnglishQuery(self):
         return super().getEnglishQuery()
     

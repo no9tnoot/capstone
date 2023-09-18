@@ -65,7 +65,7 @@ class HardSQLQuery(ISQLQuery):
     
     def hardBuilder(self):
         
-        type = random.choice(['nested', 'join', 'groupBy'])
+        type = random.choice(['nested', 'join'])
         type = 'join'
         
         match type:
@@ -93,28 +93,39 @@ class HardSQLQuery(ISQLQuery):
                 
             #case 'groupBy':
                 
+                
             
 
     def createJoin(self, joinRelsAndAtts):
         
+        astOrAttr = random.choice([ISQLQuery.asterisk,joinRelsAndAtts['rel1'].getAttribute()])
+        # make sure that the chosen attribute is not the only joinable attribute
         if len(joinRelsAndAtts['joinAttributes'])==1:
-            astOrAttr = ISQLQuery.asterisk
-            # Could maybe have an option for a not shared shared attribute from one of them here? would that break the logic of the query? my brain is tired
-                    
-        else:
-            astOrAttr = random.choice(joinRelsAndAtts['joinAttributes'])
-        
-        aggFn = None
-        
-        if astOrAttr == ISQLQuery.asterisk: aggFn='count('
+            while astOrAttr.isEqual(joinRelsAndAtts['joinAttributes'][0]):
+                astOrAttr = joinRelsAndAtts['rel1'].getAttribute()
+    
+        if astOrAttr.isEqual(ISQLQuery.asterisk): aggFn='count('
+        elif not astOrAttr.numeric: aggFn = random.choice(['count(', 'max(', 'min('])
+        else: aggFn = None
+                
+        aggOrCond = random.choice(['','agg'])
         
         self.easyBuilder(relation = self.rels['rel1'], 
                          attribute=astOrAttr, 
-                         aggOrCond = random.choice(['','agg']), 
+                         #aggOrCond = random.choice(['','agg']), 
+                         aggOrCond = aggOrCond,
                          aggFn=aggFn)
+        
+        
+        # select second attribute
+        if not astOrAttr.isEqual(ISQLQuery.asterisk):
+            attr2 = joinRelsAndAtts['rel2'].getAttribute()
+            while astOrAttr.isEqual(attr2):
+                attr2 = joinRelsAndAtts['rel2'].getAttribute()
+            self.attrs.append(attr2)
+        
                 
         joinType = random.choice(['natural inner join', 'inner join', 'left outer join', 'right outer join'])
-        
               
         if joinType != 'natural inner join':
             self.rels['operator']='on'

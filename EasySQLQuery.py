@@ -11,11 +11,9 @@ class EasySQLQuery(ISQLQuery):
     
     def __init__(self, database, seed, relation=None, attribute=None, aggOrCond = None, aggFn=None):
         super().__init__(database, seed)
-        if relation is None:
-            if aggOrCond == 'nestedWhereCond': 
-                relation = self.getRel(numeric=True)
-            else: relation = self.getRel() # select random relation from database
+         # select random relation from database
         self.easyBuilder(relation = relation,  attribute=attribute, aggOrCond = aggOrCond, aggFn = aggFn)
+        self.query = self.toQuery()
         
     def getRel(self, numeric=False, string=False, roundable=False):
         return super().getRel(numeric, string, roundable)

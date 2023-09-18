@@ -13,6 +13,7 @@ class MediumSQLQuery(ISQLQuery):
         super().__init__(database, seed)
         self.asNames = [] #names for AS aggregates
         self.mediumBuilder()
+        self.query = self.toQuery()
         
     def getRel(self, numeric=False, string=False, roundable=False):
         return super().getRel(numeric, string, roundable)
@@ -35,8 +36,8 @@ class MediumSQLQuery(ISQLQuery):
     def createCond(self, relation, astOrAttr=None, condType=None, numeric=False):
         super().createCond(relation, astOrAttr, condType, numeric)
     
-    def createSimple(self, relation):
-        return super().createSimple(relation)
+    def createSimple(self, relation, attribute=None):
+        return super().createSimple(relation, attribute)
     
     def createOrderByCond(self, relation):
         return super().createOrderByCond(relation)
