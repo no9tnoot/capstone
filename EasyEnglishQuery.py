@@ -18,8 +18,8 @@ class EasyEnglishQuery(IEnglishQuery):
     def translateAttr(self, attr):
         return super().translateAttr(attr)
     
-    def translateCond(self, condition):
-        return super().translateCond(condition)
+    def translateCond(self, condition, nested=False):
+        return super().translateCond(condition, nested)
     
     def getEnglishQuery(self):
         return super().getEnglishQuery()
