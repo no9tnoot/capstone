@@ -9,14 +9,27 @@ from Session import Session
 from test_login import check_login_details #, get_eng
 app = Flask(__name__, template_folder="templates")
 
-def rmvDuplicates(arr):
-    # Compare items in an array, ensuring that there are no duplicates
-    for i in range(len(arr)):
-        for j in range(i+1, len(arr)):
-            if arr[i] == arr[j]:
-                return i
-    return -1
+def addNonDuplicate(questions, difficulty):
+    length = len(questions)
+    while len(questions) == length:
+        questions.add(setup.factory.getQuestion(difficulty))
 
+def genTestQs(numQs):
+    questionSet = set()
+    # Check numQs multiple of 10
+
+    # Generate 30% easy questions
+    for i in range(int(0.3*numQs)):
+        addNonDuplicate(questionSet, "easy")
+    for i in range(int(0.5*numQs)):
+        addNonDuplicate(questionSet, "medium")
+    
+    questionList = list(questionSet)
+    for i in range(int(0.2*numQs)):
+        # questionList.append(factory.getQuestion("hard"))
+        questionList.append("Hard question here")
+
+    return questionList
 
 # Login page:
 @app.route("/", methods=["GET", "POST"])
@@ -47,10 +60,9 @@ def practice():
     global setup
     # global result
     setup.marked = False
-    print(setup.qLevel)
+    print("Run practice: " + str(setup.marked))
 
     if request.method == "POST":
-        #print(request.form)
         
         if "mark_button" in request.form:
             # Mark the student's inputted SQL query
@@ -59,24 +71,24 @@ def practice():
             setup.result = Session.markQuery(setup.session, stuSQL, modelSQL) # Mark
             # Change true to correct, false to incorrect
 
-            if setup.result[0]:
-                setup.result[0] = "Correct!"
-            else:
-                if setup.result[0] == False:
-                    setup.result[2] = "The model output for this query was \"" + modelSQL + ";\" You inputted \"" + stuSQL + "\""
-                setup.result[0] = "Incorrect"
+            if setup.result[0] == False:
+                setup.result[2] = "The model output for this query was \"" + modelSQL + ";\" You inputted \"" + stuSQL + "\""
+
             setup.marked = True # Set flag
-        
+            print("Press mark: " + str(setup.marked))
+
         elif "next_button" in request.form:
             # Store question and results
             # Generate new question of selected difficulty level
             setup.question = setup.factory.getQuestion(setup.qLevel)
             setup.marked = False # Reset flag
+            print("Press next: " + str(setup.marked))
 
         elif "difficulty_changed" in request.form:
             setup.qLevel = request.form.get("difficulty") # Get the new difficulty set by user -> update qLevel
             setup.question = setup.factory.getQuestion(setup.qLevel) # Generate question
             setup.marked = False # Reset flag
+            print("Change difficulty: " + str(setup.marked))
             return setup.question.getEnglishQuery() # Return Eng query of question
 
     
@@ -87,31 +99,43 @@ def practice():
 @app.route("/test", methods=["GET", "POST"])
 def test():
     numQs = 10 # Must be divisible by 10
-    questionList = []
 
-    # Generate questions
-    for i in range(int(0.3*numQs)):
-        # Generate 30% easy questions
-        questionList.append(setup.factory.getQuestion("easy"))
-        # Compare current question to previous questions
-        for x in range(i-1):
-            # If duplicate, replace
-            if questionList[i] == questionList[x]:
-                questionList[i] = setup.factory.getQuestion("easy")
+    # If the questions have not yet been generated
+    if not setup.questionList:
+        print("List empty.")
+        # Generate questions
+        setup.questionList = genTestQs(numQs)
+
+    if request.method == "POST":
+        
+        if "mark_button" in request.form:
+            # Mark the student's inputted SQL query
+            correctAns = []
+            for i in range(numQs):
+                stuAns = request.form.get("sql" + str(i))
+                if stuAns == None:
+                    stuAns = ""
+                modelAns = setup.questionList[i].getSqlQuery()
+                setup.result = Session.markQuery(setup.session, stuAns, modelAns) # Mark
+                # Store whether answer was correct or not
+                correctAns.append(setup.result[0])
             
-    for i in range(int(0.5*numQs)):
-        questionList.append(setup.factory.getQuestion("medium"))
-    for i in range(int(0.2*numQs)):
-        # questionList.append(factory.getQuestion("hard"))
-        questionList.append("Hard question here")
-
-    print(request.form) 
-    return render_template("test_gui.html", engE1 = questionList[0].getEnglishQuery(), 
-                            engE2 = questionList[1].getEnglishQuery(), engE3 = questionList[2].getEnglishQuery(), 
-                            engM1 = questionList[3].getEnglishQuery(), engM2 = questionList[4].getEnglishQuery(), 
-                            engM3 = questionList[5].getEnglishQuery(), engM4 = questionList[6].getEnglishQuery(), 
-                            engM5 = questionList[7].getEnglishQuery(), engH1 = questionList[8], 
-                            engH2 = questionList[9])
+            # Count number of questions answered correctly
+            counter = 0
+            for i in correctAns:
+                if i == True:
+                    counter += 1
+            
+            # reset questionList
+            setup.questionList = []
+            print(str(counter) + "/" + str(numQs))
+ 
+    return render_template("test_gui.html", engE1 = setup.questionList[0].getEnglishQuery(), 
+                            engE2 = setup.questionList[1].getEnglishQuery(), engE3 = setup.questionList[2].getEnglishQuery(), 
+                            engM1 = setup.questionList[3].getEnglishQuery(), engM2 = setup.questionList[4].getEnglishQuery(), 
+                            engM3 = setup.questionList[5].getEnglishQuery(), engM4 = setup.questionList[6].getEnglishQuery(), 
+                            engM5 = setup.questionList[7].getEnglishQuery(), engH1 = setup.questionList[8], 
+                            engH2 = setup.questionList[9])
 
 # Statistics page:
 @app.route("/statistics", methods=["GET", "POST"])

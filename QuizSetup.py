@@ -12,6 +12,7 @@ class QuizSetup:
         self.question = self.factory.getQuestion(self.qLevel) # Generate the first question
         self.marked = False # Flag to indicate whether results should be showing
         self.result = ["","",""]
+        self.questionList = []
         
     def __new__(setup):
         if not hasattr(setup, 'instance'):

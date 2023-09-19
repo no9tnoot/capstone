@@ -13,3 +13,10 @@ class Question():
     
     def getEnglishQuery(self):
         return self.engQuery
+    
+    def __eq__(self, other):
+        if type(other) != type(self): return False
+        return self.sqlQuery == other.sqlQuery and self.engQuery == other.engQuery
+
+    def __hash__(self):
+        return hash((self.engQuery, self.sqlQuery))

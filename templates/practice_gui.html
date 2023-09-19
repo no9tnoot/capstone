@@ -28,8 +28,11 @@
 
     <h1 class="eng_question">{{ engQuestion }}</h1>
 
+
+    <!-- {{'visible' if showResult==False else ''}} -->
+
     <form class="q_and_a_form" method="post">
-        <div class="question_input">
+        <div class="question_input  {{'hidden' if showResult else ''}}">
             <input type="text" name="sql" class="form_input" placeholder="Input SQL Query Here..." />
             <input class="mark_button btn" type="submit" name="mark_button" value="mark">
         </div>
@@ -38,7 +41,9 @@
     <!-- {% if showResult %} -->
     <div class="receive_result {{'visible' if showResult else ''}}">
         <div class="result_output">
-            <div class="result">{{ correct }}</div>
+
+            <div class="result {{'green' if correct else ''}}">{% if correct %} Correct!{% else %} Incorrect {% endif %}
+            </div>
             <div class="result_data">{{ explanation }} <br> {{ model }}</div>
         </div>
         <div class="next_button_div">

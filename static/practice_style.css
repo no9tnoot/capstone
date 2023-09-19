@@ -138,6 +138,10 @@ a:active {
     justify-content: space-between;
 }
 
+.question_input.hidden {
+    display: none;
+}
+
 .receive_result {
     padding: var(--padding);
     display: none;
@@ -163,4 +167,9 @@ a:active {
 
 .result {
     border-bottom: solid 1px var(--border-color);
+    background-color: rgb(255, 83, 83);
+}
+
+.result.green {
+    background-color: rgb(116, 220, 116);
 }
