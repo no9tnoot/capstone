@@ -21,11 +21,11 @@ class QuestionFactory:
     def getQuestion(self, difficulty):
         match difficulty:
             case 'easy':
-                sqlQuery = EasySQLQuery(self.database, 'seed')
+                sqlQuery = EasySQLQuery(self.database)
                 engQuery = EasyEnglishQuery(sqlQuery.getDict())
             
             case 'medium':
-                sqlQuery = MediumSQLQuery(self.database, 'seed')
+                sqlQuery = MediumSQLQuery(self.database)
                 engQuery = MediumEnglishQuery(sqlQuery.getDict())
             
             case 'hard':

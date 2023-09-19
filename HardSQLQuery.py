@@ -10,8 +10,8 @@ import mysql.connector
 
 class HardSQLQuery(ISQLQuery):
         
-    def __init__(self, database, seed):
-        super().__init__(database, seed)
+    def __init__(self, database):
+        super().__init__(database)
         self.hardBuilder()
         
     def getRel(self, numeric=False, string=False):
@@ -242,10 +242,10 @@ class HardSQLQuery(ISQLQuery):
         
         aggOrCond = random.choice(['agg','nestedWhereCond'])
         
-        nestedQuery = EasySQLQuery(self.db, 'seed', relation = relation, attribute = attribute, aggFn = aggFn, aggOrCond=aggOrCond)
+        nestedQuery = EasySQLQuery(self.db, relation = relation, attribute = attribute, aggFn = aggFn, aggOrCond=aggOrCond)
         if nestedQuery.conds:
             while nestedQuery.conds['val1']==attrs[0] or nestedQuery.conds['val1']==conds['val1']:
-                nestedQuery = EasySQLQuery(self.db, 'seed', relation = relation, attribute = attribute, aggFn = aggFn, aggOrCond=aggOrCond)
+                nestedQuery = EasySQLQuery(self.db, relation = relation, attribute = attribute, aggFn = aggFn, aggOrCond=aggOrCond)
 
         nestedQuery.aggFns.append(aggFn)
         
@@ -285,6 +285,6 @@ class HardSQLQuery(ISQLQuery):
     # #temp for testing
 # from Session import Session     
 # d = Session.loadDatabase()
-# s = HardSQLQuery(d, 'seed')
+# s = HardSQLQuery(d)
 # print(s.getSqlQuery())
  
