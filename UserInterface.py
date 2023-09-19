@@ -2,39 +2,49 @@
 # 14 August 2023
 # UI 
 
-import Session
-import Question
+from Session import Session
+from QuestionFactory import QuestionFactory
+#import Question
 
 """ Class to display information to the user and get input from the user """
 class UserInterface():
     
     def __init__(self):
-        print("Hello!")
-        user = input("Please enter your student number:")
-        self.session = Session.Session(user)
-        choice = input("\nTo attempt a question, press enter. To exit, enter x:")
         
-        # While not choosing to exit
+        self.db = Session.loadDatabase(self)
+        self.factory = QuestionFactory(self.db)
+        
+        #print("Hello!")
+        #user = input("Please enter your student number:")
+        user = 'me'
+        self.session = Session(user)
+        #choice = input("\nTo attempt a question, press enter. To exit, enter x:")
+        choice=''
         while (choice != 'x'):
             if (choice==''):
-                self.askQuestion()
+                self.askQuestion('hard')
             else:
                 print("Invalid selection. Please try again.")
             choice=input("\nTo attempt a question, press enter. To exit, enter x:")
         #exit
         
-    def askQuestion(self):
+    def askQuestion(self, difficulty):
         #generate question
-        self.question = self.session.genQuestion()
-
+        
+        q = self.factory.getQuestion(difficulty)
+        print(q.getSqlQuery())
+        if q.getSqlQuery()=="": print("The query is empty")
+        else: print("the query is not empty")
+        #print(q.getEnglishQuery())
+        
         # print the english question
-        print(self.question.getQuestion())
+        #print(self.question.getQuestion())
 
         # take user input
-        stuAns = input('SQL Query:')
+        stuAns = 'test'
 
         # pass both to session marker ( self.session.marker )
-        modalAns = self.question.getQuery()
+        modalAns = q.getSqlQuery()
         result = self.session.markQuery(stuAns, modalAns)
 
         # return feedback (store it if we have a student object)
@@ -49,6 +59,7 @@ class UserInterface():
         
         
         
+UserInterface()
         
         
         

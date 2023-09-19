@@ -68,6 +68,7 @@ class HardSQLQuery(ISQLQuery):
     def hardBuilder(self):
         
         type = random.choice(['nested', 'join', 'groupBy'])
+        type = 'groupBy'
         match type:
             
             case 'nested':
@@ -109,10 +110,12 @@ class HardSQLQuery(ISQLQuery):
         )
         
         cursor = database.cursor()  # Create a cursor to interact with the database
+        print('its a group by having!: '+self.toQuery())
         cursor.execute(self.toQuery())
         counts = cursor.fetchall()
-        if len(counts)<2:
-            self.createGroupBy()
+        if len(counts)<3:
+            self.groupBy['operator']=''
+            return ''
         else:
             counts = [row[0] for row in counts]
 
@@ -125,7 +128,6 @@ class HardSQLQuery(ISQLQuery):
             operator = '='
             val = random.choice(counts)
 
-        
         if val is not None: return val # if the value isn't a null value
         else: return self.selectHavingVal(operator) # recurse until a non null value is selected
 
@@ -151,11 +153,15 @@ class HardSQLQuery(ISQLQuery):
         while groupAttr.isEqual(attr2):
             attr2 = relation.getAttribute()
         
+        having = random.choice([True, False])
+        
         # get an appropriate aggregate function
         if attr2.isEqual(ISQLQuery.asterisk): 
             aggFn = 'count('
         elif attr2.numeric: aggFn = self.getAgg()
-        else: aggFn = random.choice(['count(', 'max(', 'min('])
+        else: 
+            aggFn = random.choice(['count(', 'max(', 'min('])
+            having = False
         
         self.attrs.insert(0, attr2)
         self.aggFns.insert(0, aggFn)
@@ -163,14 +169,13 @@ class HardSQLQuery(ISQLQuery):
         self.groupBy['cond']=' GROUP BY '
         self.groupBy['groupAttr']=self.attrs[1]
         
-        having = random.choice([True, False])
-        having = True
         self.groupBy['having']=None
         if having: 
             self.groupBy['operator'] = random.choice(self.operators)
             self.groupBy['val'] = self.selectHavingVal(self.groupBy['operator'])
-            self.groupBy['having']=' HAVING '
-            self.groupBy['aggAttr'] = self.aggFns[0] + self.attrs[0].name + ')'
+            if self.groupBy['val']!='':
+                self.groupBy['having']=' HAVING '
+                self.groupBy['aggAttr'] = self.aggFns[0] + self.attrs[0].name + ')'
                 
         
         
@@ -192,7 +197,7 @@ class HardSQLQuery(ISQLQuery):
         
         self.easyBuilder(relation = self.rels['rel1'], 
                          attribute=astOrAttr, 
-                         aggOrCond = random.choice(['','agg']), 
+                         aggOrCond = '', 
                          aggFn=aggFn)
         
         
@@ -277,8 +282,8 @@ class HardSQLQuery(ISQLQuery):
     
     
     # #temp for testing
-from Session import Session     
-d = Session.loadDatabase()
-s = HardSQLQuery(d, 'seed')
-print(s.getSqlQuery())
+# from Session import Session     
+# d = Session.loadDatabase()
+# s = HardSQLQuery(d, 'seed')
+# print(s.getSqlQuery())
  

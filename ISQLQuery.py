@@ -142,7 +142,7 @@ class ISQLQuery(ABC):
             # if still some attributes to do
             if len(attributes)>1:
                 for att in attributes[1:]:
-                    aggs += ", " + att.name
+                    if not att.isEqual(ISQLQuery.asterisk): aggs += ", " + att.name
         
         # if there is no aggregate function
         elif attributes:
