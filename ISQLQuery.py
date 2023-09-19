@@ -255,7 +255,9 @@ class ISQLQuery(ABC):
         self.conds['cond'] = condType # add chosen condition to dictionary instance variable
 
         # choose * or an attribute (if not specified)
-        if astOrAttr is None: astOrAttr = random.choice([ISQLQuery.asterisk, relation.getAttribute()]) 
+        if astOrAttr is None: 
+            if self.attrs: astOrAttr = relation.getAttribute()
+            else: astOrAttr = random.choice([ISQLQuery.asterisk, relation.getAttribute()]) 
         self.attrs.append(astOrAttr) # add chosen attribute function / * to attrs array instance variable
         
         # creation depends on the type of condition

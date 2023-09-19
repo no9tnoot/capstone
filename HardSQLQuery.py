@@ -68,7 +68,6 @@ class HardSQLQuery(ISQLQuery):
     def hardBuilder(self):
         
         type = random.choice(['nested', 'join', 'groupBy'])
-        type = 'nested'
         match type:
             
             case 'nested':
@@ -112,7 +111,7 @@ class HardSQLQuery(ISQLQuery):
         cursor = database.cursor()  # Create a cursor to interact with the database
         cursor.execute(self.toQuery())
         counts = cursor.fetchall()
-        if len(counts)==0:
+        if len(counts)<2:
             self.createGroupBy()
         else:
             counts = [row[0] for row in counts]
@@ -236,7 +235,6 @@ class HardSQLQuery(ISQLQuery):
                 aggFn = 'avg('
         
         aggOrCond = random.choice(['agg','nestedWhereCond'])
-        aggOrCond = 'nestedWhereCond'
         
         nestedQuery = EasySQLQuery(self.db, 'seed', relation = relation, attribute = attribute, aggFn = aggFn, aggOrCond=aggOrCond)
         if nestedQuery.conds:
