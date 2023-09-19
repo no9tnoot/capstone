@@ -7,12 +7,13 @@ import random
 
 class EasySQLQuery(ISQLQuery):
     
-    #operators = ['=']
     
     def __init__(self, database, seed, relation=None, attribute=None, aggOrCond = None, aggFn=None):
+        
         super().__init__(database, seed)
          # select random relation from database
         self.easyBuilder(relation = relation,  attribute=attribute, aggOrCond = aggOrCond, aggFn = aggFn)
+        self.query = self.toQuery()
         
     def getRel(self, numeric=False, string=False, roundable=False):
         return super().getRel(numeric, string, roundable)
@@ -20,8 +21,8 @@ class EasySQLQuery(ISQLQuery):
     def selectAttrVal(self, relation, attribute):
         return super().selectAttrVal(relation, attribute)
     
-    def setAgg(self):
-        return super().setAgg()
+    def getAgg(self, numeric=False):
+        return super().getAgg(numeric)
     
     def formatQueryAggs(self, attributes, aggregates):
         return super().formatQueryAggs(attributes, aggregates)
@@ -41,8 +42,8 @@ class EasySQLQuery(ISQLQuery):
     def createLimitCond(self, relation):
         return super().createLimitCond(relation)
     
-    def createWhereCond(self, relation, cond_details, numeric=False):
-        return super().createWhereCond(relation, cond_details, numeric)
+    def createWhereCond(self, relation, cond_details, numeric=False, whereAttr=None):
+        return super().createWhereCond(relation, cond_details, numeric, whereAttr)
     
     def createLikeCond(self, relation, cond_details):
         super().createLikeCond(relation, cond_details)
@@ -59,8 +60,8 @@ class EasySQLQuery(ISQLQuery):
     def createSimple(self, relation, attribute=None):
         return super().createSimple(relation, attribute)
     
-    def easyBuilder(self, relation, attribute=None, aggOrCond=None, aggFn=None):
-        return super().easyBuilder(relation, attribute, aggOrCond, aggFn)
+    def easyBuilder(self, relation, attribute=None, aggOrCond=None, aggFn=None, condType = None):
+        return super().easyBuilder(relation, attribute, aggOrCond, aggFn, condType)
         
     def mediumBuilder(self, relation=None, attribute=None, components=None):
         return super().mediumBuilder(relation, attribute, components)

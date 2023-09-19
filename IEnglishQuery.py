@@ -18,8 +18,19 @@ class IEnglishQuery(ABC):
         if sqlQuery['aggregates']:
             eq += self.attrsAndAggs(sqlQuery['attributes'][0], sqlQuery['aggregates'][0])
         else:
-            eq += self.onlyAttrs(sqlQuery['attributes'])
-        eq += ' in the ' + sqlQuery['relation']['rel1'].name + ' table'
+            eq += 'the values of ' + self.onlyAttrs(sqlQuery['attributes'])
+        
+        if sqlQuery['join']:
+            match sqlQuery['relation']['joinType']:
+                case 'left outer join':
+                    eq += ' in the ' + sqlQuery['relation']['rel1'].name + ' table'
+                case 'right outer join':
+                    eq += ' in the ' + sqlQuery['relation']['rel2'].name + ' table'
+                case _:
+                    eq += ' in the ' + sqlQuery['relation']['rel1'].name + ' table'     
+        else:
+            eq += ' in the ' + sqlQuery['relation']['rel1'].name + ' table'
+
         if sqlQuery['condition']:
             eq += self.translateCond(sqlQuery['condition'], sqlQuery['nested'])
         return eq
@@ -157,8 +168,8 @@ class IEnglishQuery(ABC):
 
     @abstractmethod
     def onlyAttrs(self, attrs):
-        engAttrs = 'the values of '
-        engAttrs += self.translateAttr(attrs[0])
+        #engAttrs = 'the values of '
+        engAttrs = self.translateAttr(attrs[0])
         if len(attrs) == 2:
             engAttrs += ' and ' + self.translateAttr(attrs[1])
         return engAttrs

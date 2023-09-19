@@ -5,6 +5,8 @@
 from EasySQLQuery import EasySQLQuery
 from ISQLQuery import ISQLQuery
 import random
+import mysql.connector
+
 
 class HardSQLQuery(ISQLQuery):
         
@@ -18,8 +20,8 @@ class HardSQLQuery(ISQLQuery):
     def selectAttrVal(self, relation, attribute):
         return super().selectAttrVal(relation, attribute)
     
-    def setAgg(self):
-        return super().setAgg()
+    def getAgg(self, numeric=False):
+        return super().getAgg(numeric)
     
     def formatQueryAggs(self, attributes, aggregates):
         return super().formatQueryAggs(attributes, aggregates)
@@ -42,8 +44,8 @@ class HardSQLQuery(ISQLQuery):
     def createLimitCond(self, relation):
         return super().createLimitCond(relation)
     
-    def createWhereCond(self, relation, cond_details, numeric=False):
-        return super().createWhereCond(relation, cond_details, numeric)
+    def createWhereCond(self, relation, cond_details, numeric=False, whereAttr=None):
+        return super().createWhereCond(relation, cond_details, numeric, whereAttr)
     
     def createLikeCond(self, relation, cond_details):
         super().createLikeCond(relation, cond_details)
@@ -55,33 +57,34 @@ class HardSQLQuery(ISQLQuery):
         return super().getSqlQuery()
     
     def getDict(self):
-        return self.sqlQuery1.getDict()
+        return super().getDict()
     
-    def easyBuilder(self, relation, attribute = None, aggOrCond=None, aggFn = None):
-        super().easyBuilder(relation, attribute, aggOrCond, aggFn)
+    def easyBuilder(self, relation, attribute = None, aggOrCond=None, aggFn = None, condType = None):
+        super().easyBuilder(relation, attribute, aggOrCond, aggFn, condType)
         
     def mediumBuilder(self, relation = None, attribute = None, components = None):
         super().mediumBuilder(relation, attribute, components)
-    
+            
     def hardBuilder(self):
         
         type = random.choice(['nested', 'join', 'groupBy'])
-        type = 'join'
-        
         match type:
             
             case 'nested':
-                self.sqlQuery1 = EasySQLQuery(self.db, 'seed', aggOrCond = 'nestedWhereCond')
+                relation = self.getRel(numeric=True)
+                while len(relation.numericAttributes)<3:
+                    relation = self.getRel(numeric=True)
+                self.easyBuilder(relation = relation, aggOrCond = 'nestedWhereCond')
                 # ensure not doing a null comparison
-                while self.sqlQuery1.conds['operator'] not in ISQLQuery.operators:
-                    self.sqlQuery1 = EasySQLQuery(self.db, 'seed', aggOrCond = 'nestedWhereCond')
+                while self.conds['operator'] not in ISQLQuery.operators:
+                    self.easyBuilder(relation = relation, aggOrCond = 'nestedWhereCond')
                             
-                sqlQuery2 = self.createNestedQuery(self.sqlQuery1)
+                sqlQuery2 = self.createNestedQuery(self.rels['rel1'], self.conds, self.attrs)
                 
-                self.sqlQuery1.conds['val2']=sqlQuery2
-                self.sqlQuery1.nested = True
+                self.conds['val2']=sqlQuery2
+                self.nested = True
                 
-                self.query =  self.sqlQuery1.toQuery()
+                self.query =  self.toQuery()
                 
             case 'join':
                 joinRelsAndAtts = random.choice(self.db.joinRelations)
@@ -90,37 +93,129 @@ class HardSQLQuery(ISQLQuery):
                 self.createJoin(joinRelsAndAtts)
                 self.query = self.toQuery()
                 
-            #case 'groupBy':
+            case 'groupBy':
+                self.createGroupBy()
+                self.query = self.toQuery()
                 
-                
-                
+    
+    def selectHavingVal(self, operator):
             
+        # Connect to database
+        database = mysql.connector.connect(
+            host=self.db.host,
+            user=self.db.user,
+            password=self.db.pword,
+            database=self.db.db_name
+        )
+        
+        cursor = database.cursor()  # Create a cursor to interact with the database
+        cursor.execute(self.toQuery())
+        counts = cursor.fetchall()
+        if len(counts)<3:
+            self.groupBy['operator']=''
+            return ''
+        else:
+            counts = [row[0] for row in counts]
+
+        # try do a comparison to a value, but if not enough different values exist, change to an '='
+        try:
+            if operator[0] == '<': val = random.randint( max(min(counts),max(counts)//2), max(counts))
+            elif operator[0] == '>': val = random.randint( min(counts), min(min(counts)*2,max(counts)))
+            else: val = random.choice(counts)
+        except:  
+            operator = '='
+            val = random.choice(counts)
+
+        if val is not None: return val # if the value isn't a null value
+        else: return self.selectHavingVal(operator) # recurse until a non null value is selected
+
+              
+    def createGroupBy(self):
+        
+        relation = random.choice(self.db.groupByRelations)
+        
+        groupAttr = random.choice(relation.groupByAttributes)
+        
+        if len(relation.groupByAttributes) > 1:
+            aggOrCond = random.choice(['','cond'])
+        else:
+            aggOrCond = ''
+        
+        self.easyBuilder(relation = relation, 
+                         attribute=groupAttr, 
+                         aggOrCond = aggOrCond, 
+                         condType = 'where')
+        
+        # select second attribute
+        attr2 = random.choice([ISQLQuery.asterisk, relation.getAttribute()])
+        while groupAttr.isEqual(attr2):
+            attr2 = relation.getAttribute()
+        
+        having = random.choice([True, False])
+        
+        # get an appropriate aggregate function
+        if attr2.isEqual(ISQLQuery.asterisk): 
+            aggFn = 'count('
+        elif attr2.numeric: aggFn = self.getAgg()
+        else: 
+            aggFn = random.choice(['count(', 'max(', 'min('])
+            having = False
+        
+        self.attrs.insert(0, attr2)
+        self.aggFns.insert(0, aggFn)
+        
+        self.groupBy['cond']=' GROUP BY '
+        self.groupBy['groupAttr']=self.attrs[1]
+        
+        self.groupBy['having']=None
+        if having: 
+            self.groupBy['operator'] = random.choice(self.operators)
+            self.groupBy['val'] = self.selectHavingVal(self.groupBy['operator'])
+            if self.groupBy['val']!='':
+                self.groupBy['having']=' HAVING '
+                self.groupBy['aggAttr'] = self.aggFns[0] + self.attrs[0].name + ')'
+                
+        
+        
+        
 
     def createJoin(self, joinRelsAndAtts):
-        
+        astOrAttr = random.choice([ISQLQuery.asterisk,joinRelsAndAtts['rel1'].getAttribute()])
+        #english currently only working with 2 attributes
+        #astOrAttr = joinRelsAndAtts['rel1'].getAttribute()
+        # make sure that the chosen attribute is not the only joinable attribute
         if len(joinRelsAndAtts['joinAttributes'])==1:
-            astOrAttr = ISQLQuery.asterisk
-            # Could maybe have an option for a not shared shared attribute from one of them here? would that break the logic of the query? my brain is tired
-                    
-        else:
-            astOrAttr = random.choice(joinRelsAndAtts['joinAttributes'])
-        
-        aggFn = None
-        
-        if astOrAttr == ISQLQuery.asterisk: aggFn='count('
+            while astOrAttr.isEqual(joinRelsAndAtts['joinAttributes'][0]):
+                astOrAttr = joinRelsAndAtts['rel1'].getAttribute()
+    
+        if astOrAttr.isEqual(ISQLQuery.asterisk): aggFn='count('
+        elif not astOrAttr.numeric: aggFn = random.choice(['count(', 'max(', 'min('])
+        else: aggFn = None
+                
         
         self.easyBuilder(relation = self.rels['rel1'], 
                          attribute=astOrAttr, 
-                         aggOrCond = random.choice(['','agg']), 
+                         aggOrCond = '', 
                          aggFn=aggFn)
+        
+        
+        # select second attribute
+        if not astOrAttr.isEqual(ISQLQuery.asterisk):
+            loopForNotJoinableAttr =  len(joinRelsAndAtts['joinAttributes']) < 3
+            attr2 = joinRelsAndAtts['rel2'].getAttribute()
+            while astOrAttr.isEqual(attr2) or loopForNotJoinableAttr:
+                attr2 = joinRelsAndAtts['rel2'].getAttribute()
+                if loopForNotJoinableAttr: 
+                    loopForNotJoinableAttr = attr2 in joinRelsAndAtts['joinAttributes']
+            self.attrs.append(attr2)
+        
                 
         joinType = random.choice(['natural inner join', 'inner join', 'left outer join', 'right outer join'])
-        
               
         if joinType != 'natural inner join':
             self.rels['operator']='on'
             self.rels['attr'] = random.choice(joinRelsAndAtts['joinAttributes'])
-            while self.rels['attr'].isEqual(astOrAttr):
+            while self.rels['attr'].isEqual(astOrAttr) or (not astOrAttr.isEqual(ISQLQuery.asterisk) and self.rels['attr'].isEqual(self.attrs[1])): # added the or to remove the ambiguous field error
                 self.rels['attr'] = random.choice(joinRelsAndAtts['joinAttributes'])
         
             # if astOrAttr != ISQLQuery.asterisk:
@@ -134,11 +229,10 @@ class HardSQLQuery(ISQLQuery):
         self.join=True
             
         
-    def createNestedQuery(self, outerQuery):
+    def createNestedQuery(self, relation, conds, attrs):
         
-        relation = outerQuery.rels['rel1']
-        attribute = outerQuery.conds['val1']
-        operator = outerQuery.conds['operator']
+        attribute = conds['val1']
+        operator = conds['operator']
 
         match operator:
             case '=':
@@ -150,7 +244,7 @@ class HardSQLQuery(ISQLQuery):
         
         nestedQuery = EasySQLQuery(self.db, 'seed', relation = relation, attribute = attribute, aggFn = aggFn, aggOrCond=aggOrCond)
         if nestedQuery.conds:
-            while nestedQuery.conds['val1']==outerQuery.attrs[0] or nestedQuery.conds['val1']==outerQuery.conds['val1']:
+            while nestedQuery.conds['val1']==attrs[0] or nestedQuery.conds['val1']==conds['val1']:
                 nestedQuery = EasySQLQuery(self.db, 'seed', relation = relation, attribute = attribute, aggFn = aggFn, aggOrCond=aggOrCond)
 
         nestedQuery.aggFns.append(aggFn)
@@ -162,9 +256,7 @@ class HardSQLQuery(ISQLQuery):
                 
     
     def toQuery(self):
-        q = ''
-        if self.nested: q += '('  
-        q += 'SELECT '
+        q = 'SELECT '
         q += self.formatQueryAggs(self.attrs, self.aggFns)
         q += ' FROM ' + self.rels['rel1'].name
         
@@ -179,13 +271,20 @@ class HardSQLQuery(ISQLQuery):
             if self.rels['joinType'] != 'natural inner join':
                 q += ' ON ' + self.rels['rel1'].name + '.' + self.rels['attr'].name + ' = ' + self.rels['rel2'].name + '.' + self.rels['attr'].name
             
-        if self.nested: q += ')'
+        if self.groupBy:
+            q +=  ' GROUP BY ' + self.groupBy['groupAttr'].name
+            if self.groupBy['having'] is not None:
+                if self.attrs[0].numeric or self.aggFns[0]=='count(': 
+                    q += ' HAVING ' + self.groupBy['aggAttr'] + ' ' + self.groupBy['operator'] + ' ' + str(self.groupBy['val'])
+                else:
+                    q += ' HAVING ' + self.groupBy['aggAttr'] + ' ' + self.groupBy['operator'] + ' \'' + str(self.groupBy['val']) +'\''
         
         return q
     
     
     # #temp for testing
-from Session import Session     
-d = Session.loadDatabase()
-s = HardSQLQuery(d, 'seed')
-print(s.getSqlQuery())
+# from Session import Session     
+# d = Session.loadDatabase()
+# s = HardSQLQuery(d, 'seed')
+# print(s.getSqlQuery())
+ 

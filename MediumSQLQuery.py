@@ -13,6 +13,7 @@ class MediumSQLQuery(ISQLQuery):
         super().__init__(database, seed)
         self.asNames = [] #names for AS aggregates
         self.mediumBuilder()
+        self.query = self.toQuery()
         
     def getRel(self, numeric=False, string=False, roundable=False):
         return super().getRel(numeric, string, roundable)
@@ -20,8 +21,8 @@ class MediumSQLQuery(ISQLQuery):
     def selectAttrVal(self, relation, attribute):
         return super().selectAttrVal(relation, attribute)
     
-    def setAgg(self):
-        return super().setAgg()
+    def getAgg(self, numeric=False):
+        return super().getAgg(numeric)
     
     def formatQueryAggs(self, attributes, aggregates):
         return super().formatQueryAggs(attributes, aggregates)
@@ -44,14 +45,14 @@ class MediumSQLQuery(ISQLQuery):
     def createLimitCond(self, relation):
         return super().createLimitCond(relation)
     
-    def createWhereCond(self, relation, cond_details, numeric=False):
-        return super().createWhereCond(relation, cond_details, numeric)
+    def createWhereCond(self, relation, cond_details, numeric=False, whereAttr=None):
+        return super().createWhereCond(relation, cond_details, numeric, whereAttr)
     
     def createLikeCond(self, relation, cond_details):
         super().createLikeCond(relation, cond_details)
         
     def insertPercentWildCard(self, value, ends_with_perc, num_char_to_remove, cond_details):
-         super().insertPercentWildCard(self, value, ends_with_perc, num_char_to_remove, cond_details)
+        return super().insertPercentWildCard(value, ends_with_perc, num_char_to_remove, cond_details)
     
     def getSqlQuery(self):
         return super().getSqlQuery()
@@ -59,8 +60,8 @@ class MediumSQLQuery(ISQLQuery):
     def getDict(self):
         return super().getDict()
     
-    def easyBuilder(self, relation, attribute=None, aggOrCond=None, aggFn=None):
-        return super().easyBuilder(relation, attribute, aggOrCond, aggFn)
+    def easyBuilder(self, relation, attribute=None, aggOrCond=None, aggFn=None, condType = None):
+        return super().easyBuilder(relation, attribute, aggOrCond, aggFn, condType)
         
     def mediumBuilder(self, components=None):
         super().mediumBuilder(components)
