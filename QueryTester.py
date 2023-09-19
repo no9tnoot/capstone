@@ -7,7 +7,7 @@ from QuestionFactory import QuestionFactory
 #import Question
 
 """ Class to display information to the user and get input from the user """
-class UserInterface():
+class QueryTester():
     
     def __init__(self):
         
