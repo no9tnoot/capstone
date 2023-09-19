@@ -262,12 +262,14 @@ class Database:
             
             #create each attribute object for relation r
             for column in columns:
-                # find out if attribute can be used for grouping
-                cursor.execute("SELECT COUNT(DISTINCT "+column[0]+") / COUNT(*) FROM "+r.name)
-                proportionDistinct = cursor.fetchall()
-                proportionDistinct = proportionDistinct[0][0]
                 groupBy = False
-                if proportionDistinct < 0.5: groupBy = True # if at most 80% of the values are unique, can use for grouping
+                # if doesn't have null
+                if column[2]=='NO':
+                    # find out if attribute can be used for grouping
+                    cursor.execute("SELECT COUNT(DISTINCT "+column[0]+") / COUNT(*) FROM "+r.name)
+                    proportionDistinct = cursor.fetchall()
+                    proportionDistinct = proportionDistinct[0][0]
+                    if proportionDistinct < 0.5: groupBy = True # if at most 80% of the values are unique, can use for grouping
                 r.addAttribute(Attribute(column[0], column[1], column[2], column[3], groupBy = groupBy))
             
             # if relation r contains at least 1 numeric attribute, add it to numericRelations array

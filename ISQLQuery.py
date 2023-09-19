@@ -36,12 +36,13 @@ class ISQLQuery(ABC):
         # Ordered list of relations used in the query
         self.rels = {}
         
+        self.groupBy = {}
+        
         # Flags
         self.distinct = False
         self.orCond = False
         self.nested=False
         self.join = False
-        self.groupBy = False
         
         self.roundTo = ''
   
@@ -107,10 +108,10 @@ class ISQLQuery(ABC):
 
         cursor.execute("SELECT " + attribute.name + " FROM " + relation.name + " limit 1 offset " + reqVal + ";")   # SQL: print a single value at index reqVal from the attribute
         
-        val = cursor.fetchall()[0][0] # get the value from the SQL output
+        reqVal = cursor.fetchall()[0][0] # get the value from the SQL output
         
-        if val is not None: return val # if the value isn't a null value
-        else: return self.selectAttrVal(relation, attribute) # recurse until a non null value is selected
+        if reqVal is None: return self.selectAttrVal(relation, attribute) # recurse until a non null value is selected
+        else: return reqVal # if the value isn't a null value
 
 
     """
@@ -167,9 +168,10 @@ class ISQLQuery(ABC):
                 if self.nested: # if doing a nested conditional, add brackets and turn the nested query (conds['val2']) into a string
                      cond = ' ' + conds['cond'] + ' ' + conds['val1'].name + ' ' + conds['operator'] + ' (' + conds['val2'].toQuery() +')'
                 else:
-                    if conds['val2']!='NULL': # add ' ' around string value to compare (e.g. 'Greg')
+                    if self.attrs[0].numeric or self.aggFns[0]=='count(' or conds['val2']=='NULL': 
+                        cond = ' ' + conds['cond'] + ' ' + conds['val1'].name + ' ' + conds['operator'] + ' ' + conds['val2']
+                    else:  # add ' ' around string value to compare (e.g. 'Greg')
                         cond = ' ' + conds['cond'] + ' ' + conds['val1'].name + ' ' + conds['operator'] + ' \'' + conds['val2'] + '\''
-                    else: cond = ' ' + conds['cond'] + ' ' + conds['val1'].name + ' ' + conds['operator'] + ' ' + conds['val2']
             
             case 'limit':
                 cond = ' ' + conds['cond'] + ' ' + conds['val2']
@@ -453,7 +455,6 @@ class ISQLQuery(ABC):
                 self.createSimple(relation, attribute)
                 
         self.rels['rel1']=relation
-        #self.query = self.toQuery()
     
     @abstractmethod
     def mediumBuilder(self, relation = None, attribute = None, components = None):
@@ -500,7 +501,6 @@ class ISQLQuery(ABC):
                 print('Invalid component')
             
                 
-        #self.query = self.toQuery()
     
     @abstractmethod
     def toQuery(self):

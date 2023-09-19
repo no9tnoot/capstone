@@ -5,7 +5,7 @@ Formats for arrays sent to EasyEnglishQuery():
         'cond': 'limit'/'where'/'order by'/'like' etc.
         'val1': attribute name to look at
         'operator': operator('=','>','is not',etc.) or 'asc'/'desc'
-        'val2': what to compare to val1. can be attribute or value.
+        'val2': what to compare to val1. can be attribute or value. (e.g. 'null')
         'likeDict': {'type', 'startswith', 'num_underscore', 'wildcard_free_string'}
             'type': '%', '%%', '_%'
             'starts_with_string': boolean indicating if starts with or ends with wildcare free string
@@ -34,6 +34,14 @@ Formats for arrays sent to MediumEnglishQuery():
     asNames:
         'name': what to call it e.g.: 'vat'
         'function': function that defines the value of name e.g.: round(buyprice * 15,2)
+    
+    groupBy:
+        'groupAttr': attribute to group by
+        'having': either 'having' or ''
+        'aggAttr': attribute on which the limit is placed
+        'operator': operator('=','>',etc.)
+        'val': value the aggregate Attr is compared to / limited to 
+
 
 
 Format for join array in Database class (used for HardSQLQuery):

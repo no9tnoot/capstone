@@ -5,6 +5,8 @@
 from EasySQLQuery import EasySQLQuery
 from ISQLQuery import ISQLQuery
 import random
+import mysql.connector
+
 
 class HardSQLQuery(ISQLQuery):
         
@@ -62,17 +64,15 @@ class HardSQLQuery(ISQLQuery):
         
     def mediumBuilder(self, relation = None, attribute = None, components = None):
         super().mediumBuilder(relation, attribute, components)
-    
+            
     def hardBuilder(self):
         
         type = random.choice(['nested', 'join', 'groupBy'])
-        #type = 'groupBy'
         
         match type:
             
             case 'nested':
                 relation = self.getRel(numeric=True)
-                #self.rels['rel1']=relation
                 self.easyBuilder(relation = relation, aggOrCond = 'nestedWhereCond')
                 # ensure not doing a null comparison
                 while self.conds['operator'] not in ISQLQuery.operators:
@@ -93,13 +93,46 @@ class HardSQLQuery(ISQLQuery):
                 self.query = self.toQuery()
                 
             case 'groupBy':
-                relation = random.choice(self.db.groupByRelations)
-                self.createGroupBy(relation)
-                self.groupBy=True
+                self.createGroupBy()
                 self.query = self.toQuery()
                 
-                
-    def createGroupBy(self, relation):
+    
+    def selectHavingVal(self, operator):
+            
+        # Connect to database
+        database = mysql.connector.connect(
+            host=self.db.host,
+            user=self.db.user,
+            password=self.db.pword,
+            database=self.db.db_name
+        )
+        
+        cursor = database.cursor()  # Create a cursor to interact with the database
+        print(self.toQuery())
+        cursor.execute(self.toQuery())
+        counts = cursor.fetchall()
+        if len(counts)==0:
+            self.createGroupBy()
+        else:
+            counts = [row[0] for row in counts]
+
+        # try do a comparison to a value, but if not enough different values exist, change to an '='
+        try:
+            if operator[0] == '<': val = random.randint( max(min(counts),max(counts)//2), max(counts))
+            elif operator[0] == '>': val = random.randint( min(counts), min(min(counts)*2,max(counts)))
+            else: val = random.choice(counts)
+        except:  
+            operator = '='
+            val = random.choice(counts)
+
+        
+        if val is not None: return val # if the value isn't a null value
+        else: return self.selectAttrVal(operator) # recurse until a non null value is selected
+
+              
+    def createGroupBy(self):
+        
+        relation = random.choice(self.db.groupByRelations)
         
         groupAttr = random.choice(relation.groupByAttributes)
         
@@ -119,15 +152,26 @@ class HardSQLQuery(ISQLQuery):
             attr2 = relation.getAttribute()
         
         # get an appropriate aggregate function
-        if attr2.isEqual(ISQLQuery.asterisk): aggFn = 'count('
+        if attr2.isEqual(ISQLQuery.asterisk): 
+            aggFn = 'count('
         elif attr2.numeric: aggFn = self.getAgg()
         else: aggFn = random.choice(['count(', 'max(', 'min('])
         
         self.attrs.insert(0, attr2)
         self.aggFns.insert(0, aggFn)
         
+        self.groupBy['cond']=' GROUP BY '
+        self.groupBy['groupAttr']=self.attrs[1]
         
-        
+        having = random.choice([True, False])
+        having = True
+        self.groupBy['having']=None
+        if having: 
+            self.groupBy['operator'] = random.choice(self.operators)
+            self.groupBy['val'] = self.selectHavingVal(self.groupBy['operator'])
+            self.groupBy['having']=' HAVING '
+            self.groupBy['aggAttr'] = self.aggFns[0] + self.attrs[0].name + ')'
+                
         
         
         
@@ -180,6 +224,7 @@ class HardSQLQuery(ISQLQuery):
         
     def createNestedQuery(self, relation, conds, attrs):
         
+        
         attribute = conds['val1']
         operator = conds['operator']
 
@@ -220,9 +265,13 @@ class HardSQLQuery(ISQLQuery):
             if self.rels['joinType'] != 'natural inner join':
                 q += ' ON ' + self.rels['rel1'].name + '.' + self.rels['attr'].name + ' = ' + self.rels['rel2'].name + '.' + self.rels['attr'].name
             
-        
         if self.groupBy:
-            q += ' GROUP BY ' + self.attrs[1].name
+            q +=  ' GROUP BY ' + self.groupBy['groupAttr'].name
+            if self.groupBy['having'] is not None:
+                if self.attrs[0].numeric or self.aggFns[0]=='count(': 
+                    q += ' HAVING ' + self.groupBy['aggAttr'] + ' ' + self.groupBy['operator'] + ' ' + str(self.groupBy['val'])
+                else:
+                    q += ' HAVING ' + self.groupBy['aggAttr'] + ' ' + self.groupBy['operator'] + ' \'' + str(self.groupBy['val']) +'\''
         
         return q
     
