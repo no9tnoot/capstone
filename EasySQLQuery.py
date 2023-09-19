@@ -7,9 +7,10 @@ import random
 
 class EasySQLQuery(ISQLQuery):
     
-    #operators = ['=']
     
     def __init__(self, database, seed, relation=None, attribute=None, aggOrCond = None, aggFn=None):
+        print('init EasySQLQuery')
+        
         super().__init__(database, seed)
          # select random relation from database
         self.easyBuilder(relation = relation,  attribute=attribute, aggOrCond = aggOrCond, aggFn = aggFn)
@@ -67,6 +68,7 @@ class EasySQLQuery(ISQLQuery):
         return super().mediumBuilder(relation, attribute, components)
     
     def toQuery(self):
+        print('toQuery')
         q = 'SELECT '
         q += self.formatQueryAggs(self.attrs, self.aggFns)
         q += ' FROM ' + self.rels['rel1'].name

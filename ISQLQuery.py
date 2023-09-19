@@ -19,6 +19,7 @@ class ISQLQuery(ABC):
     
     @abstractmethod
     def __init__(self, database, seed):
+        print('init ISQLQuery')
         self.db = database
         self.seed = seed
         self.queryString = ""
@@ -54,6 +55,7 @@ class ISQLQuery(ABC):
     """
     @abstractmethod
     def getRel(self, numeric = False, string = False, roundable = False):
+        print('getRel')
 
         relation = random.randrange(0, self.db.numRelations()-1, 1) # select a random relation index to get from database
         relation = self.db.getRelation(relation) # get relation from database
@@ -93,6 +95,7 @@ class ISQLQuery(ABC):
     """
     @abstractmethod
     def selectAttrVal(self, relation, attribute):
+        print('selectAttrVal')
         
         # Connect to database
         database = mysql.connector.connect(
@@ -119,6 +122,7 @@ class ISQLQuery(ABC):
     """
     @abstractmethod
     def getAgg(self, numeric=False):
+        print('getAgg')
         if numeric: aggType = random.choice(self.aggregateFunctions) # select the type of aggregate function
         else: aggType = random.choice(['count(', 'max(', 'min('])
         return aggType # add chosen aggregate function to array instance variable
@@ -130,6 +134,7 @@ class ISQLQuery(ABC):
     """
     @abstractmethod
     def formatQueryAggs(self, attributes, aggregates):
+        print('formatQueryAggs')
         aggs = '' # initialise the string to empty
         
         # add keyword distinct if doing a distinct query
@@ -159,6 +164,7 @@ class ISQLQuery(ABC):
     """
     @abstractmethod
     def formatQueryConds(self, conds):
+        print('formatQueryConds')
         cond = '' # initialise empty string
         
         condType = conds['cond'].lower()
@@ -198,20 +204,26 @@ class ISQLQuery(ABC):
     """
     @abstractmethod
     def createSimple(self, relation, attribute = None):
+        print('createSimple')
         # if the attribute has not been specified
         if attribute is None:
-            numAttr = random.choice([1,2])  # will we ask for 1 or 2 relations
-            self.attrs.append(relation.getAttribute()) # get a random attribute and append it to attrs
-            
+            attr = relation.getAttribute()
+            self.attrs.append(attr) # get a random attribute and append it to attrs
+            print('attr1 is '+ attr.name)
             # select and set the second relation if one is needed
+            if len(relation.attributes)>2: numAttr = random.choice([1,2])  # will we ask for 1 or 2 attributes
+            else: numAttr = 1
             while numAttr==2: # loop until second attr different to first
+                print('in create simple while loop')
                 attr2 = relation.getAttribute()
+                print('attr2 is '+attr2.name)
                 if (attr2 != self.attrs[0]): 
                     self.attrs.append(attr2)
                     numAttr = 0
         
         # if the attribute has been specified, simply append it to attrs
         else: self.attrs.append(attribute) 
+        print('end create simple')
         
         
     """
@@ -221,6 +233,7 @@ class ISQLQuery(ABC):
     """    
     @abstractmethod
     def createAgg(self, relation=None, attribute=None, aggFn=None):
+        print('createAgg')
         if relation is None: relation = self.getRel() # if relation not specified, select random relation from database
                 
         if aggFn is None: aggFn = self.getAgg(numeric = relation.hasNumeric()) # if aggregate function not specified, get a random aggreegate func 
@@ -247,7 +260,7 @@ class ISQLQuery(ABC):
     """  
     @abstractmethod
     def createCond(self, relation, astOrAttr = None, condType=None, numeric=False, whereAttr = None):
-        
+        print('createCond')
         if condType is None: condType = random.choice(self.condition) # select a random condition if no condition specified
         self.conds['cond'] = condType # add chosen condition to dictionary instance variable
 
@@ -281,7 +294,7 @@ class ISQLQuery(ABC):
     """  
     @abstractmethod
     def createOrderByCond(self, relation):
-        
+        print('createOrderByCond')
         attr = relation.getAttribute() # select a second random attribute to order by (can be the same as attr_1)
         self.conds['val1'] = attr # add chosen attribute to conditions dictionary
 
@@ -295,7 +308,7 @@ class ISQLQuery(ABC):
     """  
     @abstractmethod
     def createLimitCond(self, relation):
-        
+        print('createLimitCond')
         lim = random.randrange(1, min(10,relation.getNumRows()), 1) # choose a random value between 1 and 10 (if there are 10 rows)
         self.conds['val2'] = str(lim) # add chosen limit to array instance variable
 
@@ -305,7 +318,8 @@ class ISQLQuery(ABC):
         
     """
     @abstractmethod
-    def createWhereCond(self, relation, cond_details, numeric=False, whereAttr=None):        
+    def createWhereCond(self, relation, cond_details, numeric=False, whereAttr=None):   
+        print('createWhereCond')     
         if whereAttr is None: whereAttr = relation.getAttribute(numeric) # select a second random attribute 
         # (can be the same as attr_1)
         cond_details['val1'] = whereAttr # add chosen attribute to conds array
@@ -334,6 +348,7 @@ class ISQLQuery(ABC):
     
     @abstractmethod
     def createLikeCond(self, relation, cond_details):
+        print('createLikeCond')
         cond_details['likeDict']={}
         cond_details['cond']='where'
         cond_details['operator']='like'
@@ -407,7 +422,7 @@ class ISQLQuery(ABC):
     """
     @abstractmethod
     def insertPercentWildCard(self, value, ends_with_perc, num_char_to_remove, cond_details):
-        
+        print('insertPercentWildCard')
         match ends_with_perc: 
             
             case False: # insert percentage at start ('ends with string')
@@ -428,6 +443,7 @@ class ISQLQuery(ABC):
 
     @abstractmethod
     def easyBuilder(self, relation, attribute=None, aggOrCond = None, aggFn=None, condType = None):
+        print('easyBuilder')
         # Randomly select either an aggregate fn or condition or neither
         if aggOrCond is None: aggOrCond = random.choice(['agg', 'cond', ''])
 
@@ -460,6 +476,7 @@ class ISQLQuery(ABC):
     
     @abstractmethod
     def mediumBuilder(self, relation = None, attribute = None, components = None):
+        print('mediumBuilder')
         # Randomly select either an aggregate fn or conds or neither
         if components is None: components = random.choice(['distinct', 'like', 'or', 'round']) # distinct, as
         match components:
@@ -516,6 +533,7 @@ class ISQLQuery(ABC):
     
     @abstractmethod
     def getDict(self):
+        print('getDict')
         dict = {'attributes': self.attrs, 
                 'aggregates': self.aggFns,
                 'relation': self.rels,
