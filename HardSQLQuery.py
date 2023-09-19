@@ -68,7 +68,6 @@ class HardSQLQuery(ISQLQuery):
     def hardBuilder(self):
         
         type = random.choice(['nested', 'join', 'groupBy'])
-        type = 'groupBy'
         match type:
             
             case 'nested':
@@ -110,7 +109,6 @@ class HardSQLQuery(ISQLQuery):
         )
         
         cursor = database.cursor()  # Create a cursor to interact with the database
-        print('its a group by having!: '+self.toQuery())
         cursor.execute(self.toQuery())
         counts = cursor.fetchall()
         if len(counts)<3:
