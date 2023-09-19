@@ -468,13 +468,12 @@ class ISQLQuery(ABC):
             case 'distinct':
                 self.distinct = True
                 count = random.choice([True, False])
+                if relation is None: relation = self.getRel()
                 if count:
                     while attribute is None or attribute.isEqual(ISQLQuery.asterisk):
-                        if relation is None: relation = self.getRel()
                         attribute = relation.getAttribute()
-                    self.createAgg(attribute=attribute, aggFn = 'count(')
+                    self.createAgg(relation=relation,attribute=attribute, aggFn = 'count(')
                 else:
-                    relation = self.getRel() # select random relation from database
                     self.createSimple(relation, attribute)
             
             case 'like':
