@@ -54,23 +54,40 @@ class HardEnglishQuery(IEnglishQuery):
                 q= self.translateAgg('') + self.translateAttr(attrs[right])
             q += ' in the ' + rels['rel1'].name + ' table'
         else:
-            q= self.translateAgg('') + self.translateAttr(attrs[right])
+            if attrs[0].name == '*':
+                if aggs:
+                    q= self.translateAgg(aggs[0]) + self.translateAttr(attrs[0])
+                else:
+                    q= self.translateAgg('') + self.translateAttr(attrs[0])
+            else:
+                q= self.translateAgg('') + self.translateAttr(attrs[right])
             q += ' in the ' + rels['rel2'].name + ' table'
         return q
     
     def joinPart2(self, aggs, attrs, rels):
-        match rels['joinType']:
-            case 'left outer join':
-                q = ' along with the ' + self.translateAttr(attrs[1]) + ' values in the ' + rels['rel2'].name + ' table that have a corresponding ' + rels['attr'].name + ' value'
-            case 'inner join':
-                q = ' and the values of ' + self.translateAttr(attrs[1]) +' in the ' + rels['rel2'].name + ' table where they have a matching ' + rels['attr'].name + ' value'
-            case 'natural inner join':
-                q = ' and the associated values of ' + self.translateAttr(attrs[1]) + ' in the ' + rels['rel2'].name + ' table'
-            case 'right outer join':
-                if aggs:
-                    q = ' along with ' + self.translateAgg(aggs[0]) + 'the ' + self.translateAttr(attrs[0]) + ' values in the ' + rels['rel1'].name + ' table that have a corresponding ' + rels['attr'].name + ' value'
-                else:
-                    q = ' along with ' + self.translateAgg('') + self.translateAttr(attrs[0]) + ' in the ' + rels['rel1'].name + ' table that have a corresponding ' + rels['attr'].name + ' value'
+        if attrs[0].name == '*':
+            match rels['joinType']:
+                case 'left outer join':
+                    q = ' and in the ' + rels['rel2'].name + ' table where it has a corresponding' + rels['attr'].name + ' value'
+                case 'inner join':
+                    q = ' and in the ' + rels['rel2'].name + ' table where they have a matching ' + rels['attr'].name + ' value'
+                case 'natural inner join':
+                    q = ' where they are associated with a record in the ' + rels['rel2'].name + ' table'
+                case 'right outer join':
+                    q = ' and in the ' + rels['rel1'].name + ' table where it has a corresponding' + rels['attr'].name + ' value'
+        else:
+            match rels['joinType']:
+                case 'left outer join':
+                    q = ' along with the ' + self.translateAttr(attrs[1]) + ' values in the ' + rels['rel2'].name + ' table that have a corresponding ' + rels['attr'].name + ' value'
+                case 'inner join':
+                    q = ' and the values of ' + self.translateAttr(attrs[1]) +' in the ' + rels['rel2'].name + ' table where they have a matching ' + rels['attr'].name + ' value'
+                case 'natural inner join':
+                    q = ' and the associated values of ' + self.translateAttr(attrs[1]) + ' in the ' + rels['rel2'].name + ' table'
+                case 'right outer join':
+                    if aggs:
+                        q = ' along with ' + self.translateAgg(aggs[0]) + 'the ' + self.translateAttr(attrs[0]) + ' values in the ' + rels['rel1'].name + ' table that have a corresponding ' + rels['attr'].name + ' value'
+                    else:
+                        q = ' along with ' + self.translateAgg('') + self.translateAttr(attrs[0]) + ' in the ' + rels['rel1'].name + ' table that have a corresponding ' + rels['attr'].name + ' value'
         return q
 
     def englishToString(self, english):

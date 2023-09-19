@@ -180,7 +180,7 @@ class HardSQLQuery(ISQLQuery):
         
         astOrAttr = random.choice([ISQLQuery.asterisk,joinRelsAndAtts['rel1'].getAttribute()])
         #english currently only working with 2 attributes
-        astOrAttr = joinRelsAndAtts['rel1'].getAttribute()
+        #astOrAttr = joinRelsAndAtts['rel1'].getAttribute()
         # make sure that the chosen attribute is not the only joinable attribute
         if len(joinRelsAndAtts['joinAttributes'])==1:
             while astOrAttr.isEqual(joinRelsAndAtts['joinAttributes'][0]):
