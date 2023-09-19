@@ -15,7 +15,7 @@ class MediumEnglishQuery(IEnglishQuery):
         if sqlQuery['aggregates']:
             self.englishQuery += self.attrsAndAggs(sqlQuery['attributes'][0], sqlQuery['aggregates'][0], sqlQuery['roundTo'][1:])
         else:
-            self.englishQuery += self.onlyAttrs(sqlQuery['attributes'])
+            self.englishQuery += 'the values of ' + self.onlyAttrs(sqlQuery['attributes'])
 
         self.englishQuery += ' in the ' + sqlQuery['relation']['rel1'].name + ' table'
 
@@ -23,7 +23,10 @@ class MediumEnglishQuery(IEnglishQuery):
             self.englishQuery += self.translateCond(sqlQuery['condition'])
 
         if sqlQuery['distinct']:
-            self.englishQuery += ' but only once for each value of ' + sqlQuery['attributes'][-1].name
+            if len(sqlQuery['attributes']) == 1:
+                self.englishQuery += ' but only for unique values of ' + self.onlyAttrs(sqlQuery['attributes'])
+            else:
+                self.englishQuery += ' but only for unique combinations of ' + self.onlyAttrs(sqlQuery['attributes'])
 
         self.englishQuery += '.'
 

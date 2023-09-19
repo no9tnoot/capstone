@@ -18,7 +18,7 @@ class IEnglishQuery(ABC):
         if sqlQuery['aggregates']:
             eq += self.attrsAndAggs(sqlQuery['attributes'][0], sqlQuery['aggregates'][0])
         else:
-            eq += self.onlyAttrs(sqlQuery['attributes'])
+            eq += 'the values of ' + self.onlyAttrs(sqlQuery['attributes'])
         
         if sqlQuery['join']:
             match sqlQuery['relation']['joinType']:
@@ -168,8 +168,8 @@ class IEnglishQuery(ABC):
 
     @abstractmethod
     def onlyAttrs(self, attrs):
-        engAttrs = 'the values of '
-        engAttrs += self.translateAttr(attrs[0])
+        #engAttrs = 'the values of '
+        engAttrs = self.translateAttr(attrs[0])
         if len(attrs) == 2:
             engAttrs += ' and ' + self.translateAttr(attrs[1])
         return engAttrs
