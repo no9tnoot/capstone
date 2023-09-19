@@ -146,11 +146,10 @@ class ISQLQuery(ABC):
         
         # if there is no aggregate function
         elif attributes:
-            aggs += d + attributes[-1].name
-            for att in attributes[1:-1]:
+            aggs += d
+            for att in attributes[:-1]:
                 aggs += att.name + ", "
             aggs += attributes[-1].name
-            
         return aggs # return the string of aggregate function and attributes
     
     
@@ -230,7 +229,6 @@ class ISQLQuery(ABC):
             # choose * or an attribute
             if astOrAttr is None:
                 astOrAttr = random.choice([ISQLQuery.asterisk, relation.getAttribute()]) 
-            
             self.attrs.append(astOrAttr) # add chosen attribute function / * to array instance variable
         
         # if not doing a count (cannot have *)
