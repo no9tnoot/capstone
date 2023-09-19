@@ -68,11 +68,12 @@ class HardSQLQuery(ISQLQuery):
     def hardBuilder(self):
         
         type = random.choice(['nested', 'join', 'groupBy'])
-        
         match type:
             
             case 'nested':
                 relation = self.getRel(numeric=True)
+                while len(relation.numericAttributes)<3:
+                    relation = self.getRel(numeric=True)
                 self.easyBuilder(relation = relation, aggOrCond = 'nestedWhereCond')
                 # ensure not doing a null comparison
                 while self.conds['operator'] not in ISQLQuery.operators:
@@ -108,10 +109,9 @@ class HardSQLQuery(ISQLQuery):
         )
         
         cursor = database.cursor()  # Create a cursor to interact with the database
-        print(self.toQuery())
         cursor.execute(self.toQuery())
         counts = cursor.fetchall()
-        if len(counts)==0:
+        if len(counts)<2:
             self.createGroupBy()
         else:
             counts = [row[0] for row in counts]
@@ -127,7 +127,7 @@ class HardSQLQuery(ISQLQuery):
 
         
         if val is not None: return val # if the value isn't a null value
-        else: return self.selectAttrVal(operator) # recurse until a non null value is selected
+        else: return self.selectHavingVal(operator) # recurse until a non null value is selected
 
               
     def createGroupBy(self):
@@ -177,7 +177,6 @@ class HardSQLQuery(ISQLQuery):
         
 
     def createJoin(self, joinRelsAndAtts):
-        
         astOrAttr = random.choice([ISQLQuery.asterisk,joinRelsAndAtts['rel1'].getAttribute()])
         #english currently only working with 2 attributes
         #astOrAttr = joinRelsAndAtts['rel1'].getAttribute()
@@ -225,7 +224,6 @@ class HardSQLQuery(ISQLQuery):
             
         
     def createNestedQuery(self, relation, conds, attrs):
-        
         
         attribute = conds['val1']
         operator = conds['operator']
@@ -279,8 +277,8 @@ class HardSQLQuery(ISQLQuery):
     
     
     # #temp for testing
-# from Session import Session     
-# d = Session.loadDatabase()
-# s = HardSQLQuery(d, 'seed')
-# print(s.getSqlQuery())
+from Session import Session     
+d = Session.loadDatabase()
+s = HardSQLQuery(d, 'seed')
+print(s.getSqlQuery())
  

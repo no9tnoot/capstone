@@ -7,9 +7,9 @@ import random
 
 class EasySQLQuery(ISQLQuery):
     
-    #operators = ['=']
     
     def __init__(self, database, seed, relation=None, attribute=None, aggOrCond = None, aggFn=None):
+        
         super().__init__(database, seed)
          # select random relation from database
         self.easyBuilder(relation = relation,  attribute=attribute, aggOrCond = aggOrCond, aggFn = aggFn)
