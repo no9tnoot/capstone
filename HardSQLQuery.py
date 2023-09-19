@@ -201,9 +201,12 @@ class HardSQLQuery(ISQLQuery):
         
         # select second attribute
         if not astOrAttr.isEqual(ISQLQuery.asterisk):
+            loopForNotJoinableAttr =  len(joinRelsAndAtts['joinAttributes']) < 3
             attr2 = joinRelsAndAtts['rel2'].getAttribute()
-            while astOrAttr.isEqual(attr2):
+            while astOrAttr.isEqual(attr2) or loopForNotJoinableAttr:
                 attr2 = joinRelsAndAtts['rel2'].getAttribute()
+                if loopForNotJoinableAttr: 
+                    loopForNotJoinableAttr = attr2 in joinRelsAndAtts['joinAttributes']
             self.attrs.append(attr2)
         
                 
@@ -212,7 +215,7 @@ class HardSQLQuery(ISQLQuery):
         if joinType != 'natural inner join':
             self.rels['operator']='on'
             self.rels['attr'] = random.choice(joinRelsAndAtts['joinAttributes'])
-            while self.rels['attr'].isEqual(astOrAttr):
+            while self.rels['attr'].isEqual(astOrAttr) or (not astOrAttr.isEqual(ISQLQuery.asterisk) and self.rels['attr'].isEqual(self.attrs[1])): # added the or to remove the ambiguous field error
                 self.rels['attr'] = random.choice(joinRelsAndAtts['joinAttributes'])
         
             # if astOrAttr != ISQLQuery.asterisk:

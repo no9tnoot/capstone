@@ -59,7 +59,7 @@ class QueryTester():
         
         
         
-UserInterface()
+QueryTester()
         
         
         
