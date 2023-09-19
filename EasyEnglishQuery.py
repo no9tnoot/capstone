@@ -30,8 +30,8 @@ class EasyEnglishQuery(IEnglishQuery):
     def translateLike(self, like):
         return super().translateLike(like)
     
-    def translateVal2(self, condition):
-        return super().translateVal2(condition)
+    def translateVal2(self, condition, nested=False):
+        return super().translateVal2(condition, nested)
     
     def easyEnglish(self, sqlQuery):
         return super().easyEnglish(sqlQuery)

@@ -20,8 +20,8 @@ class HardSQLQuery(ISQLQuery):
     def selectAttrVal(self, relation, attribute):
         return super().selectAttrVal(relation, attribute)
     
-    def getAgg(self):
-        return super().getAgg()
+    def getAgg(self, numeric=False):
+        return super().getAgg(numeric)
     
     def formatQueryAggs(self, attributes, aggregates):
         return super().formatQueryAggs(attributes, aggregates)
@@ -279,8 +279,8 @@ class HardSQLQuery(ISQLQuery):
     
     
     # #temp for testing
-from Session import Session     
-d = Session.loadDatabase()
-s = HardSQLQuery(d, 'seed')
-print(s.getSqlQuery())
+# from Session import Session     
+# d = Session.loadDatabase()
+# s = HardSQLQuery(d, 'seed')
+# print(s.getSqlQuery())
  
