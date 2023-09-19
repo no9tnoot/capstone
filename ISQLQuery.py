@@ -119,8 +119,8 @@ class ISQLQuery(ABC):
     """
     @abstractmethod
     def getAgg(self, numeric=False):
-        
-        aggType = random.choice(self.aggregateFunctions) # select the type of aggregate function
+        if numeric: aggType = random.choice(self.aggregateFunctions) # select the type of aggregate function
+        else: aggType = random.choice(['count(', 'max(', 'min('])
         return aggType # add chosen aggregate function to array instance variable
 
 
@@ -134,7 +134,7 @@ class ISQLQuery(ABC):
         
         # add keyword distinct if doing a distinct query
         d='' # not distinct
-        if self.distinct: d='distinct '  # distinct
+        if self.distinct: d='DISTINCT '  # distinct
         
         # if there is an aggregate function
         if aggregates and attributes:
@@ -146,10 +146,10 @@ class ISQLQuery(ABC):
         
         # if there is no aggregate function
         elif attributes:
+            aggs += d
             for att in attributes[:-1]:
                 aggs += att.name + ", "
-            aggs += d + attributes[-1].name
-            
+            aggs += attributes[-1].name
         return aggs # return the string of aggregate function and attributes
     
     
@@ -161,17 +161,22 @@ class ISQLQuery(ABC):
     def formatQueryConds(self, conds):
         cond = '' # initialise empty string
         
+        condType = conds['cond'].lower()
+        if condType == 'or': condType = 'where'
+        
         # format depends on type of conditional
-        match conds['cond'].lower():
+        match condType:
             
             case 'where':
                 if self.nested: # if doing a nested conditional, add brackets and turn the nested query (conds['val2']) into a string
                      cond = ' ' + conds['cond'] + ' ' + conds['val1'].name + ' ' + conds['operator'] + ' (' + conds['val2'].toQuery() +')'
                 else:
-                    if self.attrs[0].numeric or self.aggFns[0]=='count(' or conds['val2']=='NULL': 
-                        cond = ' ' + conds['cond'] + ' ' + conds['val1'].name + ' ' + conds['operator'] + ' ' + conds['val2']
-                    else:  # add ' ' around string value to compare (e.g. 'Greg')
+                    apostrophes = True # add ' ' around string value to compare (e.g. 'Greg')
+                    if conds['val1'].numeric or conds['val2']=='NULL': apostrophes = False
+                    if apostrophes:  
                         cond = ' ' + conds['cond'] + ' ' + conds['val1'].name + ' ' + conds['operator'] + ' \'' + conds['val2'] + '\''
+                    else: cond = ' ' + conds['cond'] + ' ' + conds['val1'].name + ' ' + conds['operator'] + ' ' + conds['val2']
+                
             
             case 'limit':
                 cond = ' ' + conds['cond'] + ' ' + conds['val2']
@@ -179,8 +184,8 @@ class ISQLQuery(ABC):
             case 'order by':
                 cond = ' ' + conds['cond'] + ' ' + conds['val1'].name + ' ' + conds['operator']
             
-            case 'or':
-                cond = ' ' + conds['cond'] + ' ' + conds['val1'].name + ' ' + conds['operator'] + ' ' + conds['val2']
+            # case 'or':
+            #     cond = ' ' + conds['cond'] + ' ' + conds['val1'].name + ' ' + conds['operator'] + ' ' + conds['val2']
             
             case _:
                 print('Invalid condition')    
@@ -215,26 +220,23 @@ class ISQLQuery(ABC):
         Relation put in rels['rel1']
     """    
     @abstractmethod
-    def createAgg(self, relation=None, astOrAttr=None, aggFn=None):
-        
-        if aggFn is None: aggFn = self.getAgg() # if aggregate function not specified, get a random aggreegate func 
+    def createAgg(self, relation=None, attribute=None, aggFn=None):
+        if relation is None: relation = self.getRel() # if relation not specified, select random relation from database
+                
+        if aggFn is None: aggFn = self.getAgg(numeric = relation.hasNumeric()) # if aggregate function not specified, get a random aggreegate func 
         self.aggFns.append(aggFn)  # store the aggregate function in aggFns
         
         # If doing a count agg, allow for the chosen attribute to be *
         if self.aggFns[0] == 'count(':
-            if relation is None: relation = self.getRel() # if relation not specified, select random relation from database
-
             # choose * or an attribute
-            if astOrAttr is None:
-                astOrAttr = random.choice([ISQLQuery.asterisk, relation.getAttribute()]) 
-            
-            self.attrs.append(astOrAttr) # add chosen attribute function / * to array instance variable
+            if attribute is None:
+                attribute = random.choice([ISQLQuery.asterisk, relation.getAttribute()]) 
+            self.attrs.append(attribute) # add chosen attribute function / * to array instance variable
         
         # if not doing a count (cannot have *)
         else:
-            if relation is None: relation = self.getRel(numeric = True) # select relation that countains a numeric attribute from database
-            if astOrAttr is None: astOrAttr = relation.getAttribute(numeric=True) # select numeric attribute from relation
-            self.attrs.append(astOrAttr) # add chosen attribute function to array instance variable
+            if attribute is None: attribute = relation.getAttribute(relation.hasNumeric()) # select numeric attribute from relation
+            self.attrs.append(attribute) # add chosen attribute function to array instance variable
         
 
         
@@ -460,13 +462,15 @@ class ISQLQuery(ABC):
     def mediumBuilder(self, relation = None, attribute = None, components = None):
         # Randomly select either an aggregate fn or conds or neither
         if components is None: components = random.choice(['distinct', 'like', 'or', 'round']) # distinct, as
-        components='distinct'
         match components:
             case 'distinct':
                 self.distinct = True
                 count = random.choice([True, False])
                 if count:
-                    self.createAgg(aggFn = 'count(')
+                    while attribute is None or attribute.isEqual(ISQLQuery.asterisk):
+                        if relation is None: relation = self.getRel()
+                        attribute = relation.getAttribute()
+                    self.createAgg(attribute=attribute, aggFn = 'count(')
                 else:
                     relation = self.getRel() # select random relation from database
                     self.createSimple(relation, attribute)

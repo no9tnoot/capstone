@@ -21,8 +21,8 @@ class MediumSQLQuery(ISQLQuery):
     def selectAttrVal(self, relation, attribute):
         return super().selectAttrVal(relation, attribute)
     
-    def getAgg(self):
-        return super().getAgg()
+    def getAgg(self, numeric=False):
+        return super().getAgg(numeric)
     
     def formatQueryAggs(self, attributes, aggregates):
         return super().formatQueryAggs(attributes, aggregates)
@@ -45,14 +45,14 @@ class MediumSQLQuery(ISQLQuery):
     def createLimitCond(self, relation):
         return super().createLimitCond(relation)
     
-    def createWhereCond(self, relation, cond_details, numeric=False):
-        return super().createWhereCond(relation, cond_details, numeric)
+    def createWhereCond(self, relation, cond_details, numeric=False, whereAttr=None):
+        return super().createWhereCond(relation, cond_details, numeric, whereAttr)
     
     def createLikeCond(self, relation, cond_details):
         super().createLikeCond(relation, cond_details)
         
     def insertPercentWildCard(self, value, ends_with_perc, num_char_to_remove, cond_details):
-         super().insertPercentWildCard(self, value, ends_with_perc, num_char_to_remove, cond_details)
+        return super().insertPercentWildCard(value, ends_with_perc, num_char_to_remove, cond_details)
     
     def getSqlQuery(self):
         return super().getSqlQuery()

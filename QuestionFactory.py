@@ -42,7 +42,7 @@ class QuestionFactory:
 from Session import Session
 d = Session.loadDatabase()
 factory = QuestionFactory(d)
-q = factory.getQuestion('hard')
+q = factory.getQuestion('easy')
 print(q.getSqlQuery())
 print(q.getEnglishQuery())
 
