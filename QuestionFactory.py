@@ -28,9 +28,9 @@ class QuestionFactory:
                 sqlQuery = MediumSQLQuery(self.database, 'seed')
                 engQuery = MediumEnglishQuery(sqlQuery.getDict())
             
-            #case 'hard':
-                #sqlQuery = HardSQLQuery(self.database)
-                #engQuery = HardEnglishQuery(sqlQuery)
+            case 'hard':
+                sqlQuery = HardSQLQuery(self.database)
+                engQuery = HardEnglishQuery(sqlQuery)
 
             case _:
                 print('Invalid difficulty')

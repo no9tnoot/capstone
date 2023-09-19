@@ -23,12 +23,10 @@ def genTestQs(numQs):
         addNonDuplicate(questionSet, "easy")
     for i in range(int(0.5*numQs)):
         addNonDuplicate(questionSet, "medium")
+    for i in range(int(0.2*numQs)):
+        addNonDuplicate(questionSet, "hard")
     
     questionList = list(questionSet)
-    for i in range(int(0.2*numQs)):
-        # questionList.append(factory.getQuestion("hard"))
-        questionList.append("Hard question here")
-
     return questionList
 
 # Login page:
@@ -111,10 +109,15 @@ def test():
         if "mark_button" in request.form:
             # Mark the student's inputted SQL query
             correctAns = []
+
             for i in range(numQs):
-                stuAns = request.form.get("sql" + str(i))
+                name = "sql" + str(i+1)
+                stuAns = request.form.get(name) #This is always returning none...
+                print(stuAns)
+                print(request.form.get("sql1"))
                 if stuAns == None:
                     stuAns = ""
+                print(setup.questionList[i])
                 modelAns = setup.questionList[i].getSqlQuery()
                 setup.result = Session.markQuery(setup.session, stuAns, modelAns) # Mark
                 # Store whether answer was correct or not
@@ -128,14 +131,16 @@ def test():
             
             # reset questionList
             setup.questionList = []
-            print(str(counter) + "/" + str(numQs))
+            mark = str(counter) + "/" + str(numQs)
+            # Take to page with score and link to home
+            return render_template("markedTest_gui.html", mark = mark)
  
     return render_template("test_gui.html", engE1 = setup.questionList[0].getEnglishQuery(), 
                             engE2 = setup.questionList[1].getEnglishQuery(), engE3 = setup.questionList[2].getEnglishQuery(), 
                             engM1 = setup.questionList[3].getEnglishQuery(), engM2 = setup.questionList[4].getEnglishQuery(), 
                             engM3 = setup.questionList[5].getEnglishQuery(), engM4 = setup.questionList[6].getEnglishQuery(), 
-                            engM5 = setup.questionList[7].getEnglishQuery(), engH1 = setup.questionList[8], 
-                            engH2 = setup.questionList[9])
+                            engM5 = setup.questionList[7].getEnglishQuery(), engH1 = setup.questionList[8].getEnglishQuery(), 
+                            engH2 = setup.questionList[9].getEnglishQuery())
 
 # Statistics page:
 @app.route("/statistics", methods=["GET", "POST"])
