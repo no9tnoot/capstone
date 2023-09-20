@@ -48,7 +48,7 @@ class IEnglishQuery(ABC):
     def translateAgg(self, agg):
         match agg:
             case 'count(':
-                engAgg = 'how many rows there are in '
+                engAgg = 'how many records there are in '
             case 'max(':
                 engAgg = 'the greatest value of '
             case 'min(':
