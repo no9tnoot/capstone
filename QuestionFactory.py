@@ -30,7 +30,7 @@ class QuestionFactory:
             
             case 'hard':
                 sqlQuery = HardSQLQuery(self.database)
-                engQuery = HardEnglishQuery(sqlQuery)
+                engQuery = HardEnglishQuery(sqlQuery.getDict())
 
             case _:
                 print('Invalid difficulty')
