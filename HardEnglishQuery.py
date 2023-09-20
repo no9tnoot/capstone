@@ -19,6 +19,10 @@ class HardEnglishQuery(IEnglishQuery):
         q = self.easyEnglish(query)
         return q
     
+    def groupBy(self, query):
+        q = 'each ' + query['groupBy']['groupAttr'] + ' in the ' + query['rels']['rel1'] + ' table along with ' 
+        + self.translateAgg(query['aggregates']) + self.translateAttr(query['groupBy']['aggAttr']) + 'that are associated with that ' + query['grouopBy']['groupAttr']
+    
     def join(self, query):
         
         match query['relation']['joinType']:
