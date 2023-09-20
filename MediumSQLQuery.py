@@ -9,8 +9,8 @@ import math
 class MediumSQLQuery(ISQLQuery):
     
     
-    def __init__(self, database, seed):
-        super().__init__(database, seed)
+    def __init__(self, database):
+        super().__init__(database)
         self.asNames = [] #names for AS aggregates
         self.mediumBuilder()
         self.query = self.toQuery()
@@ -108,5 +108,5 @@ class MediumSQLQuery(ISQLQuery):
 # #temp for testing
 # from Session import Session     
 # d = Session.loadDatabase()
-# s = MediumSQLQuery(d, 'seed')
+# s = MediumSQLQuery(d)
 # print(s.getSqlQuery())

@@ -21,16 +21,16 @@ class QuestionFactory:
     def getQuestion(self, difficulty):
         match difficulty:
             case 'easy':
-                sqlQuery = EasySQLQuery(self.database, 'seed')
+                sqlQuery = EasySQLQuery(self.database)
                 engQuery = EasyEnglishQuery(sqlQuery.getDict())
             
             case 'medium':
-                sqlQuery = MediumSQLQuery(self.database, 'seed')
+                sqlQuery = MediumSQLQuery(self.database)
                 engQuery = MediumEnglishQuery(sqlQuery.getDict())
             
             case 'hard':
-                sqlQuery = HardSQLQuery(self.database, 'seed')
-                engQuery = HardEnglishQuery(sqlQuery.getDict())
+                sqlQuery = HardSQLQuery(self.database)
+                engQuery = HardEnglishQuery(sqlQuery)
 
             case _:
                 print('Invalid difficulty')
@@ -38,13 +38,13 @@ class QuestionFactory:
         self.question = Question(sqlQuery.getSqlQuery(), engQuery.getEnglishQuery())
         return self.question
     
-#testing
-from Session import Session
-d = Session.loadDatabase()
-factory = QuestionFactory(d)
-q = factory.getQuestion('medium')
-print(q.getSqlQuery())
-print(q.getEnglishQuery())
+# #testing
+# from Session import Session
+# d = Session.loadDatabase()
+# factory = QuestionFactory(d)
+# q = factory.getQuestion('medium')
+# print(q.getSqlQuery())
+# print(q.getEnglishQuery())
 
 
                 

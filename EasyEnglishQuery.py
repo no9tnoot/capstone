@@ -32,6 +32,8 @@ class EasyEnglishQuery(IEnglishQuery):
     
     def translateVal2(self, condition, nested=False):
         return super().translateVal2(condition, nested)
+    def translateVal2(self, condition, nested=False):
+        return super().translateVal2(condition, nested)
     
     def easyEnglish(self, sqlQuery):
         return super().easyEnglish(sqlQuery)

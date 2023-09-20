@@ -8,9 +8,9 @@ import random
 class EasySQLQuery(ISQLQuery):
     
     
-    def __init__(self, database, seed, relation=None, attribute=None, aggOrCond = None, aggFn=None):
+    def __init__(self, database, relation=None, attribute=None, aggOrCond = None, aggFn=None):
         
-        super().__init__(database, seed)
+        super().__init__(database)
          # select random relation from database
         self.easyBuilder(relation = relation,  attribute=attribute, aggOrCond = aggOrCond, aggFn = aggFn)
         self.query = self.toQuery()
@@ -82,5 +82,5 @@ class EasySQLQuery(ISQLQuery):
 #temp for testing
 # from Session import Session     
 # d = Session.loadDatabase()
-# s = EasySQLQuery(d, 'seed')
+# s = EasySQLQuery(d)
 # print(s.getSqlQuery())

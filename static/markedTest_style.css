@@ -21,10 +21,6 @@ body {
     flex-direction: column;
 }
 
-input {
-    font-size: 2rem;
-}
-
 nav {
     display: flex;
     justify-content: space-between;
@@ -46,28 +42,11 @@ p {
     padding: 5px var(--margin);
 }
 
-.q_and_a_form {
-    margin: var(--margin);
-}
-
-/* .form_label{
-
-} */
-
-.form_input {
+.score {
+    font-size: 3rem;
+    font-weight: bold;
     display: flex;
     justify-content: center;
-    gap: 2px;
-    padding: 5px;
-    margin: 10px;
-}
-
-input[type="text"] {
-    flex: 1;
-    padding: 10px;
-    font-size: 2rem;
-    font-family: 'Courier New', Courier, monospace;
-    border: 1px solid var(--border-color);
 }
 
 /* Link styling (as button) */
@@ -88,29 +67,4 @@ a:hover,
 a:active {
     background-color: rgb(255, 255, 255);
     color: black;
-}
-
-/* Button styling */
-.mark_button_div {
-    display: flex;
-    justify-content: end;
-}
-
-.mark_button {
-    padding: 12px 60px;
-    margin: 30px;
-    margin-top: 10px;
-    background-color: rgb(184, 196, 214);
-    border: 1px solid var(--border-color);
-    cursor: pointer;
-    color: black;
-    line-height: 20px;
-    font-size: 2rem;
-    border-radius: 4px;
-}
-
-.mark_button:hover,
-.mark_button:active {
-    background-color: rgb(144, 165, 195);
-    color: white;
 }

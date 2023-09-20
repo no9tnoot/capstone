@@ -15,8 +15,8 @@
     <nav>
         <a href="/home" class="btn">home</a>
 
-        <form class="next_q_form">
-            <select class="difficulty" id="difficulty">
+        <form class="next_q_form" id="next_q_form" method="post">
+            <select class="difficulty" name="difficulty" id="difficulty">
                 <option value="easy">easy</option>
                 <option value="medium">medium</option>
                 <option value="hard">hard</option>
@@ -24,35 +24,55 @@
         </form>
     </nav>
 
-    <p>Input the equivalent SQL query for this English question: </p>
+    <p>Input the equivalent SQL query for this English question:</p>
 
     <h1 class="eng_question">{{ engQuestion }}</h1>
 
+
+    <!-- {{'visible' if showResult==False else ''}} -->
+
     <form class="q_and_a_form" method="post">
-        <div class="question_input">
+        <div class="question_input  {{'hidden' if showResult else ''}}">
             <input type="text" name="sql" class="form_input" placeholder="Input SQL Query Here..." />
-            <input class="mark_button btn" type="submit" value="mark">
+            <input class="mark_button btn" type="submit" name="mark_button" value="mark">
         </div>
     </form>
 
-    <div class="receive_result">
+    <!-- {% if showResult %} -->
+    <div class="receive_result {{'visible' if showResult else ''}}">
         <div class="result_output">
-            <div class="result">Result</div>
-            <div class="result_data">Lorem ipsum dolor sit amet consectetur adipisicing elit. Adipisci vel nisi quo
-                debitis facilis placeat amet? Excepturi obcaecati laudantium, nulla perspiciatis esse deserunt ipsam
-                nesciunt impedit consequatur adipisci velit voluptas iusto suscipit reprehenderit neque inventore vero
-                quis magnam libero molestias, corrupti cum nemo. Nostrum tenetur dicta iure nihil repudiandae quia nobis
-                non aspernatur ratione, at a, quisquam minus, nam minima facilis veniam perferendis eius iste obcaecati
-                provident. Sint ad, vel ea neque beatae voluptatem ex. Tenetur nesciunt repellendus accusamus quos quis
-                similique recusandae assumenda ratione quod quibusdam, adipisci magnam fugit molestias! Esse, illo rerum
-                id nobis debitis ullam adipisci asperiores.</div>
+
+            <div class="result {{'green' if correct else ''}}">{% if correct %} Correct!{% else %} Incorrect {% endif %}
+            </div>
+            <div class="result_data">{{ explanation }} <br> {{ model }}</div>
         </div>
         <div class="next_button_div">
-            <button class="next_button btn" type="button" form="next_q_form">next >></button>
+            <input class="next_button btn" type="submit" name="next_button" form="next_q_form" value="next >>">
+            <!-- <button class="next_button btn" type="submit" form="next_q_form">next >></button> -->
         </div>
     </div>
+    <!-- {% endif %} -->
 
 
 </body>
+
+<script>
+    const select = document.querySelector("#difficulty");
+    const next_q_form = document.querySelector("#next_q_form");
+    const eng_question = document.querySelector(".eng_question");
+    const receive_result = document.querySelector(".receive_result");
+
+    select.addEventListener("change", async function () {
+        const form_data = new FormData(next_q_form);
+        form_data.append("difficulty_changed", "");
+        const response = await fetch("/practice", {
+            method: "POST",
+            body: form_data,
+        });
+        eng_question.textContent = await response.text();
+        receive_result.classList.remove("visible");
+        // this is where we will need to reset the output fields
+    })
+</script>
 
 </html>

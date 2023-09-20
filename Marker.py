@@ -50,9 +50,9 @@ class Marker:
         modalAnswer = cursor.fetchall()
         
         if (studentAnswer==modalAnswer): # correct! Identical output
-            return [True]
+            return [True, "Your query produced the correct output.", ""]
         
-        return [False, validity] # output not the same 
+        return [False, validity, ""] # output not the same 
         
 
     """

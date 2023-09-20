@@ -14,7 +14,7 @@ class Session:
         self.details = []
         Session.readDatabaseDetails(self)
         #load database with details read from file
-        self.database = self.loadDatabase(self.details[0],self.details[1],self.details[2],self.details[3])
+        self.database = Session.loadDatabase(self.details[0],self.details[1],self.details[2],self.details[3])
         self.seed = Session.genSeed()
         self.user = user
         self.marker = Marker.Marker(self.database)

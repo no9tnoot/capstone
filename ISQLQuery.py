@@ -18,9 +18,8 @@ class ISQLQuery(ABC):
     asterisk = Database.Attribute('*')
     
     @abstractmethod
-    def __init__(self, database, seed):
+    def __init__(self, database):
         self.db = database
-        self.seed = seed
         self.queryString = ""
         self.queryArray = []
         
