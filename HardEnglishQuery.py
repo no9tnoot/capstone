@@ -22,40 +22,65 @@ class HardEnglishQuery(IEnglishQuery):
         return q
     
     def groupBy(self, query):
-        q = 'each ' + query['attributes'][1].name + ' in the ' + query['relation']['rel1'].name + ' table along with ' + self.translateAgg(query['aggregates'][0]) + self.translateAttr(query['attributes'][0]) + ' that is associated with that ' + query['attributes'][1].name
-        if query['condition']:
+        q = 'each ' + query['attributes'][1].name + ' in the ' + query['relation']['rel1'].name + ' table along with '
+        q += self.translateAgg(query['aggregates'][0]) + self.translateAttr(query['attributes'][0]) 
+        if query['attributes'][0].name == '*' or query['aggregates'][0] == 'count(':
+            q += ' that are associated with that ' + query['attributes'][1].name
+        else:
+            q += ' that is associated with that ' + query['attributes'][1].name
+        if query['condition'] and query['groupBy']['having']:
             q += self.translateCond(query['condition'])
-        if query['groupBy']['having']:
-            q += ' but only for ' + self.translateAttr(query['attributes'][0]) + ' values that '
+            q += ' and only where ' + self.translateAttr(query['attributes'][0])
             q += self.having(query)
+        elif query['condition']:
+            q += self.translateCond(query['condition'])
+        elif query['groupBy']['having']:
+            
+            q +=  ' but only where ' + self.having(query)
         return q
     
     def having(self, query):
         match query['aggregates'][0]:
+            
             case 'count(':
-                q = 'appear ' + self.havingOperator(query['groupBy']['operator']) + str(query['groupBy']['val']) + ' times'
+                if query['attributes'][0].name == '*':
+                    q = self.translateAttr(query['attributes'][0])
+                    if query['groupBy']['val'] == 1:
+                        q += ' appear ' + self.havingOperator(query['groupBy']['operator']) + str(query['groupBy']['val']) + ' time per ' + query['attributes'][1].name
+                    else:
+                        q += ' appear ' + self.havingOperator(query['groupBy']['operator']) + str(query['groupBy']['val']) + ' times per ' + query['attributes'][1].name
+                else:
+                    q = self.translateAttr(query['attributes'][0])
+                    if query['groupBy']['val'] == 1:
+                        q += ' appears ' + self.havingOperator(query['groupBy']['operator']) + str(query['groupBy']['val']) + ' time per ' + query['attributes'][1].name
+                    else:
+                        q += ' appears ' + self.havingOperator(query['groupBy']['operator']) + str(query['groupBy']['val']) + ' times per ' + query['attributes'][1].name
+            
             case 'max(':
-                q = 'have a maximum value ' + self.havingOperator(query['groupBy']['operator']) + str(query['groupBy']['val'])
+                q = 'has a maximum value ' + self.havingOperator(query['groupBy']['operator']) + str(query['groupBy']['val'])
+            
             case 'min(':
-                q = 'have a minimum value ' + self.havingOperator(query['groupBy']['operator']) + str(query['groupBy']['val'])
+                q = 'has a minimum value ' + self.havingOperator(query['groupBy']['operator']) + str(query['groupBy']['val'])
+            
             case 'avg(':
-                q = 'have an average value ' + self.havingOperator(query['groupBy']['operator']) + str(query['groupBy']['val'])
+                q = 'has an average value ' + self.havingOperator(query['groupBy']['operator']) + str(query['groupBy']['val'])
+            
             case 'sum(':
-                q = 'have an additive total ' + self.havingOperator(query['groupBy']['operator']) + str(query['groupBy']['val'])
+                q = 'has an additive total ' + self.havingOperator(query['groupBy']['operator']) + str(query['groupBy']['val'])
         return q
 
     def havingOperator(self, operator, count = False):
         match operator:
             case '=':
-                return ' '
+                return ''
             case '<':
                 return 'less than '
             case '>':
-                return 'greater than '
+                return 'more than '
             case '<=':
                 return 'less than or equal to '
             case '>=':
-                return 'greater than or equal to '
+                return 'more than or equal to '
             case _:
                 return ''
     

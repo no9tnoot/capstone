@@ -80,10 +80,10 @@ class IEnglishQuery(ABC):
                 if condition['val2'] == 1:
                     engCond += ' but only show 1 row'
                 else:
-                    engCond += ' but only show ' + condition['val2'] + ' rows'
+                    engCond += ' but only show ' + condition['val2'] + ' records'
 
             case 'where':
-                engCond += ' but only for rows where ' + condition['val1'].name + ' ' + self.translateOperator(condition) + ' ' + self.translateVal2(condition, nested)
+                engCond += ' but only for records where ' + condition['val1'].name + ' ' + self.translateOperator(condition) + ' ' + self.translateVal2(condition, nested)
                 if self.sqlQuery['orCond']:
                     engCond += ' or ' + condition['or']['val1'].name + ' ' + self.translateOperator(condition['or']) + ' ' + self.translateVal2(condition['or'], nested)
             
