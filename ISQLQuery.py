@@ -524,7 +524,8 @@ class ISQLQuery(ABC):
                 'orCond': self.orCond,
                 'roundTo': self.roundTo,
                 'nested': self.nested,
-                'join': self.join}
+                'join': self.join,
+                'groupBy': self.groupBy}
         
         return dict
     

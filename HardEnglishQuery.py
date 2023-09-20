@@ -13,6 +13,8 @@ class HardEnglishQuery(IEnglishQuery):
             self.englishQuery += self.join(sqlQuery)
         elif sqlQuery['nested']:
             self.englishQuery += self.nested(sqlQuery)
+        elif sqlQuery['groupBy']:
+            self.englishQuery += self.groupBy(sqlQuery)
         self.englishQuery += '.'
 
     def nested(self, query):
@@ -20,8 +22,8 @@ class HardEnglishQuery(IEnglishQuery):
         return q
     
     def groupBy(self, query):
-        q = 'each ' + query['groupBy']['groupAttr'] + ' in the ' + query['rels']['rel1'] + ' table along with ' 
-        + self.translateAgg(query['aggregates']) + self.translateAttr(query['groupBy']['aggAttr']) + 'that are associated with that ' + query['grouopBy']['groupAttr']
+        q = 'each ' + query['attributes'][1].name + ' in the ' + query['relation']['rel1'].name + ' table along with ' + self.translateAgg(query['aggregates'][0]) + self.translateAttr(query['attributes'][0]) + ' that are associated with that ' + query['attributes'][1].name
+        return q
     
     def join(self, query):
         
