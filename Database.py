@@ -306,6 +306,58 @@ class Database:
         for relation in self.relations:
             if relation.hasGroupByAttributes():
                 self.groupByRelations.append(relation)
+                
+    def selectAttrVal(self, relation, attribute):
         
+        # Connect to database
+        database = mysql.connector.connect(
+            host=self.host,
+            user=self.user,
+            password=self.pword,
+            database=self.db_name
+        )
+        
+        cursor = database.cursor()  # Create a cursor to interact with the database
+        
+        reqVal = str( random.randint(0, relation.getNumRows()-1) ) #Select a random value between 0 and the total number of values in the attribute -1
+
+        cursor.execute("SELECT " + attribute.name + " FROM " + relation.name + " limit 1 offset " + reqVal + ";")   # SQL: print a single value at index reqVal from the attribute
+        
+        reqVal = cursor.fetchall()[0][0] # get the value from the SQL output
+        
+        if reqVal is None: return self.selectAttrVal(relation, attribute) # recurse until a non null value is selected
+        else: return reqVal # if the value isn't a null value
+        
+    
+    def selectHavingVal(self, operator):
+            
+        # Connect to database
+        database = mysql.connector.connect(
+            host=self.db.host,
+            user=self.db.user,
+            password=self.db.pword,
+            database=self.db.db_name
+        )
+        
+        cursor = database.cursor()  # Create a cursor to interact with the database
+        cursor.execute(self.toQuery())
+        counts = cursor.fetchall()
+        if len(counts)<3:
+            self.groupBy['operator']=''
+            return ''
+        else:
+            counts = [row[0] for row in counts]
+
+        # try do a comparison to a value, but if not enough different values exist, change to an '='
+        try:
+            if operator[0] == '<': val = random.randint( max(min(counts),max(counts)//2), max(counts))
+            elif operator[0] == '>': val = random.randint( min(counts), min(min(counts)*2,max(counts)))
+            else: val = random.choice(counts)
+        except:  
+            operator = '='
+            val = random.choice(counts)
+
+        if val is not None: return val # if the value isn't a null value
+        else: return self.selectHavingVal(operator) # recurse until a non null value is selected
                 
             
