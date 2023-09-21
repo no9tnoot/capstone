@@ -1,4 +1,4 @@
 localhost
-root
-mySQL_sew1
+student
+password
 classicmodels2022
