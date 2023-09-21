@@ -65,6 +65,7 @@ class HardSQLQuery(ISQLQuery):
     def hardBuilder(self):
         
         type = random.choice(['nested', 'join', 'groupBy'])
+        type='groupBy'
         match type:
             
             case 'nested':
@@ -136,10 +137,36 @@ class HardSQLQuery(ISQLQuery):
         self.groupBy['having']=None
         if having: 
             self.groupBy['operator'] = random.choice(self.operators)
-            self.groupBy['val'] = self.db.selectHavingVal(self.groupBy['operator'])
+            self.groupBy['val'] = self.createHaving()
             if self.groupBy['val']!='':
                 self.groupBy['having']=' HAVING '
                 self.groupBy['aggAttr'] = self.aggFns[0] + self.attrs[0].name + ')'
+            
+        
+            
+    def createHaving(self):
+        
+        counts = self.db.selectHavingVals(self.groupBy['operator'], self.toQuery())
+        if len(counts)<3:
+            self.groupBy['operator']=''
+            return ''
+        else:
+            counts = [row[0] for row in counts]
+
+        # try do a comparison to a value, but if not enough different values exist, change to an '='
+        try:
+            if operator[0] == '<': val = random.randint( max(min(counts),max(counts)//2), max(counts))
+            elif operator[0] == '>': val = random.randint( min(counts), min(min(counts)*2,max(counts)))
+            else: val = random.choice(counts)
+        except:  
+            operator = '='
+            val = random.choice(counts)
+
+        if val is not None: return val # if the value isn't a null value
+        else: return self.createHaving() # recurse until a non null value is selected
+             
+       
+        
                 
         
         

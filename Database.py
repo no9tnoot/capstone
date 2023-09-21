@@ -329,35 +329,18 @@ class Database:
         else: return reqVal # if the value isn't a null value
         
     
-    def selectHavingVal(self, operator):
+    def selectHavingVals(self, operator, query):
             
         # Connect to database
         database = mysql.connector.connect(
-            host=self.db.host,
-            user=self.db.user,
-            password=self.db.pword,
-            database=self.db.db_name
+            host=self.host,
+            user=self.user,
+            password=self.pword,
+            database=self.db_name
         )
         
         cursor = database.cursor()  # Create a cursor to interact with the database
-        cursor.execute(self.toQuery())
-        counts = cursor.fetchall()
-        if len(counts)<3:
-            self.groupBy['operator']=''
-            return ''
-        else:
-            counts = [row[0] for row in counts]
-
-        # try do a comparison to a value, but if not enough different values exist, change to an '='
-        try:
-            if operator[0] == '<': val = random.randint( max(min(counts),max(counts)//2), max(counts))
-            elif operator[0] == '>': val = random.randint( min(counts), min(min(counts)*2,max(counts)))
-            else: val = random.choice(counts)
-        except:  
-            operator = '='
-            val = random.choice(counts)
-
-        if val is not None: return val # if the value isn't a null value
-        else: return self.selectHavingVal(operator) # recurse until a non null value is selected
-                
+        cursor.execute(query)
+        return cursor.fetchall()
+           
             
