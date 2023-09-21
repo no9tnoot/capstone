@@ -6,8 +6,6 @@ from IEnglishQuery import IEnglishQuery
 
 class MediumEnglishQuery(IEnglishQuery):
 
-    #likePos = ['second','third','fourth','fifth','sixth']
-
     def __init__(self, sqlQuery):
         super().__init__(sqlQuery)
         self.englishQuery = 'Show '
@@ -22,6 +20,7 @@ class MediumEnglishQuery(IEnglishQuery):
         if sqlQuery['condition']:
             self.englishQuery += self.translateCond(sqlQuery['condition'])
 
+        #handles distinct queries
         if sqlQuery['distinct']:
             if len(sqlQuery['attributes']) == 1:
                 self.englishQuery += ' but only for unique values of ' + self.onlyAttrs(sqlQuery['attributes'])
@@ -30,6 +29,9 @@ class MediumEnglishQuery(IEnglishQuery):
 
         self.englishQuery += '.'
 
+    """
+    Translate round functions to english
+    """
     def translateRound(self, roundTo):
         if roundTo == '1':
             s = ' rounded to ' + roundTo + ' decimal place'
@@ -61,6 +63,9 @@ class MediumEnglishQuery(IEnglishQuery):
     def translateLike(self, like):
         return super().translateLike(like)
     
+    """
+    Overriding attrsAndAggs to deal with round aggs
+    """
     def attrsAndAggs(self, attrs, agg, roundTo):
         if agg != 'round(':
             engAttrs = self.translateAgg(agg)

@@ -17,10 +17,16 @@ class HardEnglishQuery(IEnglishQuery):
             self.englishQuery += self.groupBy(sqlQuery)
         self.englishQuery += '.'
 
+    """
+    Calls the easyEnglish method to generate a query, but also passes it a nested query.
+    """
     def nested(self, query):
         q = self.easyEnglish(query)
         return q
     
+    """
+    Translates group by queries into english.
+    """
     def groupBy(self, query):
         q = 'each ' + query['attributes'][1].name + ' in the ' + query['relation']['rel1'].name + ' table along with '
         q += self.translateAgg(query['aggregates'][0]) + self.translateAttr(query['attributes'][0]) 
@@ -39,6 +45,9 @@ class HardEnglishQuery(IEnglishQuery):
             q +=  ' but only where ' + self.having(query)
         return q
     
+    """
+    Translates the having part of group by queries.
+    """
     def having(self, query):
         match query['aggregates'][0]:
             
@@ -69,6 +78,9 @@ class HardEnglishQuery(IEnglishQuery):
                 q = 'has an additive total ' + self.havingOperator(query['groupBy']['operator']) + str(query['groupBy']['val'])
         return q
 
+    """
+    Translates the operator in the having section.
+    """
     def havingOperator(self, operator, count = False):
         match operator:
             case '=':
@@ -84,32 +96,32 @@ class HardEnglishQuery(IEnglishQuery):
             case _:
                 return ''
     
+    """
+    Translate join queries into english.
+    """
     def join(self, query):
         
         match query['relation']['joinType']:
             case 'left outer join':
                 #agg and attr
-                #q = self.translateAgg(query['aggregates'][0]) + self.translateAttr(query['attributes'][0])
                 q = self.joinPart1(query['aggregates'], query['attributes'], query['relation'], 0)
-                #first relation
-                #q += ' in the ' + query['relation']['rel1'].name + ' table'
-                #second attribute and relation
-                #q += ' along with the ' + self.translateAttr(query['attributes'][1]) + ' values in the ' + query['relation']['rel2'].name + ' table that have a corresponding ' + query['relation']['attr'].name + ' value'
-            
+
             case 'right outer join':
                 q = self.joinPart1(query['aggregates'], query['attributes'], query['relation'], 1)
-                #q += ' along with the ' + self.translateAttr(query['attributes'][0]) + ' values in the ' + query['relation']['rel1'].name + ' table that have a corresponding ' + query['relation']['attr'].name + ' value'
-            
+                
             case 'inner join':
                 q = self.joinPart1(query['aggregates'], query['attributes'], query['relation'], 0)
-                #q += ' and the values of ' + self.translateAttr(query['attributes'][1]) +' in the ' + query['relation']['rel2'].name + ' table where they have a matching value of ' + query['relation']['attr'].name
                 
             case 'natural inner join':
                 q = self.joinPart1(query['aggregates'], query['attributes'], query['relation'], 0)
-                #q += ' and the associated values of ' + self.translateAttr(query['attributes'][1]) + ' in the ' + query['relation']['rel2'].name + ' table'
+
         q += self.joinPart2(query['aggregates'], query['attributes'], query['relation'])
         return q
     
+    """
+    Translates the first part of join queries. If it is a right outer join it uses the 2nd attribute as that
+    is the one from the right table.
+    """
     def joinPart1(self, aggs, attrs, rels, right = 0):
         
         if not right:
@@ -129,6 +141,9 @@ class HardEnglishQuery(IEnglishQuery):
             q += ' in the ' + rels['rel2'].name + ' table'
         return q
     
+    """
+    Translate the second part of the join query. Includes how they are joined.
+    """
     def joinPart2(self, aggs, attrs, rels):
         if attrs[0].name == '*':
             match rels['joinType']:
