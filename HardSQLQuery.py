@@ -17,9 +17,6 @@ class HardSQLQuery(ISQLQuery):
     def getRel(self, numeric=False, string=False):
         return super().getRel(numeric, string)
     
-    def selectAttrVal(self, relation, attribute):
-        return super().selectAttrVal(relation, attribute)
-    
     def getAgg(self, numeric=False):
         return super().getAgg(numeric)
     
@@ -98,37 +95,6 @@ class HardSQLQuery(ISQLQuery):
                 self.query = self.toQuery()
                 
     
-    def selectHavingVal(self, operator):
-            
-        # Connect to database
-        database = mysql.connector.connect(
-            host=self.db.host,
-            user=self.db.user,
-            password=self.db.pword,
-            database=self.db.db_name
-        )
-        
-        cursor = database.cursor()  # Create a cursor to interact with the database
-        cursor.execute(self.toQuery())
-        counts = cursor.fetchall()
-        if len(counts)<3:
-            self.groupBy['operator']=''
-            return ''
-        else:
-            counts = [row[0] for row in counts]
-
-        # try do a comparison to a value, but if not enough different values exist, change to an '='
-        try:
-            if operator[0] == '<': val = random.randint( max(min(counts),max(counts)//2), max(counts))
-            elif operator[0] == '>': val = random.randint( min(counts), min(min(counts)*2,max(counts)))
-            else: val = random.choice(counts)
-        except:  
-            operator = '='
-            val = random.choice(counts)
-
-        if val is not None: return val # if the value isn't a null value
-        else: return self.selectHavingVal(operator) # recurse until a non null value is selected
-
               
     def createGroupBy(self):
         
@@ -170,7 +136,7 @@ class HardSQLQuery(ISQLQuery):
         self.groupBy['having']=None
         if having: 
             self.groupBy['operator'] = random.choice(self.operators)
-            self.groupBy['val'] = self.selectHavingVal(self.groupBy['operator'])
+            self.groupBy['val'] = self.db.selectHavingVal(self.groupBy['operator'])
             if self.groupBy['val']!='':
                 self.groupBy['having']=' HAVING '
                 self.groupBy['aggAttr'] = self.aggFns[0] + self.attrs[0].name + ')'
