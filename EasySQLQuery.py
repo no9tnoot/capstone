@@ -124,10 +124,10 @@ class EasySQLQuery(ISQLQuery):
     """
     def toQuery(self):
         q = 'SELECT '
-        q += self.formatQueryAggs(self.attrs, self.aggFns)
-        q += ' FROM ' + self.rels['rel1'].name
-        if self.conds:
-            q += self.formatQueryConds(self.conds)
+        q += self.formatQueryAggs(self.attrs, self.aggFns) # format the attributes and aggregate functions
+        q += ' FROM ' + self.rels['rel1'].name 
+        if self.conds: # formats the condition, if one exists
+            q += self.formatQueryConds(self.conds) 
         return q
     
     """
