@@ -165,7 +165,7 @@ class HardSQLQuery(ISQLQuery):
     def createHaving(self):
         
         # get an array of possible count values from the database
-        counts = self.db.selectHavingVals(self.groupBy['operator'], self.toQuery())
+        counts = self.db.selectHavingVals(self.toQuery())
         
         # if the group by query does not produce many groups, do not further constrict with a having condition
         if len(counts)<3:

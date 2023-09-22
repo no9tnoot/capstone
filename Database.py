@@ -26,16 +26,12 @@ class Attribute:
         self.string = Attribute.isString(self)
         self.groupBy = groupBy
     
-    def getName(self):
-        return self.name
-        
-    def getDataType(self):
-        return self.dataType
-    
     def isPrimary(self):
         return (self.key == 'PRI')
 
-    # Sets numeric to True if the attribute is numeric (not a string/date/time/boolean)
+    """
+        Sets numeric to True if the attribute is numeric (not a string/date/time/boolean)
+    """
     def isNumeric(self):
         
         isNum = False
@@ -49,7 +45,9 @@ class Attribute:
         
         return isNum
     
-    # Sets string to True if the attribute is string (not a numeric/date/time/boolean)
+    """
+        Sets string to True if the attribute is string (not a numeric/date/time/boolean)
+    """
     def isString(self):
         
         isString = False
@@ -63,7 +61,9 @@ class Attribute:
         
         return isString
     
-    # Sets numeric to True if the attribute is numeric (not a string/date/time/boolean)
+    """
+        Sets numeric to True if the attribute is numeric (not a string/date/time/boolean)
+    """
     def isRoundable(self):
         
         isRoundable = False
@@ -77,6 +77,9 @@ class Attribute:
         
         return isRoundable
     
+    """
+        Returns true if the calling attribute is equal to the given attribute
+    """
     def isEqual(self, attribute):
         if self.name != attribute.name: return False
         if self.dataType != attribute.dataType: return False
@@ -103,10 +106,9 @@ class Relation:
         self.numRows = nrow
         self.groupByAttributes = []
     
-    def ___str___(self):
-        return self.name
-    
-    
+    """
+        Adds the given attribute object to the appropriate array instance variables
+    """
     def addAttribute(self, attribute):
         self.attributes.append(attribute)
         # If attribute is numeric, add to numericAttributes array
@@ -118,25 +120,30 @@ class Relation:
         if (attribute.string):
             self.stringAttributes.append(attribute)
     
-    
-    # Returns if the relation has numeric attributes
+    """
+        Returns True if the relation has numeric attributes
+    """
     def hasNumeric(self):
         return len(self.numericAttributes)>0
     
-    # Returns if the relation has string attributes
+    """
+        Returns True if the relation has string attributes
+    """
     def hasString(self):
         return len(self.stringAttributes)>0
     
-    # Returns if the relation has numeric attributes
+    """
+        Returns True if the relation has numeric attributes
+    """
     def hasRoundable(self):
         return len(self.roundableAttributes)>0
 
-        
-    def getAttribute(self, numeric = False, string = False, roundable = False, secondary = False):
-        
-        if secondary:
-            i = random.randrange(1,self.getNumAttributes()-1,1)
-            return self.attributes[i]
+    """
+        Returns a random attribute that meets the set requirements (i.e. numeric, string, and roundable
+        requirements). If a requirement is set to False, this means it is not required, not that it is 
+        not acceptable. i.e. numeric=False can still return a numeric attribute
+    """  
+    def getAttribute(self, numeric = False, string = False, roundable = False):
         
         # check that the attribute number asked for is not out of bounds
         if not numeric and not string and not roundable:
@@ -166,10 +173,16 @@ class Relation:
             if attribute.name == name:
                 return attribute
         return None
-        
+    
+    """
+        Returns the number of attributes in the relation.
+    """
     def getNumAttributes(self):
         return len(self.attributes)
     
+    """
+        Returns the number of rows (entries) in the relation.
+    """
     def getNumRows(self):
         return self.numRows
     
@@ -198,12 +211,17 @@ class Relation:
                 
         return joinAttributes
     
-    
+    """
+        Adds attributes that can be used to group by to the groupByAttributes array
+    """
     def getGroupByAttributes(self):
         for attribute in self.attributes:
             if attribute.groupBy:
                 self.groupByAttributes.append(attribute)
-                
+    
+    """
+        Returns True if the relation has any attributes that can be used to group by 
+    """    
     def hasGroupByAttributes(self):
         self.getGroupByAttributes()
         return len(self.groupByAttributes)>0
@@ -212,7 +230,9 @@ class Relation:
 
 
 """
-    Database
+    Database (table) object, with an array of relations, as well as arrays for special types of relations 
+    (e.g ones that contain numeric attribute(s)). Takes the SQL database information and creates the connection
+    to the mySQL server, getting the relevant relations and attribute information therefrom.
 """
 class Database:
     
@@ -226,9 +246,9 @@ class Database:
         self.db_name = db_name
         self.groupByRelations = []
         self.joinRelations = []
-        self.loadRelations()
-        self.getJoinRelations()
-        self.getGroupByRelations()
+        self.loadRelations() # load the relations in from the server
+        self.getJoinRelations() 
+        self.getGroupByRelations() 
             
         
     """ Get the attributes and their types from SQL, as well as the relations"""
@@ -275,21 +295,30 @@ class Database:
             # if relation r contains at least 1 numeric attribute, add it to numericRelations array
             if (r.hasNumeric() > 0):
                 self.numericRelations.append(r)
-        
     
+    """
+        Returns the number of relations in the database.
+    """
     def numRelations(self):
         return len(self.relations)
     
-    def numNumericRelations(self):
-        return len(self.numericRelations)
-       
+    """
+        Returns the ith relation from the database
+    """
     def getRelation(self, i):
         return self.relations[i]
     
+    """
+        Returns the ith numeric relation from the database
+    """
     def getNumericRelation(self, i):
         return self.numericRelations[i]
-        
+    
+    """
+        Find relations that can be joined and store them in an array
+    """
     def getJoinRelations(self):
+        
         # For each relation pair
         for i in range(len(self.relations)):
             for j in range(i+1, len(self.relations)):
@@ -301,12 +330,17 @@ class Database:
                     self.joinRelations.append(joinDict)
                     
 
-    
+    """
+        Find relations that have attributes that can be used to group by and store them in an array
+    """
     def getGroupByRelations(self):
         for relation in self.relations:
             if relation.hasGroupByAttributes():
                 self.groupByRelations.append(relation)
-                
+    
+    """
+        Return a random (not null) value from an attribute from the database.
+    """           
     def selectAttrVal(self, relation, attribute):
         
         # Connect to database
@@ -328,8 +362,11 @@ class Database:
         if reqVal is None: return self.selectAttrVal(relation, attribute) # recurse until a non null value is selected
         else: return reqVal # if the value isn't a null value
         
-    
-    def selectHavingVals(self, operator, query):
+    """
+        Returns the counts that a 'group by' query will produce. These can be used to construct 
+        a 'having by' condition
+    """
+    def selectHavingVals(self, query):
             
         # Connect to database
         database = mysql.connector.connect(
