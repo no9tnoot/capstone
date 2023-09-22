@@ -111,9 +111,9 @@ class MediumSQLQuery(ISQLQuery):
     """
     def createRoundAgg(self, relation):
         self.aggFns.append('round(')
-        attr = relation.getAttribute(roundable=True)
+        attr = relation.getAttribute(roundable=True) # select a random roundable attribute
         self.attrs.append(attr)
-        self.roundTo = random.choice([',0',',1',',2'])
+        self.roundTo = random.choice([',0',',1',',2']) # select the number of decimals to round to 
     
     """
         Creates the second part of an 'or' condition.
@@ -122,15 +122,17 @@ class MediumSQLQuery(ISQLQuery):
     def createOrCond(self, relation, string=False):
         self.orCond=True
         self.conds['or']={}
-        like = random.choice([True, False])
+        
+        like = random.choice([True, False]) # decide whether to do a like condition or a where condition
         if string and like:
             self.createLikeCond(relation, self.conds['or'])
-            while self.conds['val2']==self.conds['or']['val2']:
+            while self.conds['val2']==self.conds['or']['val2']: # make sure the two conditions are not the same
                 self.createLikeCond(relation, self.conds['or'])
         else:
             self.createWhereCond(relation, self.conds['or'])
-            while self.conds['val2']==self.conds['or']['val2']:
+            while self.conds['val2']==self.conds['or']['val2']: # make sure the two conditions are not the same
                 self.createWhereCond(relation, self.conds['or'])
+        
         self.conds['or']['cond']='or'
     
     
@@ -155,13 +157,15 @@ class MediumSQLQuery(ISQLQuery):
         Formats instance variable information into a string SQL command and returns it.
     """
     def toQuery(self):
+        
         q = 'SELECT '
-        q += self.formatQueryAggs(self.attrs, self.aggFns)
+        q += self.formatQueryAggs(self.attrs, self.aggFns) # format the attributes and aggregate functions
         q += ' FROM ' + self.rels['rel1'].name
-        if self.conds:
-            q += self.formatQueryConds(self.conds)
-        if self.orCond:
-            q += self.formatQueryConds(self.conds['or'])
+        if self.conds: # formats the condition, if one exists
+            q += self.formatQueryConds(self.conds) 
+        if self.orCond: # formats the or condition, if one exists
+            q += self.formatQueryConds(self.conds['or']) 
+        
         return q
     
     """

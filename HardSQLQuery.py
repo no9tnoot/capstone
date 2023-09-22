@@ -5,122 +5,137 @@
 from EasySQLQuery import EasySQLQuery
 from ISQLQuery import ISQLQuery
 import random
-import mysql.connector
 
-
+"""
+    Hard (difficult) SQL Query
+"""
 class HardSQLQuery(ISQLQuery):
-        
+    
+    """
+        Initialises the instance variables of the hard query
+    """
     def __init__(self, database):
         super().__init__(database)
         self.hardBuilder()
-        
+        self.query = self.toQuery()
+    
+    """
+        Randomly selects and returns a relation from the loaded database.
+        By default does not require relation to contain numeric, string, or roundable attributes.
+    """
     def getRel(self, numeric=False, string=False):
         return super().getRel(numeric, string)
     
+    """
+        Returns a random aggregate function
+    """
     def getAgg(self, numeric=False):
         return super().getAgg(numeric)
     
+    """
+        Formats attributes and aggregates into a readable string, 
+        e.g. "max(customerNumber), customerName"
+    """
     def formatQueryAggs(self, attributes, aggregates):
         return super().formatQueryAggs(attributes, aggregates)
     
+    """
+        Formats conditions and attributes into a readable string.
+        e.g. "where customerName = 'Greg'"
+    """
     def formatQueryConds(self, conds):
         return super().formatQueryConds(conds)
     
-    def createAgg(self, relation=None, attribute=None, aggFn=None):
-        return super().createAgg(relation, attribute, aggFn)
-    
-    def createCond(self, relation, astOrAttr=None, condType=None, numeric=False):
-        super().createCond(relation, astOrAttr, condType, numeric)
-    
+    """
+        Create an attribute with neither a condition nor an aggregate function
+    """
     def createSimple(self, relation, attribute=None):
         return super().createSimple(relation, attribute)
     
+    """
+        Chooses an aggregate and a relation that fits that aggregate (i.e. numeric). 
+        Aggregate put in aggFns[0]
+        Relation put in rels['rel1']
+    """   
+    def createAgg(self, relation=None, attribute=None, aggFn=None):
+        return super().createAgg(relation, attribute, aggFn)
+    
+    """
+        Chooses a condition  (e.g. 'where', 'limit by') and a relation.
+        Puts the condition put in conds['cond']
+        Relation put in rels['rel1']
+    """  
+    def createCond(self, relation, astOrAttr=None, condType=None, numeric=False):
+        super().createCond(relation, astOrAttr, condType, numeric)
+    
+    """
+        Creates an 'order by' condition.
+        Adds an attribute by which to order the output, and either ASC to DESC, to the conds array.
+    """  
     def createOrderByCond(self, relation):
         return super().createOrderByCond(relation)
     
+    """
+        Creates a 'limit' condition.
+        Adds a value by which to limit the output to the conds array.
+    """  
     def createLimitCond(self, relation):
         return super().createLimitCond(relation)
     
+    """
+        Creates a 'where' condition.
+        Selects an attribute to impose a condition on, an operator to impose, and either NULL or 
+        a possible value from the database to compare the attribute to.
+    """
     def createWhereCond(self, relation, cond_details, numeric=False, whereAttr=None):
         return super().createWhereCond(relation, cond_details, numeric, whereAttr)
     
+    """
+        Creates a 'like' condition.
+        Selects a string attribute to impose the like on, a comparison string, and inserts wildcard 
+        operators into the comparison string.
+    """
     def createLikeCond(self, relation, cond_details):
         super().createLikeCond(relation, cond_details)
-        
+    
+    """
+        Insert a percentage wildcard at the given index in value (an array of characters),
+        and remove a number of characters with before (startswith True) or after (startswith 
+        False) the percentage wildcard.
+    """
     def insertPercentWildCard(self, value, ends_with_perc, num_char_to_remove, cond_details):
         super().insertPercentWildCard(value, ends_with_perc, num_char_to_remove, cond_details)
     
-    def getSqlQuery(self):
-        return super().getSqlQuery()
-    
-    def getDict(self):
-        return super().getDict()
-    
-    def easyBuilder(self, relation, attribute = None, aggOrCond=None, aggFn = None, condType = None):
-        super().easyBuilder(relation, attribute, aggOrCond, aggFn, condType)
-        
-    def mediumBuilder(self, relation = None, attribute = None, components = None):
-        super().mediumBuilder(relation, attribute, components)
-            
-    def hardBuilder(self):
-        
-        type = random.choice(['nested', 'join', 'groupBy'])
-        type='groupBy'
-        match type:
-            
-            case 'nested':
-                relation = self.getRel(numeric=True)
-                while len(relation.numericAttributes)<3:
-                    relation = self.getRel(numeric=True)
-                self.easyBuilder(relation = relation, aggOrCond = 'nestedWhereCond')
-                # ensure not doing a null comparison
-                while self.conds['operator'] not in ISQLQuery.operators:
-                    self.easyBuilder(relation = relation, aggOrCond = 'nestedWhereCond')
-                            
-                sqlQuery2 = self.createNestedQuery(self.rels['rel1'], self.conds, self.attrs)
-                
-                self.conds['val2']=sqlQuery2
-                self.nested = True
-                
-                self.query =  self.toQuery()
-                
-            case 'join':
-                joinRelsAndAtts = random.choice(self.db.joinRelations)
-                self.rels['rel1'] = joinRelsAndAtts['rel1']
-                self.rels['rel2'] = joinRelsAndAtts['rel2']
-                self.createJoin(joinRelsAndAtts)
-                self.query = self.toQuery()
-                
-            case 'groupBy':
-                self.createGroupBy()
-                self.query = self.toQuery()
-                
-    
-              
+    """
+        Creates a 'group by' query.
+        Selects an attribute with a large proportion of repeated entries by which to group other 
+        attributes. 
+    """
     def createGroupBy(self):
         
-        relation = random.choice(self.db.groupByRelations)
+        relation = random.choice(self.db.groupByRelations) # select a relation that has an attribute suitable for grouping
         
-        groupAttr = random.choice(relation.groupByAttributes)
+        groupAttr = random.choice(relation.groupByAttributes) # select an attribute to group by
         
         if len(relation.groupByAttributes) > 1:
             aggOrCond = random.choice(['','cond'])
         else:
             aggOrCond = ''
         
+        # fill the instance variables with values for an easy simple or where query
         self.easyBuilder(relation = relation, 
                          attribute=groupAttr, 
                          aggOrCond = aggOrCond, 
-                         condType = 'where')
+                         condType = 'where')    
         
-        # select second attribute
+        # select a second attribute (which will be aggregated, and grouped by the first attribute)
         attr2 = random.choice([ISQLQuery.asterisk, relation.getAttribute()])
         while groupAttr.isEqual(attr2):
             attr2 = relation.getAttribute()
         
-        having = random.choice([True, False])
+        having = random.choice([True, False]) # decide if doing a 'having' condition
         
-        # get an appropriate aggregate function
+        # get an appropriate aggregate function to apply to attr2
         if attr2.isEqual(ISQLQuery.asterisk): 
             aggFn = 'count('
         elif attr2.numeric: aggFn = self.getAgg()
@@ -135,18 +150,24 @@ class HardSQLQuery(ISQLQuery):
         self.groupBy['groupAttr']=self.attrs[1]
         
         self.groupBy['having']=None
-        if having: 
+        if having: # try create 'HAVING' section of query
             self.groupBy['operator'] = random.choice(self.operators)
             self.groupBy['val'] = self.createHaving()
-            if self.groupBy['val']!='':
+            if self.groupBy['val']!='': # if having could be created, set the appropriate instance variables
                 self.groupBy['having']=' HAVING '
                 self.groupBy['aggAttr'] = self.aggFns[0] + self.attrs[0].name + ')'
             
         
-            
+    """
+        Creates the 'having' condition of a 'group by' query.
+        
+    """
     def createHaving(self):
         
+        # get an array of possible count values from the database
         counts = self.db.selectHavingVals(self.groupBy['operator'], self.toQuery())
+        
+        # if the group by query does not produce many groups, do not further constrict with a having condition
         if len(counts)<3:
             self.groupBy['operator']=''
             return ''
@@ -163,69 +184,64 @@ class HardSQLQuery(ISQLQuery):
             val = random.choice(counts)
 
         if val is not None: return val # if the value isn't a null value
-        else: return self.createHaving() # recurse until a non null value is selected
-             
-       
-        
-                
+        else: return self.createHaving() # recurse until a non null value is selected 
         
         
+    """
+        Creates a 'join' query. 
+        Chooses an attribute to select from one of the two relations, chooses the type of join,
+        and then selects the attribute on which to join (if not doing a natural inner join).
         
-
+    """
     def createJoin(self, joinRelsAndAtts):
-        astOrAttr = random.choice([ISQLQuery.asterisk,joinRelsAndAtts['rel1'].getAttribute()])
-        #english currently only working with 2 attributes
-        #astOrAttr = joinRelsAndAtts['rel1'].getAttribute()
+        
+        astOrAttr = random.choice([ISQLQuery.asterisk,joinRelsAndAtts['rel1'].getAttribute()]) # select * or a random attribute from the first relation
+
         # make sure that the chosen attribute is not the only joinable attribute
         if len(joinRelsAndAtts['joinAttributes'])==1:
             while astOrAttr.isEqual(joinRelsAndAtts['joinAttributes'][0]):
                 astOrAttr = joinRelsAndAtts['rel1'].getAttribute()
-    
-        if astOrAttr.isEqual(ISQLQuery.asterisk): aggFn='count('
-        elif not astOrAttr.numeric: aggFn = random.choice(['count(', 'max(', 'min('])
-        else: aggFn = None
                 
-        
+        # fill the instance variables with 
         self.easyBuilder(relation = self.rels['rel1'], 
                          attribute=astOrAttr, 
-                         aggOrCond = '', 
-                         aggFn=aggFn)
+                         aggOrCond = '')
         
         
-        # select second attribute
+        # select second attribute if the first is not *
         if not astOrAttr.isEqual(ISQLQuery.asterisk):
-            loopForNotJoinableAttr =  len(joinRelsAndAtts['joinAttributes']) < 3
+            # if limited number of joinable attributes in relation, use a non joinable attribute
+            loopForNotJoinableAttr =  len(joinRelsAndAtts['joinAttributes']) < 3 
             attr2 = joinRelsAndAtts['rel2'].getAttribute()
             while astOrAttr.isEqual(attr2) or loopForNotJoinableAttr:
                 attr2 = joinRelsAndAtts['rel2'].getAttribute()
                 if loopForNotJoinableAttr: 
                     loopForNotJoinableAttr = attr2 in joinRelsAndAtts['joinAttributes']
-            self.attrs.append(attr2)
+            self.attrs.append(attr2) # add the choicen attribute to attrs instance array
         
-                
-        joinType = random.choice(['natural inner join', 'inner join', 'left outer join', 'right outer join'])
               
-        if joinType != 'natural inner join':
-            self.rels['operator']='on'
-            self.rels['attr'] = random.choice(joinRelsAndAtts['joinAttributes'])
-            while self.rels['attr'].isEqual(astOrAttr) or (not astOrAttr.isEqual(ISQLQuery.asterisk) and self.rels['attr'].isEqual(self.attrs[1])): # added the or to remove the ambiguous field error
-                self.rels['attr'] = random.choice(joinRelsAndAtts['joinAttributes'])
+        joinType = random.choice(['natural inner join', 'inner join', 'left outer join', 'right outer join'])
         
-            # if astOrAttr != ISQLQuery.asterisk:
-            #     attr_from_rel1 = self.rels['rel1'].getAttributeWithName(self.rels['attr'].name)
-            #     attr_from_rel2 = self.rels['rel2'].getAttributeWithName(self.rels['attr'].name)
-            #     if attr_from_rel1.isPrimary() and attr_from_rel2.isPrimary():
-            #         self.attrs.append(self.rels['rel1'].getAttribute(secondary=True))
+        if joinType != 'natural inner join': 
+            self.rels['operator']='on' # do a 'join on' statement to avoid ambiguous clause SQL error
+            self.rels['attr'] = random.choice(joinRelsAndAtts['joinAttributes']) # select the attribute to join on
+            while self.rels['attr'].isEqual(astOrAttr) or (not astOrAttr.isEqual(ISQLQuery.asterisk) and self.rels['attr'].isEqual(self.attrs[1])):
+                self.rels['attr'] = random.choice(joinRelsAndAtts['joinAttributes'])
 
         
         self.rels['joinType'] = joinType
         self.join=True
             
-        
+    
+    """
+        Creates a nested query.
+        Creates an easy query (with either an aggregate or a numeric where condition), by which to 
+        compare the main easy query to.
+    """
     def createNestedQuery(self, relation, conds, attrs):
         
-        attribute = conds['val1']
-        operator = conds['operator']
+        attribute = conds['val1'] # get the attribute being compared from conds
+        operator = conds['operator'] # get the operator being used from conds
 
         match operator:
             case '=':
@@ -233,10 +249,11 @@ class HardSQLQuery(ISQLQuery):
             case _:
                 aggFn = 'avg('
         
-        aggOrCond = random.choice(['agg','nestedWhereCond'])
+        aggOrCond = random.choice(['agg','nestedWhereCond']) # choose to do either an aggregate or numeric where query
         
         nestedQuery = EasySQLQuery(self.db, relation = relation, attribute = attribute, aggFn = aggFn, aggOrCond=aggOrCond)
-        if nestedQuery.conds:
+        
+        if nestedQuery.conds: # if doing a where condition, ensure the nested query is not redundant
             while nestedQuery.conds['val1']==attrs[0] or nestedQuery.conds['val1']==conds['val1']:
                 nestedQuery = EasySQLQuery(self.db, relation = relation, attribute = attribute, aggFn = aggFn, aggOrCond=aggOrCond)
 
@@ -245,26 +262,86 @@ class HardSQLQuery(ISQLQuery):
         nestedQuery.rels['rel1']=relation
 
         return nestedQuery
+    
+    
+    """
+        Sets the query instance variables with values for an easy SQL query. Can create queries
+        of type 'aggregate' (i.e. selecting max(), avg(), etc. values), 'conditional' (i.e. doing a 
+        limit by, where clause, order by etc.) and a simple type, which just generates a plain select query.
+    """
+    def easyBuilder(self, relation, attribute = None, aggOrCond=None, aggFn = None, condType = None):
+        super().easyBuilder(relation, attribute, aggOrCond, aggFn, condType)
+    
+    """
+        Sets the query instance variables with values for a medium SQL query. Can create queries
+        of type 'distinct', 'like' (i.e. doing a string comparison), 'or' (two conditions), and 
+        'round', which rounds off a float / double attribute.
+    """
+    def mediumBuilder(self, relation = None, attribute = None, components = None):
+        super().mediumBuilder(relation, attribute, components)
+            
+    """
+        Sets the query instance variables with values for a hard SQL query. Can create queries
+        of type 'nested,' which consists of an easy query conditional on another easy query,
+        'join,' which connects information in two relations, and 'group by' which groups entries 
+        by shared values.
+    """    
+    def hardBuilder(self):
+        # randomly select the type of hard query to create
+        type = random.choice(['nested', 'join', 'groupBy'])
+
+        match type:
+            # Generate a 'nested' query
+            case 'nested':
+                relation = self.getRel(numeric=True) # select a random numeric relation
+                while len(relation.numericAttributes)<3: # make sure the relation has enough numeric attributes for comparison
+                    relation = self.getRel(numeric=True)
+                    
+                self.easyBuilder(relation = relation, aggOrCond = 'nestedWhereCond') # fill instance variables as for a numeric where condition
+                
+                # ensure not doing a null comparison
+                while self.conds['operator'] not in ISQLQuery.operators:
+                    self.easyBuilder(relation = relation, aggOrCond = 'nestedWhereCond')
+                            
+                sqlQuery2 = self.createNestedQuery(self.rels['rel1'], self.conds, self.attrs) # create the nested query
+                
+                self.conds['val2']=sqlQuery2 # insert the nested query into conds
+                self.nested = True
+                
+            
+            # Generate a 'join' query
+            case 'join':
+                joinRelsAndAtts = random.choice(self.db.joinRelations)
+                self.rels['rel1'] = joinRelsAndAtts['rel1']
+                self.rels['rel2'] = joinRelsAndAtts['rel2']
+                self.createJoin(joinRelsAndAtts)
+            
+            # Generate a 'group by' query
+            case 'groupBy':
+                self.createGroupBy()
+                
         
                 
-    
+    """
+        Formats instance variable information into a string SQL command and returns it.
+    """
     def toQuery(self):
         q = 'SELECT '
-        q += self.formatQueryAggs(self.attrs, self.aggFns)
+        q += self.formatQueryAggs(self.attrs, self.aggFns) # format the main attributes and aggregate functions
         q += ' FROM ' + self.rels['rel1'].name
         
-        if self.conds:
-            q += self.formatQueryConds(self.conds)
+        if self.conds: # formats the condition, if one exists
+            q += self.formatQueryConds(self.conds) 
         
-        if self.orCond:
-            q += self.formatQueryConds(self.conds['or'])
+        if self.orCond: # formats the or condition, if one exists
+            q += self.formatQueryConds(self.conds['or']) 
         
-        if self.join:
+        if self.join:  # formats the join, if one exists
             q += ' ' + self.rels['joinType'] + ' ' + self.rels['rel2'].name 
             if self.rels['joinType'] != 'natural inner join':
                 q += ' ON ' + self.rels['rel1'].name + '.' + self.rels['attr'].name + ' = ' + self.rels['rel2'].name + '.' + self.rels['attr'].name
             
-        if self.groupBy:
+        if self.groupBy: # formats the group by condition, if one exists
             q +=  ' GROUP BY ' + self.groupBy['groupAttr'].name
             if self.groupBy['having'] is not None:
                 if self.attrs[0].numeric or self.aggFns[0]=='count(': 
@@ -274,10 +351,16 @@ class HardSQLQuery(ISQLQuery):
         
         return q
     
+    """
+        Returns the string SQL query.
+    """
+    def getSqlQuery(self):
+        return super().getSqlQuery()
     
-    # #temp for testing
-# from Session import Session     
-# d = Session.loadDatabase()
-# s = HardSQLQuery(d)
-# print(s.getSqlQuery())
+    """
+        Places instance variable information into a dictionary and returns it. Dictionary is used 
+        to create the English queries.
+    """
+    def getDict(self):
+        return super().getDict()
  
