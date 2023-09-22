@@ -30,7 +30,7 @@ def genTestQs(numQs):
     return questionList
 
 # Login page:
-@app.route("/", methods=["GET", "POST"])
+@app.route("/login", methods=["GET", "POST"])
 def login():
     #print(request.args)
     #print(request.form.get("username"))
@@ -47,7 +47,7 @@ def login():
     return render_template("login_gui.html")
 
 # Home page:
-@app.route("/home", methods=["GET", "POST"])
+@app.route("/", methods=["GET", "POST"])
 def home():
     return render_template("home_gui.html")
 
@@ -69,8 +69,8 @@ def practice():
             setup.result = Session.markQuery(setup.session, stuSQL, modelSQL) # Mark
             # Change true to correct, false to incorrect
 
-            if setup.result[0] == False:
-                setup.result[2] = "The model output for this query was \"" + modelSQL + ";\" You inputted \"" + stuSQL + "\""
+            #if setup.result[0] == False:
+                #setup.result[2] = "The model output for this query was \"" + modelSQL + ";\" You inputted \"" + stuSQL + "\""
 
             setup.marked = True # Set flag
             print("Press mark: " + str(setup.marked))
@@ -86,12 +86,11 @@ def practice():
             setup.qLevel = request.form.get("difficulty") # Get the new difficulty set by user -> update qLevel
             setup.question = setup.factory.getQuestion(setup.qLevel) # Generate question
             setup.marked = False # Reset flag
-            print("Change difficulty: " + str(setup.marked))
             return setup.question.getEnglishQuery() # Return Eng query of question
 
     
     # Render a practice page which displays the generated English query
-    return render_template("practice_gui.html", engQuestion=setup.question.getEnglishQuery(), correct = setup.result[0], explanation = setup.result[1], model = setup.result[2], showResult = setup.marked) 
+    return render_template("practice_gui.html", engQuestion=setup.question.getEnglishQuery(), correct = setup.result[0], explanation = setup.result[1], modelOutput = setup.result[2], showResult = setup.marked, difficulty = setup.qLevel) 
 
 # Test quiz page:
 @app.route("/test", methods=["GET", "POST"])

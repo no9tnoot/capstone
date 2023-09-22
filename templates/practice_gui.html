@@ -13,13 +13,13 @@
 <body>
 
     <nav>
-        <a href="/home" class="btn">home</a>
+        <a href="/" class="btn">home</a>
 
         <form class="next_q_form" id="next_q_form" method="post">
             <select class="difficulty" name="difficulty" id="difficulty">
-                <option value="easy">easy</option>
-                <option value="medium">medium</option>
-                <option value="hard">hard</option>
+                <option value="easy" {{"selected" if difficulty=='easy' else "" }}>easy</option>
+                <option value="medium" {{"selected" if difficulty=='medium' else "" }}>medium</option>
+                <option value="hard" {{"selected" if difficulty=='hard' else "" }}>hard</option>
             </select>
         </form>
     </nav>
@@ -44,7 +44,7 @@
 
             <div class="result {{'green' if correct else ''}}">{% if correct %} Correct!{% else %} Incorrect {% endif %}
             </div>
-            <div class="result_data">{{ explanation }} <br> {{ model }}</div>
+            <div class="result_data">{{ explanation }} <br> {{ modelOutput }}</div>
         </div>
         <div class="next_button_div">
             <input class="next_button btn" type="submit" name="next_button" form="next_q_form" value="next >>">
@@ -61,6 +61,8 @@
     const next_q_form = document.querySelector("#next_q_form");
     const eng_question = document.querySelector(".eng_question");
     const receive_result = document.querySelector(".receive_result");
+    const question_input = document.querySelector(".question_input");
+
 
     select.addEventListener("change", async function () {
         const form_data = new FormData(next_q_form);
@@ -71,7 +73,10 @@
         });
         eng_question.textContent = await response.text();
         receive_result.classList.remove("visible");
+        question_input.classList.remove("hidden");
+
         // this is where we will need to reset the output fields
+
     })
 </script>
 
