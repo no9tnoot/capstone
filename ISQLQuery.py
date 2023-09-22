@@ -5,8 +5,10 @@
 from abc import ABC, abstractmethod
 import random
 import Database
-import math
 
+"""
+    Interface for SQL query objects and construction.
+"""
 class ISQLQuery(ABC):
     
     operators = ['=', '<', '>', '<=', '>=']
@@ -17,7 +19,7 @@ class ISQLQuery(ABC):
     asterisk = Database.Attribute('*')
     
     """
-        Initialises the instance variables of the Query
+        Initialises the instance variables of the query
     """
     @abstractmethod
     def __init__(self, database):
@@ -517,15 +519,14 @@ class ISQLQuery(ABC):
 
             case _:
                 print('Invalid component')
-            
-                
+    
     """
         Formats instance variable information into a string SQL command and returns it.
     """
     @abstractmethod
     def toQuery(self):
         pass
-
+    
     """
         Returns the string SQL query.
     """
@@ -551,6 +552,3 @@ class ISQLQuery(ABC):
                 'groupBy': self.groupBy}
         
         return dict
-    
-    
-    
