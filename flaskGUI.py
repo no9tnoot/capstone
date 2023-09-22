@@ -73,7 +73,7 @@ def practice():
                 #setup.result[2] = "The model output for this query was \"" + modelSQL + ";\" You inputted \"" + stuSQL + "\""
 
             setup.marked = True # Set flag
-            print("Press mark: " + str(setup.marked))
+            # print("Press mark: " + str(setup.marked))
 
         elif "next_button" in request.form:
             # Store question and results
@@ -95,13 +95,18 @@ def practice():
 # Test quiz page:
 @app.route("/test", methods=["GET", "POST"])
 def test():
-    numQs = 10 # Must be divisible by 10
+    numQs = 20 # Must be divisible by 10
 
     # If the questions have not yet been generated
     if not setup.questionList:
-        print("List empty.")
+
         # Generate questions
         setup.questionList = genTestQs(numQs)
+
+        # Just pass English queries to test_gui.py
+        engQsList = []
+        for i in range(numQs):
+            engQsList.append(setup.questionList[i].getEnglishQuery())
 
     if request.method == "POST":
         
@@ -111,14 +116,19 @@ def test():
 
             for i in range(numQs):
                 name = "sql" + str(i+1)
-                stuAns = request.form.get(name) #This is always returning none...
+                print(name)
+                stuAns = request.form.get(name) 
+
                 print(stuAns)
-                print(request.form.get("sql1"))
+
                 if stuAns == None:
                     stuAns = ""
-                print(setup.questionList[i])
+
+                print(str(i))
                 modelAns = setup.questionList[i].getSqlQuery()
+                print(modelAns)
                 setup.result = Session.markQuery(setup.session, stuAns, modelAns) # Mark
+
                 # Store whether answer was correct or not
                 correctAns.append(setup.result[0])
             
@@ -134,12 +144,7 @@ def test():
             # Take to page with score and link to home
             return render_template("markedTest_gui.html", mark = mark)
  
-    return render_template("test_gui.html", engE1 = setup.questionList[0].getEnglishQuery(), 
-                            engE2 = setup.questionList[1].getEnglishQuery(), engE3 = setup.questionList[2].getEnglishQuery(), 
-                            engM1 = setup.questionList[3].getEnglishQuery(), engM2 = setup.questionList[4].getEnglishQuery(), 
-                            engM3 = setup.questionList[5].getEnglishQuery(), engM4 = setup.questionList[6].getEnglishQuery(), 
-                            engM5 = setup.questionList[7].getEnglishQuery(), engH1 = setup.questionList[8].getEnglishQuery(), 
-                            engH2 = setup.questionList[9].getEnglishQuery())
+    return render_template("test_gui.html", questions = engQsList, numQs = numQs)
 
 # Statistics page:
 @app.route("/statistics", methods=["GET", "POST"])
