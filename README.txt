@@ -12,24 +12,30 @@ given query.
 
 To run this prototype, the user must meet the following requirements: 
 
- * Have the chosen database running on a SQL server.
  * Have installed the latest version of Python.
- * Know your mySQL password.
+ * Have flask installed (pip install flask)
+ * Have Jinja 2 installed (pip install jinja2)
  * Have mysql-connector-python installed.
+ * Have the chosen database running on a SQL server.
+ * Have root access to the SQL server.
 
 
 == Installation ==
 
 Ensure all code files are downloaded and stored in the same folder on your machine.
+
+Create a new user in your SQL server with:
+    CREATE USER 'student'@'localhost' IDENTIFIED BY 'password';
+    UPDATE `mysql`.`user` SET `Select_priv` = 'N', `Show_view_priv` = 'N' WHERE (`Host` = 'localhost') and (`User` = 'student');
+
 The database_details.txt file can be updated to hold the relevant details for your SQL server connection in the format:
-'host'
-'user'
+e.g.:
+'localhost'
+'student'
 'password'
-'database name'
+'classicmodels2022'
 
 
 == Running ==
 
-The software's functionality is accessed through the UserInterface class. Simply 
-run UserInterface.py in your favourite environment or shell and follow the printed 
-prompts.
+Run flaskGUI.py and access via the link in the terminal.

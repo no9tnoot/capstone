@@ -86,33 +86,6 @@ class ISQLQuery(ABC):
             self.rels['rel1'] = relation
             return relation
 
-
-    """
-        Selects a possible value from an attribute in the database.
-    """
-    @abstractmethod
-    def selectAttrVal(self, relation, attribute):
-        
-        # Connect to database
-        database = mysql.connector.connect(
-            host=self.db.host,
-            user=self.db.user,
-            password=self.db.pword,
-            database=self.db.db_name
-        )
-        
-        cursor = database.cursor()  # Create a cursor to interact with the database
-        
-        reqVal = str( random.randint(0, relation.getNumRows()-1) ) #Select a random value between 0 and the total number of values in the attribute -1
-
-        cursor.execute("SELECT " + attribute.name + " FROM " + relation.name + " limit 1 offset " + reqVal + ";")   # SQL: print a single value at index reqVal from the attribute
-        
-        reqVal = cursor.fetchall()[0][0] # get the value from the SQL output
-        
-        if reqVal is None: return self.selectAttrVal(relation, attribute) # recurse until a non null value is selected
-        else: return reqVal # if the value isn't a null value
-
-
     """
         Returns a random aggregate function
     """
@@ -330,7 +303,7 @@ class ISQLQuery(ABC):
             
             cond_details['operator'] = operator
             # Select a required value for the attribute
-            reqVal = self.selectAttrVal(relation, cond_details['val1'])
+            reqVal = self.db.selectAttrVal(relation, cond_details['val1'])
             cond_details['val2'] = str(reqVal) # add chosen required value to array instance variable
         return cond_details
     
@@ -345,7 +318,7 @@ class ISQLQuery(ABC):
         cond_details['val1'] = attr # add chosen attribute to conds array
 
         
-        val = self.selectAttrVal(relation, attr)  #select an attribute from the relation
+        val = self.db.selectAttrVal(relation, attr)  #select an attribute from the relation
         val = [char for char in val]  # turn string into an array of characters
                 
         # if val is only 1 character long, don't remove any characters

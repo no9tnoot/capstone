@@ -12,6 +12,9 @@ class IEnglishQuery(ABC):
         self.englishQuery = ''
         self.sqlQuery = sqlQuery
 
+    """
+    Translates a simple query to english. Handles aggregate function and conditions including nested functions.
+    """
     @abstractmethod
     def easyEnglish(self, sqlQuery):
         eq = ''
@@ -20,6 +23,7 @@ class IEnglishQuery(ABC):
         else:
             eq += 'the values of ' + self.onlyAttrs(sqlQuery['attributes'])
         
+        #not sure if this join bit is ever used
         if sqlQuery['join']:
             match sqlQuery['relation']['joinType']:
                 case 'left outer join':
@@ -35,6 +39,10 @@ class IEnglishQuery(ABC):
             eq += self.translateCond(sqlQuery['condition'], sqlQuery['nested'])
         return eq
     
+    """
+    Takes the english from an array and puts it into one string.
+    """
+    #not sure if this is ever used anymore
     @abstractmethod
     def englishToString(self, english):
         question = ''
@@ -43,7 +51,9 @@ class IEnglishQuery(ABC):
                 question += string
         return question
     
-    #translate aggregate function from SQL to english
+    """
+    Translate aggregate function from SQL to english
+    """
     @abstractmethod
     def translateAgg(self, agg):
         match agg:
@@ -61,7 +71,9 @@ class IEnglishQuery(ABC):
                 engAgg = 'the values of '
         return engAgg
     
-    #translate attribute/s to english format
+    """
+    translate attribute/s to english format
+    """
     @abstractmethod
     def translateAttr(self, attr):
         if attr.name == '*':
@@ -69,8 +81,9 @@ class IEnglishQuery(ABC):
         else:
             engAttr = attr.name
         return engAttr
-    
-    #translate SQL condition to english
+    """
+    Translate SQL condition to english.
+    """
     @abstractmethod
     def translateCond(self, condition, nested = False):
         engCond = ''
@@ -96,7 +109,9 @@ class IEnglishQuery(ABC):
             case _:
                 print('Invalid condition')
         return engCond
-    
+    """
+    Translate comparison sybols into english.
+    """
     @abstractmethod
     def translateOperator(self, condition):
         match condition['operator']:
@@ -118,7 +133,10 @@ class IEnglishQuery(ABC):
                 return 'does'
             case _:
                 return condition['operator']
-            
+
+    """
+    Interpret and translate the value that a field is compared to. Including LIKE and nested comparisons.
+    """        
     @abstractmethod
     def translateVal2(self, condition, nested = False):
         if nested:
@@ -132,6 +150,9 @@ class IEnglishQuery(ABC):
         else:
             return condition['val2']
 
+    """
+    Tranlate like wildcard patterns.
+    """
     @abstractmethod
     def translateLike(self, like):
         match like['type']:
@@ -155,20 +176,27 @@ class IEnglishQuery(ABC):
                 print('Invalid like type')
         return s
 
+    """
+    Return the english query string
+    """
     @abstractmethod
     def getEnglishQuery(self):
         return self.englishQuery
     
+    """
+    Translate an attribute with an aggregate function.
+    """
     @abstractmethod
     def attrsAndAggs(self, attrs, agg):
         engAttrs = self.translateAgg(agg)
         engAttrs += self.translateAttr(attrs)
         return engAttrs
     
-
+    """
+    Translate one or more attributes.
+    """
     @abstractmethod
     def onlyAttrs(self, attrs):
-        #engAttrs = 'the values of '
         engAttrs = self.translateAttr(attrs[0])
         if len(attrs) == 2:
             engAttrs += ' and ' + self.translateAttr(attrs[1])

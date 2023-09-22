@@ -32,8 +32,6 @@ class EasyEnglishQuery(IEnglishQuery):
     
     def translateVal2(self, condition, nested=False):
         return super().translateVal2(condition, nested)
-    def translateVal2(self, condition, nested=False):
-        return super().translateVal2(condition, nested)
     
     def easyEnglish(self, sqlQuery):
         return super().easyEnglish(sqlQuery)
@@ -50,6 +48,3 @@ class EasyEnglishQuery(IEnglishQuery):
     def onlyAttrs(self, attrs):
         return super().onlyAttrs(attrs)
     
-# test_dict = {'attributes': ['customernumber', 'customername'], 'aggregates': '', 'relation': 'offices', 'condition': {'cond': 'limit', 'val2': 1}}
-# q = EasyEnglishQuery(test_dict)
-# print(q.getEnglishQuery())

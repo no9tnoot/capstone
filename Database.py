@@ -306,6 +306,41 @@ class Database:
         for relation in self.relations:
             if relation.hasGroupByAttributes():
                 self.groupByRelations.append(relation)
-        
                 
+    def selectAttrVal(self, relation, attribute):
+        
+        # Connect to database
+        database = mysql.connector.connect(
+            host=self.host,
+            user=self.user,
+            password=self.pword,
+            database=self.db_name
+        )
+        
+        cursor = database.cursor()  # Create a cursor to interact with the database
+        
+        reqVal = str( random.randint(0, relation.getNumRows()-1) ) #Select a random value between 0 and the total number of values in the attribute -1
+
+        cursor.execute("SELECT " + attribute.name + " FROM " + relation.name + " limit 1 offset " + reqVal + ";")   # SQL: print a single value at index reqVal from the attribute
+        
+        reqVal = cursor.fetchall()[0][0] # get the value from the SQL output
+        
+        if reqVal is None: return self.selectAttrVal(relation, attribute) # recurse until a non null value is selected
+        else: return reqVal # if the value isn't a null value
+        
+    
+    def selectHavingVals(self, operator, query):
+            
+        # Connect to database
+        database = mysql.connector.connect(
+            host=self.host,
+            user=self.user,
+            password=self.pword,
+            database=self.db_name
+        )
+        
+        cursor = database.cursor()  # Create a cursor to interact with the database
+        cursor.execute(query)
+        return cursor.fetchall()
+           
             

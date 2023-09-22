@@ -18,9 +18,6 @@ class EasySQLQuery(ISQLQuery):
     def getRel(self, numeric=False, string=False, roundable=False):
         return super().getRel(numeric, string, roundable)
     
-    def selectAttrVal(self, relation, attribute):
-        return super().selectAttrVal(relation, attribute)
-    
     def getAgg(self, numeric=False):
         return super().getAgg(numeric)
     
