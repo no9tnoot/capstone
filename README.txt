@@ -26,7 +26,8 @@ Ensure all code files are downloaded and stored in the same folder on your machi
 
 Create a new user in your SQL server with:
     CREATE USER 'student'@'localhost' IDENTIFIED BY 'password';
-    UPDATE `mysql`.`user` SET `Select_priv` = 'N', `Show_view_priv` = 'N' WHERE (`Host` = 'localhost') and (`User` = 'student');
+    UPDATE `mysql`.`user` SET `Select_priv` = 'Y', `Show_view_priv` = 'Y' WHERE (`Host` = 'localhost') and (`User` = 'student');
+    FLUSH PRIVILEGES;
 
 The database_details.txt file can be updated to hold the relevant details for your SQL server connection in the format:
 e.g.:
