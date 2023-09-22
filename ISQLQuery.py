@@ -346,23 +346,26 @@ class ISQLQuery(ABC):
         
         # if val is longer than 1 character long
         else:
-            likeType = random.choice(['%', '%%', '_%'])
-            
+            if len(val)>3:
+                likeType = random.choice(['%', '%%', '_%'])
+            else:
+                likeType = random.choice(['%', '_%'])
             match likeType:
                 
                 # Either 'starts with' or 'ends with' a string
                 case '%':
                     ends_with_perc = random.choice([True,False])
-                    num_char_to_remove = random.randint(1, len(val)-1) # how many char to remove where the wildcard is inserted 
+                    num_char_to_remove = random.randint(min(max(2, len(val)-10), len(val)-2), len(val)-1) # how many char to remove where the wildcard is inserted 
                     val = self.insertPercentWildCard(val, ends_with_perc, num_char_to_remove, cond_details)
 
                 # 'Contains' a string
                 case '%%': 
                     ends_with_perc=False # this both ends and starts with perc, doesn't matter
-                    num_char_to_remove = random.randint(1, math.floor(0.5*len(val))) # how many char to remove from front where the wildcard is inserted 
-                    val = self.insertPercentWildCard(val, True, num_char_to_remove, cond_details)
-                    num_char_to_remove = random.randint(1, math.floor(0.5*len(val))) # how many char to remove from end where the wildcard is inserted 
-                    val = self.insertPercentWildCard(val, False, num_char_to_remove, cond_details)
+                    num_char_to_remove = random.randint(min(max(2, len(val)-10), len(val)-2), len(val)-1) # how many char to remove
+                    left_remove = random.randint(0, num_char_to_remove-1) # how many char to remove from left 
+                    right_remove = num_char_to_remove - left_remove # how many char to remove from right 
+                    val = self.insertPercentWildCard(val, True, left_remove, cond_details)
+                    val = self.insertPercentWildCard(val, False, right_remove, cond_details)
                     cond_details['likeDict']['wildcard_free_string'] = ''.join(val[1:-1]) # remove the starting and trailing '%' to get wildcard free string
                 
                 # First/Second/Third/Fourth etc letter is x 
@@ -468,7 +471,7 @@ class ISQLQuery(ABC):
     def mediumBuilder(self, relation = None, attribute = None, components = None):
         # Randomly select the type of medium query to build
         if components is None: components = random.choice(['distinct', 'like', 'or', 'round']) # distinct, as
-        
+
         match components:
             # Generate a distinct query, which selects distinct values for either a simple or a count() aggregate query
             case 'distinct':
