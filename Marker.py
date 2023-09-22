@@ -48,11 +48,17 @@ class Marker:
         
         cursor.execute(modalQuery)
         modalAnswer = cursor.fetchall()
+        print(modalQuery)
+        for i in modalAnswer:
+            print(i)
+            # i = i.split(",")
+            # for j in modalAnswer[i]:
+            #     print(j)
         
         if (studentAnswer==modalAnswer): # correct! Identical output
-            return [True, "Your query produced the correct output.", ""]
+            return [True, "Your query produced the correct output.", modalAnswer]
         
-        return [False, validity, ""] # output not the same 
+        return [False, validity, modalAnswer] # output not the same 
         
 
     """
