@@ -3,7 +3,6 @@
 # ISQLQuery
 
 from abc import ABC, abstractmethod
-import mysql.connector
 import random
 import Database
 import math
@@ -17,6 +16,9 @@ class ISQLQuery(ABC):
     wildcard = ['%','_', ]
     asterisk = Database.Attribute('*')
     
+    """
+        Initialises the instance variables of the Query
+    """
     @abstractmethod
     def __init__(self, database):
         self.db = database
@@ -277,44 +279,58 @@ class ISQLQuery(ABC):
 
     """
         Creates a 'where' condition.
-        
+        Selects an attribute to impose a condition on, an operator to impose, and either NULL or 
+        a possible value from the database to compare the attribute to.
     """
     @abstractmethod
-    def createWhereCond(self, relation, cond_details, numeric=False, whereAttr=None):   
+    def createWhereCond(self, relation, cond_details, numeric=False, whereAttr=None):  
+         
         if whereAttr is None: whereAttr = relation.getAttribute(numeric) # select a second random attribute 
         # (can be the same as attr_1)
+        
         cond_details['val1'] = whereAttr # add chosen attribute to conds array
 
         nullOrVal = random.choice(['null', 'val']) # Choose between ensuring the attribute value 
-        # is not null and ensuring it has a given value
-        # If null option chosen and attribute contains null values
+                                                   # is not null and ensuring it has a given value
+        
+        # If null option chosen and attribute contains null values, do a null comparison
         if nullOrVal == 'null' and cond_details['val1'].null == 'YES':
-            operator = random.choice(self.nullOperators)
+            operator = random.choice(self.nullOperators) # select a null operator
             cond_details['operator'] = operator
             cond_details['val2'] = 'NULL'
-        #If value option chosen or attribute does not contain any nulls
-        else:
             
-            if whereAttr.numeric:
+        #If value option chosen or attribute does not contain any nulls, compare to an actual value 
+        else:
+            if whereAttr.numeric: # if attribute is numeric, can use any operator
                 operator = random.choice(self.operators)
             
-            else:
+            else: # if attribute is not numeric, can only use '='
                 operator = '='
             
             cond_details['operator'] = operator
-            # Select a required value for the attribute
+            
+            # Select a value from the database to compare the attribute to
             reqVal = self.db.selectAttrVal(relation, cond_details['val1'])
             cond_details['val2'] = str(reqVal) # add chosen required value to array instance variable
+        
         return cond_details
     
+    
+    """
+        Creates a 'like' condition.
+        Selects a string attribute to impose the like on, a comparison string, and inserts wildcard 
+        operators into the comparison string.
+    """
     @abstractmethod
     def createLikeCond(self, relation, cond_details):
+        # initialise the like dictionary
         cond_details['likeDict']={}
         cond_details['cond']='where'
         cond_details['operator']='like'
         
-        attr = relation.getAttribute(string = True) # select a second random attribute 
+        attr = relation.getAttribute(string = True) # select a second random attribute, must be a string type
         # (can be the same as attr_1)
+        
         cond_details['val1'] = attr # add chosen attribute to conds array
 
         
@@ -334,34 +350,35 @@ class ISQLQuery(ABC):
             
             match likeType:
                 
-                #Either 'starts with' or 'ends with' a string
+                # Either 'starts with' or 'ends with' a string
                 case '%':
                     ends_with_perc = random.choice([True,False])
-                    num_char_to_remove = random.randint(1, len(val)-1)
+                    num_char_to_remove = random.randint(1, len(val)-1) # how many char to remove where the wildcard is inserted 
                     val = self.insertPercentWildCard(val, ends_with_perc, num_char_to_remove, cond_details)
 
                 # 'Contains' a string
                 case '%%': 
                     ends_with_perc=False # this both ends and starts with perc, doesn't matter
-                    num_char_to_remove = random.randint(1, math.floor(0.5*len(val)))
+                    num_char_to_remove = random.randint(1, math.floor(0.5*len(val))) # how many char to remove from front where the wildcard is inserted 
                     val = self.insertPercentWildCard(val, True, num_char_to_remove, cond_details)
-                    num_char_to_remove = random.randint(1, math.floor(0.5*len(val)))
+                    num_char_to_remove = random.randint(1, math.floor(0.5*len(val))) # how many char to remove from end where the wildcard is inserted 
                     val = self.insertPercentWildCard(val, False, num_char_to_remove, cond_details)
-                    cond_details['likeDict']['wildcard_free_string'] = ''.join(val[1:-1])
+                    cond_details['likeDict']['wildcard_free_string'] = ''.join(val[1:-1]) # remove the starting and trailing '%' to get wildcard free string
                 
-                # First/Second/Third/Fourth etc letter is x USE NUM_CHAR_TO_REMOVE AS INDEX TO ARRAY OF STRINGS ['FIRST',SECOND'...]
+                # First/Second/Third/Fourth etc letter is x 
                 case '_%':
                     ends_with_perc = random.choice([True,False]) 
-                    num_underscore = random.randint(1, min(4, len(val)-1))
+                    num_underscore = random.randint(1, min(4, len(val)-1)) # number of char to replace with underscores
                     cond_details['likeDict']['num_underscore'] = num_underscore
-                    val = self.insertPercentWildCard(val, ends_with_perc, len(val)-num_underscore-1, cond_details)
+                    val = self.insertPercentWildCard(val, ends_with_perc, len(val)-num_underscore-1, cond_details) # insert percent wildcard on the opposite side from the underscore
+                    
                     match ends_with_perc:
-                        case True:
+                        case True: # if ends with perc, replace char(s) at start with underscore(s)
                             val = val[num_underscore:]
                             cond_details['likeDict']['wildcard_free_string'] = ''.join(val[:-1])
                             for i in range(0,num_underscore):
                                 val.insert(0, '_')
-                        case False:
+                        case False: # if starts with perc, replace char(s) at end with underscore(s)
                             val = val[:-num_underscore]
                             cond_details['likeDict']['wildcard_free_string'] = ''.join(val[1:])
                             for i in range(0,num_underscore):
@@ -370,14 +387,14 @@ class ISQLQuery(ABC):
                 case _:
                     print('Invalid like type')
                             
-        cond_details['val2']=''.join(val)
+        cond_details['val2']=''.join(val) # join the array of char into the comparison string 
         cond_details['likeDict']['type']=likeType
         cond_details['likeDict']['starts_with_string']=ends_with_perc
         
         
     """
         Insert a percentage wildcard at the given index in value (an array of characters),
-        and remove a number of characters wither before (startswith True) or after (startswith 
+        and remove a number of characters with before (startswith True) or after (startswith 
         False) the percentage wildcard.
     """
     @abstractmethod
@@ -400,59 +417,79 @@ class ISQLQuery(ABC):
                 
         return value
 
+
+    """
+        Sets the query instance variables with values for an easy SQL query. Can create queries
+        of type 'aggregate' (i.e. selecting max(), avg(), etc. values), 'conditional' (i.e. doing a 
+        limit by, where clause, order by etc.) and a simple type, which just generates a plain select query.
+    """
     @abstractmethod
     def easyBuilder(self, relation, attribute=None, aggOrCond = None, aggFn=None, condType = None):
         # Randomly select either an aggregate fn or condition or neither
         if aggOrCond is None: aggOrCond = random.choice(['agg', 'cond', ''])
 
         match aggOrCond:
-            # If the random selection is an aggregate fn
+            # Generate an aggregate function
             case 'agg':
-                if relation is None: relation = self.getRel(numeric=True)
+                if relation is None: relation = self.getRel(numeric=True) # get a random numeric relation
                 self.createAgg(relation, attribute, aggFn)
             
-            # If the random selection is a condition
+            # Generate a condition 
             case 'cond':
-                if relation is None: relation = self.getRel()
+                if relation is None: relation = self.getRel() # get a random relation of any type
                 self.createCond(relation, attribute, condType)
             
-            case 'nestedWhereCond':
-                if relation is None: relation = self.getRel(numeric=True)
-                self.createCond(relation, attribute, 'where', numeric=True)
+            # Generate a where condition to be nested in a hard query
+            case 'nestedWhereCond': 
+                if relation is None: relation = self.getRel(numeric=True) # get a random numeric relatoin
+                self.createCond(relation, attribute, 'where', numeric=True) # do a where comparison with a numeric attribute
             
-            case 'groupByWhereCond':
-                whereAttr = random.choice(relation.groupByAttributes)
-                while whereAttr.isEqual(attribute): 
+            # Generate a where condition or a group by hard query
+            case 'groupByWhereCond': # used to construct hard queries
+                whereAttr = random.choice(relation.groupByAttributes) # get a random attribute that can be used to group by
+                while whereAttr.isEqual(attribute): # make sure the whereAttr is not the same as the group by attr
                     whereAttr = random.choice(relation.groupByAttributes)
                 self.createCond(relation, attribute, 'where', whereAttr = whereAttr)
-        
+
+            # Generate a simple query with no condition or aggregate
             case '':
                 if relation is None: relation = self.getRel()
                 self.createSimple(relation, attribute)
                 
-        self.rels['rel1']=relation
+        self.rels['rel1']=relation # add the relation to the rels dictionary
     
+    
+    """
+        Sets the query instance variables with values for a medium SQL query. Can create queries
+        of type 'distinct', 'like' (i.e. doing a string comparison), 'or' (two conditions), and 
+        'round', which rounds off a float / double attribute.
+    """
     @abstractmethod
     def mediumBuilder(self, relation = None, attribute = None, components = None):
-        # Randomly select either an aggregate fn or conds or neither
+        # Randomly select the type of medium query to build
         if components is None: components = random.choice(['distinct', 'like', 'or', 'round']) # distinct, as
+        
         match components:
+            # Generate a distinct query, which selects distinct values for either a simple or a count() aggregate query
             case 'distinct':
                 self.distinct = True
-                count = random.choice([True, False])
-                if relation is None: relation = self.getRel()
+                count = random.choice([True, False]) # decide if doing a count() function
+                if relation is None: relation = self.getRel() # get a random relation (if relation unspecified)
                 if count:
+                    # select an attribute, and make sure it is not the asterisk (*)
                     while attribute is None or attribute.isEqual(ISQLQuery.asterisk):
                         attribute = relation.getAttribute()
                     self.createAgg(relation=relation,attribute=attribute, aggFn = 'count(')
                 else:
                     self.createSimple(relation, attribute)
             
+            # Generate a 'like' query, comparing an attribute to a possible string with wildcards
             case 'like':
                 if relation is None: relation = self.getRel(string=True) # select random relation from database
-                self.easyBuilder(relation, attribute)
-                self.createLikeCond(relation, self.conds)
+                self.easyBuilder(relation, attribute) # create an aggregate, conditional or simple query
+                self.createLikeCond(relation, self.conds) # ass a like condition component
                 
+            # Generate an 'or' query (two conditions - either like or where)
             case 'or':
                 choice = random.choice(['like', 'where'])
                 match choice:
@@ -461,16 +498,17 @@ class ISQLQuery(ABC):
                         self.conds['cond'] = 'where'
                         astOrAttr = random.choice([ISQLQuery.asterisk, relation.getAttribute()]) 
                         self.attrs.append(astOrAttr) # add chosen attribute function / * to array instance variable
-                        self.createWhereCond(relation, self.conds)
-                        self.createOrCond(relation)
+                        self.createWhereCond(relation, self.conds) # create a where condition
+                        self.createOrCond(relation) # create the or condition
                     case 'like':
                         relation = self.getRel(string=True) # select random relation from database
                         self.easyBuilder(relation)
-                        self.createLikeCond(relation, self.conds)
-                        self.createOrCond(relation, string=True)
+                        self.createLikeCond(relation, self.conds) # create a like condition
+                        self.createOrCond(relation, string=True) # create an or cond
             
+            # Generate a rounding query 
             case 'round':
-                relation = self.getRel(roundable=True) # select random relation from database
+                relation = self.getRel(roundable=True) # select random relation from database that can be rounded (float or double)
                 self.createRoundAgg(relation)
                 
 
@@ -478,15 +516,24 @@ class ISQLQuery(ABC):
                 print('Invalid component')
             
                 
-    
+    """
+        Formats instance variable information into a string SQL command and returns it.
+    """
     @abstractmethod
     def toQuery(self):
         pass
 
+    """
+        Returns the string SQL query.
+    """
     @abstractmethod
     def getSqlQuery(self):
         return self.query
     
+    """
+        Places instance variable information into a dictionary and returns it. Dictionary is used 
+        to create the English queries.
+    """
     @abstractmethod
     def getDict(self):
         dict = {'attributes': self.attrs, 
