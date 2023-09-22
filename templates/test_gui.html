@@ -22,65 +22,64 @@
 
     <form class="q_and_a_form" method="post">
         <div class="question_input">
-            <!-- Easy Question 1 -->
-            <label class="form_label" name="sql1">1. {{engE1}} </label><br>
+
+            {% for i in range(numQs) %}
+            {% set name = 'sql'~loop.index %}
+            <label class="form_label" name={{name}}>{{i+1}}. {{questions[i]}}</label><br>
+            <div class=form_input>
+                <input type="text" name={{name}} class="form_input" placeholder="Input SQL Query Here..." /><br>
+            </div>
+            {% endfor %}
+
+            <!-- <label class="form_label" name="sql1">1. {{engE1}} </label><br>
             <div class=form_input>
                 <input type="text" name="sql1" class="form_input" placeholder="Input SQL Query Here..." /><br>
             </div>
 
-            <!-- Easy Question 2 -->
             <label class="form_label" name="sql2">2. {{engE2}}</label><br>
             <div class=form_input>
                 <input type="text" name="sql2" class="form_input" placeholder="Input SQL Query Here..." /><br>
             </div>
 
-            <!-- Easy Question 3 -->
             <label class="form_label" name="sql3">3. {{engE3}}</label><br>
             <div class=form_input>
                 <input type="text" name="sql3" class="form_input" placeholder="Input SQL Query Here..." /><br>
             </div>
 
-            <!-- Medium Question 1 -->
             <label class="form_label" name="sql4">4. {{engM1}}</label><br>
             <div class=form_input>
                 <input type="text" name="sql4" class="form_input" placeholder="Input SQL Query Here..." /><br>
             </div>
 
-            <!-- Medium Question 2 -->
             <label class="form_label" name="sql5">5. {{engM2}}</label><br>
             <div class=form_input>
                 <input type="text" name="sql5" class="form_input" placeholder="Input SQL Query Here..." /><br>
             </div>
 
-            <!-- Medium Question 3 -->
             <label class="form_label" name="sql6">6. {{engM3}}</label><br>
             <div class=form_input>
                 <input type="text" name="sql6" class="form_input" placeholder="Input SQL Query Here..." /><br>
             </div>
 
-            <!-- Medium Question 4 -->
             <label class="form_label" name="sql7">7. {{engM4}}</label><br>
             <div class=form_input>
                 <input type="text" name="sql7" class="form_input" placeholder="Input SQL Query Here..." /><br>
             </div>
 
-            <!-- Medium Question 5 -->
             <label class="form_label" name="sql8">8. {{engM5}}</label><br>
             <div class=form_input>
                 <input type="text" name="sql8" class="form_input" placeholder="Input SQL Query Here..." /><br>
             </div>
 
-            <!-- Hard Question 1 -->
             <label class="form_label" name="sql9">9. {{engH1}}</label><br>
             <div class=form_input>
                 <input type="text" name="sql9" class="form_input" placeholder="Input SQL Query Here..." /><br>
             </div>
 
-            <!-- Hard Question 2 -->
             <label class="form_label" name="sql10">10. {{engH2}}</label><br>
             <div class=form_input>
                 <input type="text" name="sql10" class="form_input" placeholder="Input SQL Query Here..." /><br>
-            </div>
+            </div> -->
 
             <div class="mark_button_div">
                 <input class="mark_button btn" type="submit" name="mark_button" value="submit">

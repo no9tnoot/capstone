@@ -20,7 +20,7 @@ class Session:
         self.marker = Marker.Marker(self.database)
     
     #create instance of database with default parameters
-    def loadDatabase(host='localhost', user='root', pword='mySQL_sew1', db_name = 'classicmodels2022'):
+    def loadDatabase(host='localhost', user='student', pword='password', db_name = 'classicmodels2022'):
         return Database.Database(host, user, pword, db_name)
     
     #generate seed from datetime

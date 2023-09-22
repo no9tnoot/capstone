@@ -47,6 +47,7 @@ a:visited {
     cursor: pointer;
     color: black;
     display: inline-block;
+    min-width: 100px;
 }
 
 a:hover,

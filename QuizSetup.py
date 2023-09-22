@@ -13,6 +13,7 @@ class QuizSetup:
         self.marked = False # Flag to indicate whether results should be showing
         self.result = ["","",""]
         self.questionList = []
+        self.engQsList = []
         
     def __new__(setup):
         if not hasattr(setup, 'instance'):
