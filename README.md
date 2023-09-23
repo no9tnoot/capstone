@@ -1,4 +1,5 @@
-=== TestSQL ===
+TestSQL
+=======
 
 Creators: Peter Berens, Molly Ryan, Sian Wood
 Date: 16 August 2023
@@ -8,7 +9,7 @@ mySQL queries, and checks that user-entered queries produce the expected output 
 given query.
 
 
-== Prerequisites ==
+## Prerequisites
 
 To run this prototype, the user must meet the following requirements: 
 
@@ -20,7 +21,7 @@ To run this prototype, the user must meet the following requirements:
  * Have root access to the SQL server.
 
 
-== Installation ==
+## Installation
 
 Ensure all code files are downloaded and stored in the same folder on your machine.
 
@@ -37,6 +38,6 @@ e.g.:
 'classicmodels2022'
 
 
-== Running ==
+## Running
 
 Run flaskGUI.py and access via the link in the terminal.
