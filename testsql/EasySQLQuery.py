@@ -2,7 +2,7 @@
 # 31 August 2023
 # ISQLQuery
 
-from ISQLQuery import ISQLQuery
+from .ISQLQuery import ISQLQuery
 
 class EasySQLQuery(ISQLQuery):
     

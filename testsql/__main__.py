@@ -3,10 +3,10 @@
 # Flask: web pages for testSQL capstone
 
 from flask import Flask, render_template, request
-from QuizSetup import QuizSetup
-from Session import Session
+from .QuizSetup import QuizSetup
+from .Session import Session
 
-from test_login import check_login_details #, get_eng
+from .test_login import check_login_details #, get_eng
 app = Flask(__name__, template_folder="templates")
 
 def addNonDuplicate(questions, difficulty):

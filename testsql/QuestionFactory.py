@@ -2,14 +2,13 @@
 # 31 August 2023
 # Query Factory
 
-import ISQLQuery
-from EasySQLQuery import EasySQLQuery
-from MediumSQLQuery import MediumSQLQuery
-from HardSQLQuery import HardSQLQuery
-from EasyEnglishQuery import EasyEnglishQuery
-from MediumEnglishQuery import MediumEnglishQuery
-from HardEnglishQuery import HardEnglishQuery
-from Question import Question
+from .EasySQLQuery import EasySQLQuery
+from .MediumSQLQuery import MediumSQLQuery
+from .HardSQLQuery import HardSQLQuery
+from .EasyEnglishQuery import EasyEnglishQuery
+from .MediumEnglishQuery import MediumEnglishQuery
+from .HardEnglishQuery import HardEnglishQuery
+from .Question import Question
 
 class QuestionFactory:
     

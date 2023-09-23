@@ -2,11 +2,11 @@
 # 9 August 2023
 # Session Class
 
-import Database
+from . import Database
 #import Quiz
 import datetime
-import Question
-import Marker
+from . import Question
+from . import Marker
 
 class Session:
 
@@ -40,6 +40,6 @@ class Session:
     
     #reads line by line from file in order: host, user, password, database name
     def readDatabaseDetails(self):
-        f = open('database_details.txt','r')
+        f = open('docs/database_details.txt','r')
         for x in f:
             self.details.append(x.strip())

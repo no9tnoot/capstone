@@ -2,7 +2,7 @@
 # 15 September 2023
 # HardEnglishQuery
 
-from IEnglishQuery import IEnglishQuery
+from .IEnglishQuery import IEnglishQuery
 
 class HardEnglishQuery(IEnglishQuery):
 

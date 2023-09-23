@@ -2,9 +2,8 @@
 # 31 August 2023
 # ISQLQuery
 
-from ISQLQuery import ISQLQuery
+from .ISQLQuery import ISQLQuery
 import random
-import math
 
 class MediumSQLQuery(ISQLQuery):
     

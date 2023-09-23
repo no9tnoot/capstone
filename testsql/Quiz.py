@@ -3,15 +3,14 @@
 # Quiz Class
 
 
-import Session
-import Question
+from . import Session
 from array import *
 
-"""
-Create a quiz object - either practice or a test - which will be associated with a student and 
-displayed to that student
-"""
 class Quiz:
+    """
+    Create a quiz object - either practice or a test - which will be associated with a student and 
+    displayed to that student
+    """
     
     def __init__(self, numEasy, numMed, numHard, user):
         self.difficultyDist = [numEasy,numMed,numHard]

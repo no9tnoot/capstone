@@ -40,4 +40,6 @@ e.g.:
 
 ## Running
 
-Run flaskGUI.py and access via the link in the terminal.
+Run testsql as a module from the root directory and open the web interface via the link in the terminal.
+- `py -m testsql` on Windows
+- `python3 -m testsql` on Unix

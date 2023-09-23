@@ -2,7 +2,7 @@
 # 9 September 2023
 # MediumEnglishQuery
 
-from IEnglishQuery import IEnglishQuery
+from .IEnglishQuery import IEnglishQuery
 
 class MediumEnglishQuery(IEnglishQuery):
 

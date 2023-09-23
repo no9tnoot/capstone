@@ -4,7 +4,7 @@
 
 from abc import ABC, abstractmethod
 import random
-import Database
+from . import Database
 
 """
     Interface for SQL query objects and construction.

@@ -2,7 +2,7 @@
 # 3 September 2023
 # EasyEnglishQuery
 
-from IEnglishQuery import IEnglishQuery
+from .IEnglishQuery import IEnglishQuery
 
 class EasyEnglishQuery(IEnglishQuery):
 

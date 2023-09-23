@@ -1,5 +1,5 @@
-from Session import Session
-from QuestionFactory import QuestionFactory
+from .Session import Session
+from .QuestionFactory import QuestionFactory
 
 class QuizSetup:
 

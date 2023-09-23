@@ -2,7 +2,6 @@
 # 7 August 2023
 # Question Class
 import mysql.connector
-import Database
 import random
 # val = random.random()
 # print(val)

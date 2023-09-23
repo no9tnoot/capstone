@@ -2,12 +2,12 @@
 # 14 August 2023
 # UI 
 
-from Session import Session
-from QuestionFactory import QuestionFactory
+from .Session import Session
+from .QuestionFactory import QuestionFactory
 #import Question
 
-""" Class to display information to the user and get input from the user """
 class QueryTester():
+    """ Class to display information to the user and get input from the user """
     
     def __init__(self):
         

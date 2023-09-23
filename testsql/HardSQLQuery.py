@@ -2,8 +2,8 @@
 # 31 August 2023
 # ISQLQuery
 
-from EasySQLQuery import EasySQLQuery
-from ISQLQuery import ISQLQuery
+from .EasySQLQuery import EasySQLQuery
+from .ISQLQuery import ISQLQuery
 import random
 
 """
