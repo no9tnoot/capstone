@@ -7,12 +7,12 @@ import random
 
 import mysql.connector # python3 --version, and then # pip3.8 install mysql-connector-python
 
-"""
+class Attribute:
+    """
     Database attribute (column) with instance variables showing column name, 
     data type, if there are any nulls in the column, and the key (prime attribute
     or not)
-"""
-class Attribute:
+    """
     
     def __init__(self, name, dt='', null='', k='', groupBy = False):
         self.name=name
@@ -29,10 +29,10 @@ class Attribute:
     def isPrimary(self):
         return (self.key == 'PRI')
 
-    """
-        Sets numeric to True if the attribute is numeric (not a string/date/time/boolean)
-    """
     def isNumeric(self):
+        """
+        Sets numeric to True if the attribute is numeric (not a string/date/time/boolean)
+        """
         
         isNum = False
         
@@ -45,10 +45,10 @@ class Attribute:
         
         return isNum
     
-    """
-        Sets string to True if the attribute is string (not a numeric/date/time/boolean)
-    """
     def isString(self):
+        """
+        Sets string to True if the attribute is string (not a numeric/date/time/boolean)
+        """
         
         isString = False
         
@@ -61,10 +61,10 @@ class Attribute:
         
         return isString
     
-    """
-        Sets numeric to True if the attribute is numeric (not a string/date/time/boolean)
-    """
     def isRoundable(self):
+        """
+        Sets numeric to True if the attribute is numeric (not a string/date/time/boolean)
+        """
         
         isRoundable = False
         
@@ -77,10 +77,10 @@ class Attribute:
         
         return isRoundable
     
-    """
-        Returns true if the calling attribute is equal to the given attribute
-    """
     def isEqual(self, attribute):
+        """
+        Returns true if the calling attribute is equal to the given attribute
+        """
         if self.name != attribute.name: return False
         if self.dataType != attribute.dataType: return False
         if self.null != attribute.null: return False
@@ -90,12 +90,12 @@ class Attribute:
 
 
 
-""" 
+class Relation:
+    """ 
     Database relation (table), with instance variables showing the name 
     of the relation, and an array containing all the attributes stored in 
     the relation.
-"""
-class Relation:
+    """
     
     def __init__(self, n, nrow):
         self.name = n
@@ -106,10 +106,10 @@ class Relation:
         self.numRows = nrow
         self.groupByAttributes = []
     
-    """
-        Adds the given attribute object to the appropriate array instance variables
-    """
     def addAttribute(self, attribute):
+        """
+        Adds the given attribute object to the appropriate array instance variables
+        """
         self.attributes.append(attribute)
         # If attribute is numeric, add to numericAttributes array
         if (attribute.numeric):
@@ -120,31 +120,30 @@ class Relation:
         if (attribute.string):
             self.stringAttributes.append(attribute)
     
-    """
-        Returns True if the relation has numeric attributes
-    """
     def hasNumeric(self):
+        """
+        Returns True if the relation has numeric attributes
+        """
         return len(self.numericAttributes)>0
     
-    """
-        Returns True if the relation has string attributes
-    """
     def hasString(self):
+        """
+        Returns True if the relation has string attributes
+        """
         return len(self.stringAttributes)>0
     
-    """
-        Returns True if the relation has numeric attributes
-    """
     def hasRoundable(self):
+        """
+        Returns True if the relation has numeric attributes
+        """
         return len(self.roundableAttributes)>0
 
-    """
+    def getAttribute(self, numeric = False, string = False, roundable = False):
+        """
         Returns a random attribute that meets the set requirements (i.e. numeric, string, and roundable
         requirements). If a requirement is set to False, this means it is not required, not that it is 
         not acceptable. i.e. numeric=False can still return a numeric attribute
-    """  
-    def getAttribute(self, numeric = False, string = False, roundable = False):
-        
+        """  
         # check that the attribute number asked for is not out of bounds
         if not numeric and not string and not roundable:
             i = random.randrange(0, self.getNumAttributes()-1, 1)
@@ -164,40 +163,40 @@ class Relation:
     
     
     
-    """
+    def getAttributeWithName(self, name):
+        """
         Finds the attribute with the given name in self.attributes. Returns None if no
         matching attribute found.
-    """
-    def getAttributeWithName(self, name):
+        """
         for attribute in self.attributes:
             if attribute.name == name:
                 return attribute
         return None
     
-    """
-        Returns the number of attributes in the relation.
-    """
     def getNumAttributes(self):
+        """
+        Returns the number of attributes in the relation.
+        """
         return len(self.attributes)
     
-    """
-        Returns the number of rows (entries) in the relation.
-    """
     def getNumRows(self):
+        """
+        Returns the number of rows (entries) in the relation.
+        """
         return self.numRows
     
-    """
-        Returns True if the passed attribute exists in this relation, and False otherwise.
-    """
     def hasAttribute(self, attribute):
+        """
+        Returns True if the passed attribute exists in this relation, and False otherwise.
+        """
         for att in self.attributes:
             if att.isEqual(attribute): return True
         return False
         
-    """
-        Returns an array of attributes that are in both this relation and the passed relation.
-    """
     def getJoinAttributes(self, otherRelation):
+        """
+        Returns an array of attributes that are in both this relation and the passed relation.
+        """
         joinAttributes = []
         primary = False
         # go through every attribute in the given relation
@@ -211,31 +210,30 @@ class Relation:
                 
         return joinAttributes
     
-    """
-        Adds attributes that can be used to group by to the groupByAttributes array
-    """
     def getGroupByAttributes(self):
+        """
+        Adds attributes that can be used to group by to the groupByAttributes array
+        """
         for attribute in self.attributes:
             if attribute.groupBy:
                 self.groupByAttributes.append(attribute)
     
-    """
-        Returns True if the relation has any attributes that can be used to group by 
-    """    
     def hasGroupByAttributes(self):
+        """
+        Returns True if the relation has any attributes that can be used to group by 
+        """    
         self.getGroupByAttributes()
         return len(self.groupByAttributes)>0
 
 
 
 
-"""
+class Database:
+    """
     Database (table) object, with an array of relations, as well as arrays for special types of relations 
     (e.g ones that contain numeric attribute(s)). Takes the SQL database information and creates the connection
     to the mySQL server, getting the relevant relations and attribute information therefrom.
-"""
-class Database:
-    
+    """
     def __init__(self, host, user, pword, db_name):
         
         self.relations = []  # initialise empty array of relations
@@ -251,8 +249,8 @@ class Database:
         self.getGroupByRelations() 
             
         
-    """ Get the attributes and their types from SQL, as well as the relations"""
     def loadRelations(self):
+        """ Get the attributes and their types from SQL, as well as the relations"""
         # connect to sql database
         database = mysql.connector.connect(
             host=self.host,
@@ -296,29 +294,28 @@ class Database:
             if (r.hasNumeric() > 0):
                 self.numericRelations.append(r)
     
-    """
-        Returns the number of relations in the database.
-    """
     def numRelations(self):
+        """
+        Returns the number of relations in the database.
+        """
         return len(self.relations)
     
-    """
-        Returns the ith relation from the database
-    """
     def getRelation(self, i):
+        """
+        Returns the ith relation from the database
+        """
         return self.relations[i]
     
-    """
-        Returns the ith numeric relation from the database
-    """
     def getNumericRelation(self, i):
+        """
+        Returns the ith numeric relation from the database
+        """
         return self.numericRelations[i]
     
-    """
-        Find relations that can be joined and store them in an array
-    """
     def getJoinRelations(self):
-        
+        """
+        Find relations that can be joined and store them in an array
+        """    
         # For each relation pair
         for i in range(len(self.relations)):
             for j in range(i+1, len(self.relations)):
@@ -330,19 +327,18 @@ class Database:
                     self.joinRelations.append(joinDict)
                     
 
-    """
-        Find relations that have attributes that can be used to group by and store them in an array
-    """
     def getGroupByRelations(self):
+        """
+        Find relations that have attributes that can be used to group by and store them in an array
+        """
         for relation in self.relations:
             if relation.hasGroupByAttributes():
                 self.groupByRelations.append(relation)
     
-    """
-        Return a random (not null) value from an attribute from the database.
-    """           
     def selectAttrVal(self, relation, attribute):
-        
+        """
+        Return a random (not null) value from an attribute from the database.
+        """               
         # Connect to database
         database = mysql.connector.connect(
             host=self.host,
@@ -362,12 +358,11 @@ class Database:
         if reqVal is None: return self.selectAttrVal(relation, attribute) # recurse until a non null value is selected
         else: return reqVal # if the value isn't a null value
         
-    """
+    def selectHavingVals(self, query):
+        """
         Returns the counts that a 'group by' query will produce. These can be used to construct 
         a 'having by' condition
-    """
-    def selectHavingVals(self, query):
-            
+        """    
         # Connect to database
         database = mysql.connector.connect(
             host=self.host,

@@ -4,19 +4,19 @@
 
 import mysql.connector
 
-""" Class that compares the equivalence of MySQL queries."""
 class Marker:
+    """ Class that compares the equivalence of MySQL queries."""
     
     def __init__(self,db):
         self.database = db
     
-    """
+    def markQuery(self, studentQuery, modalQuery):
+        """
         Checks if the studentQuery returns the same output as the modalQuery. Returns an array,
         wherein the first item is a Boolean indicating True if the outputs are identical. If False,
         a second item in the array is a string communicating if the studentQuery is valid and produced
         an incorrect output, or if it is invalid and the server threw an error.
-    """
-    def markQuery(self, studentQuery, modalQuery):
+        """
         database = mysql.connector.connect(
             host=self.database.host,
             user=self.database.user,
@@ -56,11 +56,11 @@ class Marker:
         return [False, validity, headers + modalAnswer] # output not the same 
         
 
-    """
-    Remove the semi-colon from the end of the entered query if it has one.
-    This is to prevent problems with the marker syntax.
-    """
     def removeSemiColon(self, query):
+        """
+        Remove the semi-colon from the end of the entered query if it has one.
+        This is to prevent problems with the marker syntax.
+        """
         if query.endswith(';'):  # if it ends with a semi-colon, remove it
             return query.rstrip(';') # 
         return query # if it doesn't end with a semi-colon, just return the query

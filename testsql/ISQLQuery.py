@@ -6,11 +6,10 @@ from abc import ABC, abstractmethod
 import random
 from . import Database
 
-"""
-    Interface for SQL query objects and construction.
-"""
 class ISQLQuery(ABC):
-    
+    """
+    Interface for SQL query objects and construction.
+    """
     operators = ['=', '<', '>', '<=', '>=']
     nullOperators = ['is', 'is not']
     aggregateFunctions = ['count(', 'max(', 'min(', 'avg(', 'sum(']
@@ -18,11 +17,11 @@ class ISQLQuery(ABC):
     wildcard = ['%','_', ]
     asterisk = Database.Attribute('*')
     
-    """
-        Initialises the instance variables of the query
-    """
     @abstractmethod
     def __init__(self, database):
+        """
+        Initialises the instance variables of the query
+        """
         self.db = database
         self.queryString = ""
         self.queryArray = []
@@ -51,13 +50,12 @@ class ISQLQuery(ABC):
   
   
     
-    """
-        Randomly selects and returns a relation from the loaded database.
-        By default does not require relation to contain numeric, string, or roundable attributes.
-    """
     @abstractmethod
     def getRel(self, numeric = False, string = False, roundable = False):
-
+        """
+        Randomly selects and returns a relation from the loaded database.
+        By default does not require relation to contain numeric, string, or roundable attributes.
+        """
         relation = random.randrange(0, self.db.numRelations()-1, 1) # select a random relation index to get from database
         relation = self.db.getRelation(relation) # get relation from database
         
@@ -90,22 +88,22 @@ class ISQLQuery(ABC):
             self.rels['rel1'] = relation
             return relation
 
-    """
-        Returns a random aggregate function
-    """
     @abstractmethod
     def getAgg(self, numeric=False):
+        """
+        Returns a random aggregate function
+        """
         if numeric: aggType = random.choice(self.aggregateFunctions) # select the type of aggregate function
         else: aggType = random.choice(['count(', 'max(', 'min('])
         return aggType # add chosen aggregate function to array instance variable
 
 
-    """
-        Formats attributes and aggregates into a readable string, 
-        e.g. "max(customerNumber), customerName"
-    """
     @abstractmethod
     def formatQueryAggs(self, attributes, aggregates):
+        """
+        Formats attributes and aggregates into a readable string, 
+        e.g. "max(customerNumber), customerName"
+        """
         aggs = '' # initialise the string to empty
         
         # add keyword distinct if doing a distinct query
@@ -132,12 +130,12 @@ class ISQLQuery(ABC):
         return aggs # return the string of aggregate function and attributes
     
     
-    """
-        Formats conditions and attributes into a readable string.
-        e.g. "where customerName = 'Greg'"
-    """
     @abstractmethod
     def formatQueryConds(self, conds):
+        """
+        Formats conditions and attributes into a readable string.
+        e.g. "where customerName = 'Greg'"
+        """
         cond = '' # initialise empty string
         
         condType = conds['cond'].lower()
@@ -172,11 +170,11 @@ class ISQLQuery(ABC):
         return cond
     
     
-    """
-        Create an attribute with neither a condition nor an aggregate function
-    """
     @abstractmethod
     def createSimple(self, relation, attribute = None):
+        """
+        Create an attribute with neither a condition nor an aggregate function
+        """
         # if the attribute has not been specified
         if attribute is None:
             attr1 = relation.getAttribute()
@@ -194,13 +192,13 @@ class ISQLQuery(ABC):
         else: self.attrs.append(attribute) 
         
         
-    """
+    @abstractmethod
+    def createAgg(self, relation=None, attribute=None, aggFn=None):
+        """
         Chooses an aggregate and a relation that fits that aggregate (i.e. numeric). 
         Aggregate put in aggFns[0]
         Relation put in rels['rel1']
-    """    
-    @abstractmethod
-    def createAgg(self, relation=None, attribute=None, aggFn=None):
+        """    
         if relation is None: relation = self.getRel() # if relation not specified, select random relation from database
                 
         if aggFn is None: aggFn = self.getAgg(numeric = relation.hasNumeric()) # if aggregate function not specified, get a random aggreegate func 
@@ -220,13 +218,13 @@ class ISQLQuery(ABC):
         
 
         
-    """
+    @abstractmethod
+    def createCond(self, relation, astOrAttr = None, condType=None, numeric=False, whereAttr = None):
+        """
         Chooses a condition  (e.g. 'where', 'limit by') and a relation.
         Puts the condition put in conds['cond']
         Relation put in rels['rel1']
-    """  
-    @abstractmethod
-    def createCond(self, relation, astOrAttr = None, condType=None, numeric=False, whereAttr = None):
+        """  
         if condType is None: condType = random.choice(self.condition) # select a random condition if no condition specified
         self.conds['cond'] = condType # add chosen condition to dictionary instance variable
 
@@ -256,12 +254,12 @@ class ISQLQuery(ABC):
                 print("Invalid condition")
                 
 
-    """
-        Creates an 'order by' condition.
-        Adds an attribute by which to order the output, and either ASC to DESC, to the conds array.
-    """  
     @abstractmethod
     def createOrderByCond(self, relation):
+        """
+        Creates an 'order by' condition.
+        Adds an attribute by which to order the output, and either ASC to DESC, to the conds array.
+        """  
         attr = relation.getAttribute() # select a second random attribute to order by (can be the same as attr_1)
         self.conds['val1'] = attr # add chosen attribute to conditions dictionary
 
@@ -269,24 +267,23 @@ class ISQLQuery(ABC):
         self.conds['operator'] = orderBy # add chosen order to conditions dictionary
 
 
-    """
-        Creates a 'limit' condition.
-        Adds a value by which to limit the output to the conds array.
-    """  
     @abstractmethod
     def createLimitCond(self, relation):
+        """
+        Creates a 'limit' condition.
+        Adds a value by which to limit the output to the conds array.
+        """  
         lim = random.randrange(1, min(10,relation.getNumRows()), 1) # choose a random value between 1 and 10 (if there are 10 rows)
         self.conds['val2'] = str(lim) # add chosen limit to array instance variable
 
 
-    """
+    @abstractmethod
+    def createWhereCond(self, relation, cond_details, numeric=False, whereAttr=None):  
+        """
         Creates a 'where' condition.
         Selects an attribute to impose a condition on, an operator to impose, and either NULL or 
         a possible value from the database to compare the attribute to.
-    """
-    @abstractmethod
-    def createWhereCond(self, relation, cond_details, numeric=False, whereAttr=None):  
-         
+        """
         if whereAttr is None: whereAttr = relation.getAttribute(numeric) # select a second random attribute 
         # (can be the same as attr_1)
         
@@ -318,13 +315,13 @@ class ISQLQuery(ABC):
         return cond_details
     
     
-    """
+    @abstractmethod
+    def createLikeCond(self, relation, cond_details):
+        """
         Creates a 'like' condition.
         Selects a string attribute to impose the like on, a comparison string, and inserts wildcard 
         operators into the comparison string.
-    """
-    @abstractmethod
-    def createLikeCond(self, relation, cond_details):
+        """
         # initialise the like dictionary
         cond_details['likeDict']={}
         cond_details['cond']='where'
@@ -397,13 +394,13 @@ class ISQLQuery(ABC):
         cond_details['likeDict']['starts_with_string']=ends_with_perc
         
         
-    """
+    @abstractmethod
+    def insertPercentWildCard(self, value, ends_with_perc, num_char_to_remove, cond_details):
+        """
         Insert a percentage wildcard at the given index in value (an array of characters),
         and remove a number of characters with before (startswith True) or after (startswith 
         False) the percentage wildcard.
-    """
-    @abstractmethod
-    def insertPercentWildCard(self, value, ends_with_perc, num_char_to_remove, cond_details):
+        """
         match ends_with_perc: 
             
             case False: # insert percentage at start ('ends with string')
@@ -423,13 +420,13 @@ class ISQLQuery(ABC):
         return value
 
 
-    """
+    @abstractmethod
+    def easyBuilder(self, relation, attribute=None, aggOrCond = None, aggFn=None, condType = None):
+        """
         Sets the query instance variables with values for an easy SQL query. Can create queries
         of type 'aggregate' (i.e. selecting max(), avg(), etc. values), 'conditional' (i.e. doing a 
         limit by, where clause, order by etc.) and a simple type, which just generates a plain select query.
-    """
-    @abstractmethod
-    def easyBuilder(self, relation, attribute=None, aggOrCond = None, aggFn=None, condType = None):
+        """
         # Randomly select either an aggregate fn or condition or neither
         if aggOrCond is None: aggOrCond = random.choice(['agg', 'cond', ''])
 
@@ -464,13 +461,13 @@ class ISQLQuery(ABC):
         self.rels['rel1']=relation # add the relation to the rels dictionary
     
     
-    """
+    @abstractmethod
+    def mediumBuilder(self, relation = None, attribute = None, components = None):
+        """
         Sets the query instance variables with values for a medium SQL query. Can create queries
         of type 'distinct', 'like' (i.e. doing a string comparison), 'or' (two conditions), and 
         'round', which rounds off a float / double attribute.
-    """
-    @abstractmethod
-    def mediumBuilder(self, relation = None, attribute = None, components = None):
+        """
         # Randomly select the type of medium query to build
         if components is None: components = random.choice(['distinct', 'like', 'or', 'round']) # distinct, as
 
@@ -520,26 +517,26 @@ class ISQLQuery(ABC):
             case _:
                 print('Invalid component')
     
-    """
-        Formats instance variable information into a string SQL command and returns it.
-    """
     @abstractmethod
     def toQuery(self):
+        """
+        Formats instance variable information into a string SQL command and returns it.
+        """
         pass
     
-    """
-        Returns the string SQL query.
-    """
     @abstractmethod
     def getSqlQuery(self):
+        """
+        Returns the string SQL query.
+        """
         return self.query
     
-    """
-        Places instance variable information into a dictionary and returns it. Dictionary is used 
-        to create the English queries.
-    """
     @abstractmethod
     def getDict(self):
+        """
+        Places instance variable information into a dictionary and returns it. Dictionary is used 
+        to create the English queries.
+        """
         dict = {'attributes': self.attrs, 
                 'aggregates': self.aggFns,
                 'relation': self.rels,

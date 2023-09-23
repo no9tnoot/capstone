@@ -21,8 +21,8 @@ class Student(User):
     def getUserName(self):
         return self.name
     
-    """Returns True if the entered password matches the recorded password, otherwise False."""
     def checkPassword(self, enteredPword):
+        """Returns True if the entered password matches the recorded password, otherwise False."""
         return (self.password==enteredPword)
     
     def saveResult(self, result):
@@ -42,8 +42,8 @@ class Teacher(User):
     def getUserName(self):
         return self.name
     
-    """Returns True if the entered password matches the recorded password, otherwise False."""
     def checkPassword(self, enteredPword):
+        """Returns True if the entered password matches the recorded password, otherwise False."""
         return (self.password==enteredPword)
     
     def viewAllResults():

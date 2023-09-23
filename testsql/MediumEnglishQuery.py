@@ -29,10 +29,10 @@ class MediumEnglishQuery(IEnglishQuery):
 
         self.englishQuery += '.'
 
-    """
-    Translate round functions to english
-    """
     def translateRound(self, roundTo):
+        """
+        Translate round functions to english
+        """
         if roundTo == '1':
             s = ' rounded to ' + roundTo + ' decimal place'
         else:
@@ -63,10 +63,10 @@ class MediumEnglishQuery(IEnglishQuery):
     def translateLike(self, like):
         return super().translateLike(like)
     
-    """
-    Overriding attrsAndAggs to deal with round aggs
-    """
     def attrsAndAggs(self, attrs, agg, roundTo):
+        """
+        Overriding attrsAndAggs to deal with round aggs
+        """
         if agg != 'round(':
             engAttrs = self.translateAgg(agg)
             engAttrs += self.translateAttr(attrs)

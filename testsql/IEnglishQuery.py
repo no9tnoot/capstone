@@ -12,11 +12,11 @@ class IEnglishQuery(ABC):
         self.englishQuery = ''
         self.sqlQuery = sqlQuery
 
-    """
-    Translates a simple query to english. Handles aggregate function and conditions including nested functions.
-    """
     @abstractmethod
     def easyEnglish(self, sqlQuery):
+        """
+        Translates a simple query to english. Handles aggregate function and conditions including nested functions.
+        """
         eq = ''
         if sqlQuery['aggregates']:
             eq += self.attrsAndAggs(sqlQuery['attributes'][0], sqlQuery['aggregates'][0])
@@ -39,23 +39,23 @@ class IEnglishQuery(ABC):
             eq += self.translateCond(sqlQuery['condition'], sqlQuery['nested'])
         return eq
     
-    """
-    Takes the english from an array and puts it into one string.
-    """
     #not sure if this is ever used anymore
     @abstractmethod
     def englishToString(self, english):
+        """
+        Takes the english from an array and puts it into one string.
+        """
         question = ''
         for block in english:
             for string in block:
                 question += string
         return question
     
-    """
-    Translate aggregate function from SQL to english
-    """
     @abstractmethod
     def translateAgg(self, agg):
+        """
+        Translate aggregate function from SQL to english
+        """
         match agg:
             case 'count(':
                 engAgg = 'how many records there are in '
@@ -71,21 +71,22 @@ class IEnglishQuery(ABC):
                 engAgg = 'the values of '
         return engAgg
     
-    """
-    translate attribute/s to english format
-    """
     @abstractmethod
     def translateAttr(self, attr):
+        """
+        translate attribute/s to english format
+        """
         if attr.name == '*':
             engAttr = 'all columns' 
         else:
             engAttr = attr.name
         return engAttr
-    """
-    Translate SQL condition to english.
-    """
+    
     @abstractmethod
     def translateCond(self, condition, nested = False):
+        """
+        Translate SQL condition to english.
+        """
         engCond = ''
         match condition['cond']:
 
@@ -109,11 +110,12 @@ class IEnglishQuery(ABC):
             case _:
                 print('Invalid condition')
         return engCond
-    """
-    Translate comparison sybols into english.
-    """
+    
     @abstractmethod
     def translateOperator(self, condition):
+        """
+        Translate comparison sybols into english.
+        """
         match condition['operator']:
             case '=':
                 return 'is'
@@ -134,11 +136,11 @@ class IEnglishQuery(ABC):
             case _:
                 return condition['operator']
 
-    """
-    Interpret and translate the value that a field is compared to. Including LIKE and nested comparisons.
-    """        
     @abstractmethod
     def translateVal2(self, condition, nested = False):
+        """
+        Interpret and translate the value that a field is compared to. Including LIKE and nested comparisons.
+        """        
         if nested:
             return self.easyEnglish(condition['val2'].getDict())
         
@@ -150,11 +152,11 @@ class IEnglishQuery(ABC):
         else:
             return condition['val2']
 
-    """
-    Tranlate like wildcard patterns.
-    """
     @abstractmethod
     def translateLike(self, like):
+        """
+        Tranlate like wildcard patterns.
+        """
         match like['type']:
 
             case '%':  
@@ -176,27 +178,27 @@ class IEnglishQuery(ABC):
                 print('Invalid like type')
         return s
 
-    """
-    Return the english query string
-    """
     @abstractmethod
     def getEnglishQuery(self):
+        """
+        Return the english query string
+        """
         return self.englishQuery
     
-    """
-    Translate an attribute with an aggregate function.
-    """
     @abstractmethod
     def attrsAndAggs(self, attrs, agg):
+        """
+        Translate an attribute with an aggregate function.
+        """
         engAttrs = self.translateAgg(agg)
         engAttrs += self.translateAttr(attrs)
         return engAttrs
     
-    """
-    Translate one or more attributes.
-    """
     @abstractmethod
     def onlyAttrs(self, attrs):
+        """
+        Translate one or more attributes.
+        """
         engAttrs = self.translateAttr(attrs[0])
         if len(attrs) == 2:
             engAttrs += ' and ' + self.translateAttr(attrs[1])
