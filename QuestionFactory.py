@@ -39,12 +39,13 @@ class QuestionFactory:
         return self.question
     
 # #testing
-from Session import Session
-d = Session.loadDatabase()
-factory = QuestionFactory(d)
-q = factory.getQuestion('medium')
-print(q.getSqlQuery())
-print(q.getEnglishQuery())
+if __name__ == "__main__":
+    from Session import Session
+    d = Session.loadDatabase()
+    factory = QuestionFactory(d)
+    q = factory.getQuestion('medium')
+    print(q.getSqlQuery())
+    print(q.getEnglishQuery())
 
 
                 
