@@ -21,12 +21,6 @@ body {
     flex-direction: column;
 }
 
-nav {
-    display: flex;
-    justify-content: space-between;
-    margin: var(--margin);
-}
-
 /* Text and Form styling */
 h1 {
     font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
@@ -50,17 +44,26 @@ p {
 }
 
 /* Link styling (as button) */
+
+.buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 50px;
+}
+
 a:link,
 a:visited {
     padding: 8px var(--margin);
     background-color: rgb(184, 196, 214);
     border: 2px solid rgb(186, 191, 197);
     border-radius: 4px;
-    float: none;
     cursor: pointer;
     color: black;
-    display: inline-block;
-    font-size: 1.5rem;
+    margin-top: 20px;
+    min-width: 140px;
+    text-align: center;
+
 }
 
 a:hover,

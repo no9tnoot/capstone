@@ -12,6 +12,7 @@ html {
 
 body {
     margin: 0 auto;
+    margin-top: 90px;
     background-color: rgb(235, 238, 241);
     text-align: center;
 }
