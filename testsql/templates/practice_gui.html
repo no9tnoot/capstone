@@ -44,9 +44,12 @@
             CORRECT!
             {% else %}
             INCORRECT:<span class="explanation">{{explanation}}</span>
+            <span class="explanation">The query you inputted was</span> <span class="explanation"
+                style="font-family: 'Courier New', Courier, monospace;">"{{userQuery}}"</span>
             {% endif %}
         </div>
         <div class="result_output">
+            <p>This was the output produced by our model query:</p>
             <table>
                 {% for row in modelOutput %}
                 <tr>

@@ -159,12 +159,11 @@ a:active {
     border: solid 1px var(--border-color);
     margin-bottom: var(--padding);
     overflow: auto;
-}
-
-.result_output {
     padding: var(--result-padding);
     padding-top: 0;
+    max-height: 430px;
 }
+
 
 .result {
     padding: var(--result-padding);
@@ -186,6 +185,7 @@ a:active {
 table {
     width: 100%;
     font-family: 'Courier New', Courier, monospace;
+    margin: 0px 40px
 }
 
 td {
