@@ -387,5 +387,24 @@ class Database:
         cursor = database.cursor()  # Create a cursor to interact with the database
         cursor.execute(query)
         return cursor.fetchall()
+    
+    def validQuery(self, query):
+        """
+        Returns True if the query runs without producing errors in SQL, otherwise returns False.
+        """
+        try:
+            database = mysql.connector.connect(
+                host=self.host,
+                user=self.user,
+                password=self.pword,
+                database=self.db_name
+            )
+            cursor = database.cursor()  # Create a cursor to interact with the database
+            cursor.execute(query)
+            cursor.fetchall()
+            validQuery = True
+        except: validQuery = False
+        
+        return validQuery
            
             

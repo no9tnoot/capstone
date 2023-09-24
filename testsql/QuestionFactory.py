@@ -30,38 +30,28 @@ class QuestionFactory:
         """
         # Generate a query that runs without producing errors. This catches errors thrown by
         # attributes with poor syntax (e.g. string values with reserved characters such as ' )
-        finished = False
-        while not finished: 
-            try:
-                match difficulty:
-                    case 'easy':
-                        sqlQuery = EasySQLQuery(self.database)
-                        engQuery = EasyEnglishQuery(sqlQuery.getDict())
-                    
-                    case 'medium':
-                        sqlQuery = MediumSQLQuery(self.database)
-                        engQuery = MediumEnglishQuery(sqlQuery.getDict())
-                    
-                    case 'hard':
-                        sqlQuery = HardSQLQuery(self.database)
-                        engQuery = HardEnglishQuery(sqlQuery.getDict())
+        validQuery = False
+        while not validQuery: 
+            match difficulty:
+                case 'easy':
+                    sqlQuery = EasySQLQuery(self.database)
+                    engQuery = EasyEnglishQuery(sqlQuery.getDict())
+                
+                case 'medium':
+                    sqlQuery = MediumSQLQuery(self.database)
+                    engQuery = MediumEnglishQuery(sqlQuery.getDict())
+                
+                case 'hard':
+                    sqlQuery = HardSQLQuery(self.database)
+                    engQuery = HardEnglishQuery(sqlQuery.getDict())
 
-                    case _:
-                        print('Invalid difficulty')
-                finished = True
-            except: pass
+                case _:
+                    print('Invalid difficulty')
             
+            validQuery  = self.database.queryRuns(sqlQuery.getQuery()) # check if query throws an error
+                        
         self.question = Question(sqlQuery.getSqlQuery(), engQuery.getEnglishQuery())
         return self.question
-    
-# # #testing
-# if __name__ == "__main__":
-#     from Session import Session
-#     d = Session.loadDatabase()
-#     factory = QuestionFactory(d)
-#     q = factory.getQuestion('medium')
-#     print(q.getSqlQuery())
-#     print(q.getEnglishQuery())
 
 
                 
