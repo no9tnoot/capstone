@@ -5,6 +5,9 @@
 from abc import ABC, abstractmethod
 
 class IEnglishQuery(ABC):
+    """
+    IEnglishQuery contains methods that are used in more than one type of question. 
+    """
 
     likePos = ['second','third','fourth','fifth','sixth']
 

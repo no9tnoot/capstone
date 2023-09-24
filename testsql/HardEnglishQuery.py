@@ -5,6 +5,9 @@
 from .IEnglishQuery import IEnglishQuery
 
 class HardEnglishQuery(IEnglishQuery):
+    """
+    Handles complicated mySQL queries including nested queries, 'JOIN', and 'GROUP BY'/'HAVING'.
+    """
 
     def __init__(self, sqlQuery):
         super().__init__(sqlQuery)
