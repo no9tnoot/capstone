@@ -5,7 +5,7 @@ class QuizSetup:
 
     def __init__(self):
         # I don't think these all need to be instance vars. only the first 3?
-        self.session = Session("user") # Create session
+        self.session = Session() # Create session
         self.db = self.session.database # Load the database
         self.factory = QuestionFactory(self.db) # Create the question factory
         self.qLevel = "easy" # Set the initial question level to easy, and generate the first question
