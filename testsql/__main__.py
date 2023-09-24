@@ -51,9 +51,6 @@ def practice():
             setup.result = Session.markQuery(setup.session, stuSQL, modelSQL) # Mark
             # Change true to correct, false to incorrect
 
-            #if setup.result[0] == False:
-                #setup.result[2] = "The model output for this query was \"" + modelSQL + ";\" You inputted \"" + stuSQL + "\""
-
             setup.marked = True # Set flag
             # print("Press mark: " + str(setup.marked))
 
@@ -76,8 +73,8 @@ def practice():
         stuSQL
     except NameError:
         stuSQL = ""
-        
-    return render_template("practice_gui.html", engQuestion=setup.question.getEnglishQuery(), correct = setup.result[0], explanation = setup.result[1], modelOutput = setup.result[2], showResult = setup.marked, difficulty = setup.qLevel, userQuery = stuSQL) 
+
+    return render_template("practice_gui.html", engQuestion=setup.question.getEnglishQuery(), correct = setup.result.correct, explanation = setup.result.comment, modelOutput = setup.result.tableInfo, showResult = setup.marked, difficulty = setup.qLevel, userQuery = stuSQL) 
 
 # Test quiz page:
 @app.route("/test", methods=["GET", "POST"])
@@ -117,7 +114,7 @@ def test():
                 setup.result = Session.markQuery(setup.session, stuAns, modelAns) # Mark
 
                 # Store whether answer was correct or not
-                correctAns.append(setup.result[0])
+                correctAns.append(setup.result.correct)
             
             # Count number of questions answered correctly
             counter = 0
@@ -131,9 +128,10 @@ def test():
             # Take to page with score and link to home
             return render_template("markedTest_gui.html", mark = mark)
  
-    # Is this necessary?
-    if engQsList is None:
-        engQsList = []
+    try:
+        engQsList
+    except NameError:
+        engQsList = ""
     
     return render_template("test_gui.html", questions = engQsList, numQs = numQs)
 

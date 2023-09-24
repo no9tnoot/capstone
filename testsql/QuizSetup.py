@@ -1,5 +1,6 @@
 from .Session import Session
 from .QuestionFactory import QuestionFactory
+from .Results import Results
 
 class QuizSetup:
 
@@ -11,9 +12,8 @@ class QuizSetup:
         self.qLevel = "easy" # Set the initial question level to easy, and generate the first question
         self.question = self.factory.getQuestion(self.qLevel) # Generate the first question
         self.marked = False # Flag to indicate whether results should be showing
-        self.result = ["","",""]
+        self.result = Results(True, "syn", "")
         self.questionList = []
-        self.engQsList = []
         
     def __new__(setup):
         if not hasattr(setup, 'instance'):
