@@ -174,13 +174,13 @@ class HardEnglishQuery(IEnglishQuery):
         if attrs[0].name == '*':
             match rels['joinType']:
                 case 'left outer join':
-                    q = ' and in the ' + rels['rel2'].name + ' table where it has a corresponding' + rels['attr'].name + ' value'
+                    q = ' and in the ' + rels['rel2'].name + ' table where it has a corresponding ' + rels['attr'].name + ' value'
                 case 'inner join':
                     q = ' and in the ' + rels['rel2'].name + ' table where they have a matching ' + rels['attr'].name + ' value'
                 case 'natural inner join':
                     q = ' where they are associated with a record in the ' + rels['rel2'].name + ' table'
                 case 'right outer join':
-                    q = ' and in the ' + rels['rel1'].name + ' table where it has a corresponding' + rels['attr'].name + ' value'
+                    q = ' and in the ' + rels['rel1'].name + ' table where it has a corresponding ' + rels['attr'].name + ' value'
         else:
             match rels['joinType']:
                 case 'left outer join':
