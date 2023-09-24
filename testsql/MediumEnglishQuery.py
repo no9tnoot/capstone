@@ -28,7 +28,16 @@ class MediumEnglishQuery(IEnglishQuery):
                 self.englishQuery += ' but only for unique combinations of ' + self.onlyAttrs(sqlQuery['attributes'])
 
         self.englishQuery += '.'
+    
+    def easyEnglish(self, sqlQuery):
+        return super().easyEnglish(sqlQuery)
 
+    def translateAttr(self, attr):
+        return super().translateAttr(attr)
+    
+    def translateAgg(self, agg):
+        return super().translateAgg(agg)
+    
     def translateRound(self, roundTo):
         """
         Translate round functions to english
@@ -38,30 +47,21 @@ class MediumEnglishQuery(IEnglishQuery):
         else:
             s = ' rounded to ' + roundTo + ' decimal places'
         return s
-
-    def englishToString(self, english):
-        return super().englishToString(english)
-    
-    def easyEnglish(self, sqlQuery):
-        return super().easyEnglish(sqlQuery)
-    
-    def getEnglishQuery(self):
-        return super().getEnglishQuery()
-    
-    def translateAgg(self, agg):
-        return super().translateAgg(agg)
-    
-    def translateOperator(self, condition):
-        return super().translateOperator(condition)
-    
-    def translateAttr(self, attr):
-        return super().translateAttr(attr)
     
     def translateCond(self, condition):
         return super().translateCond(condition)
     
     def translateLike(self, like):
         return super().translateLike(like)
+    
+    def translateOperator(self, condition):
+        return super().translateOperator(condition)
+    
+    def translateVal2(self, condition, nested=False):
+        return super().translateVal2(condition, nested)
+
+    def onlyAttrs(self, attrs):
+        return super().onlyAttrs(attrs)
     
     def attrsAndAggs(self, attrs, agg, roundTo):
         """
@@ -76,12 +76,5 @@ class MediumEnglishQuery(IEnglishQuery):
             engAttrs += self.translateRound(roundTo)
         return engAttrs
     
-    def onlyAttrs(self, attrs):
-        return super().onlyAttrs(attrs)
-    
-    def translateVal2(self, condition, nested=False):
-        return super().translateVal2(condition, nested)
-
-
-    #show (function) as (asName)
-    #e.g.: show price * 0.152 as VAT
+    def getEnglishQuery(self):
+        return super().getEnglishQuery()

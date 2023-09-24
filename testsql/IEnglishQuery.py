@@ -22,34 +22,23 @@ class IEnglishQuery(ABC):
             eq += self.attrsAndAggs(sqlQuery['attributes'][0], sqlQuery['aggregates'][0])
         else:
             eq += 'the values of ' + self.onlyAttrs(sqlQuery['attributes'])
-        
-        #not sure if this join bit is ever used
-        if sqlQuery['join']:
-            match sqlQuery['relation']['joinType']:
-                case 'left outer join':
-                    eq += ' in the ' + sqlQuery['relation']['rel1'].name + ' table'
-                case 'right outer join':
-                    eq += ' in the ' + sqlQuery['relation']['rel2'].name + ' table'
-                case _:
-                    eq += ' in the ' + sqlQuery['relation']['rel1'].name + ' table'     
-        else:
-            eq += ' in the ' + sqlQuery['relation']['rel1'].name + ' table'
+
+        eq += ' in the ' + sqlQuery['relation']['rel1'].name + ' table'
 
         if sqlQuery['condition']:
             eq += self.translateCond(sqlQuery['condition'], sqlQuery['nested'])
         return eq
     
-    #not sure if this is ever used anymore
     @abstractmethod
-    def englishToString(self, english):
+    def translateAttr(self, attr):
         """
-        Takes the english from an array and puts it into one string.
+        translate attribute/s to english format
         """
-        question = ''
-        for block in english:
-            for string in block:
-                question += string
-        return question
+        if attr.name == '*':
+            engAttr = 'all columns' 
+        else:
+            engAttr = attr.name
+        return engAttr
     
     @abstractmethod
     def translateAgg(self, agg):
@@ -71,16 +60,6 @@ class IEnglishQuery(ABC):
                 engAgg = 'the values of '
         return engAgg
     
-    @abstractmethod
-    def translateAttr(self, attr):
-        """
-        translate attribute/s to english format
-        """
-        if attr.name == '*':
-            engAttr = 'all columns' 
-        else:
-            engAttr = attr.name
-        return engAttr
     
     @abstractmethod
     def translateCond(self, condition, nested = False):
@@ -110,6 +89,32 @@ class IEnglishQuery(ABC):
             case _:
                 print('Invalid condition')
         return engCond
+    
+    @abstractmethod
+    def translateLike(self, like):
+        """
+        Tranlate like wildcard patterns.
+        """
+        match like['type']:
+
+            case '%':  
+                if like['starts_with_string']:
+                    s = 'starts with'
+                else:
+                    s = 'ends with'
+
+            case '%%':
+                s = 'contains'
+            
+            case '_%':
+                if like['starts_with_string']:
+                    s = 'has a value where the ' + self.likePos[like['num_underscore']-1] + ' character from the beginning is'
+                else:
+                    s = 'has a value where the ' + self.likePos[like['num_underscore']-1] + ' character from the end is'
+
+            case _:
+                print('Invalid like type')
+        return s
     
     @abstractmethod
     def translateOperator(self, condition):
@@ -152,38 +157,6 @@ class IEnglishQuery(ABC):
         else:
             return condition['val2']
 
-    @abstractmethod
-    def translateLike(self, like):
-        """
-        Tranlate like wildcard patterns.
-        """
-        match like['type']:
-
-            case '%':  
-                if like['starts_with_string']:
-                    s = 'starts with'
-                else:
-                    s = 'ends with'
-
-            case '%%':
-                s = 'contains'
-            
-            case '_%':
-                if like['starts_with_string']:
-                    s = 'has a value where the ' + self.likePos[like['num_underscore']-1] + ' character from the beginning is'
-                else:
-                    s = 'has a value where the ' + self.likePos[like['num_underscore']-1] + ' character from the end is'
-
-            case _:
-                print('Invalid like type')
-        return s
-
-    @abstractmethod
-    def getEnglishQuery(self):
-        """
-        Return the english query string
-        """
-        return self.englishQuery
     
     @abstractmethod
     def attrsAndAggs(self, attrs, agg):
@@ -203,3 +176,11 @@ class IEnglishQuery(ABC):
         if len(attrs) == 2:
             engAttrs += ' and ' + self.translateAttr(attrs[1])
         return engAttrs
+    
+    @abstractmethod
+    def getEnglishQuery(self):
+        """
+        Return the english query string
+        """
+        return self.englishQuery
+    

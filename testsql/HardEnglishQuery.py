@@ -17,12 +17,39 @@ class HardEnglishQuery(IEnglishQuery):
             self.englishQuery += self.groupBy(sqlQuery)
         self.englishQuery += '.'
 
+    def easyEnglish(self, sqlQuery):
+        return super().easyEnglish(sqlQuery)
+    
     def nested(self, query):
         """
         Calls the easyEnglish method to generate a query, but also passes it a nested query.
         """
         q = self.easyEnglish(query)
         return q
+    
+    def translateAttr(self, attr):
+        return super().translateAttr(attr)
+    
+    def translateAgg(self, agg):
+        return super().translateAgg(agg)
+    
+    def translateCond(self, condition, nested=False):
+        return super().translateCond(condition, nested)
+    
+    def translateLike(self, like):
+        return super().translateLike(like)
+    
+    def translateOperator(self, condition):
+        return super().translateOperator(condition)
+    
+    def translateVal2(self, condition, nested=False):
+        return super().translateVal2(condition, nested)
+    
+    def onlyAttrs(self, attrs):
+        return super().onlyAttrs(attrs)
+    
+    def attrsAndAggs(self, attrs, agg):
+        return super().attrsAndAggs(attrs, agg)
     
     def groupBy(self, query):
         """
@@ -168,37 +195,8 @@ class HardEnglishQuery(IEnglishQuery):
                     else:
                         q = ' along with ' + self.translateAgg('') + self.translateAttr(attrs[0]) + ' in the ' + rels['rel1'].name + ' table that have a corresponding ' + rels['attr'].name + ' value'
         return q
-
-    def englishToString(self, english):
-        return super().englishToString(english)
     
     def getEnglishQuery(self):
         return super().getEnglishQuery()
     
-    def translateAgg(self, agg):
-        return super().translateAgg(agg)
     
-    def translateOperator(self, condition):
-        return super().translateOperator(condition)
-    
-    
-    def translateAttr(self, attr):
-        return super().translateAttr(attr)
-    
-    def translateCond(self, condition, nested=False):
-        return super().translateCond(condition, nested)
-    
-    def translateLike(self, like):
-        return super().translateLike(like)
-    
-    def translateVal2(self, condition, nested=False):
-        return super().translateVal2(condition, nested)
-    
-    def onlyAttrs(self, attrs):
-        return super().onlyAttrs(attrs)
-    
-    def attrsAndAggs(self, attrs, agg):
-        return super().attrsAndAggs(attrs, agg)
-    
-    def easyEnglish(self, sqlQuery):
-        return super().easyEnglish(sqlQuery)
