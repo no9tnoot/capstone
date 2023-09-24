@@ -82,7 +82,7 @@ def practice():
 # Test quiz page:
 @app.route("/test", methods=["GET", "POST"])
 def test():
-    numQs = 20 # Must be divisible by 10
+    numQs = 100 # Must be divisible by 10
 
     # If the questions have not yet been generated
     if setup.questionList == []:
@@ -93,6 +93,9 @@ def test():
         engQsList = []
         for i in range(numQs):
             engQsList.append(setup.questionList[i].getEnglishQuery())
+            print(setup.questionList[i].getEnglishQuery())
+            print(setup.questionList[i].getSqlQuery())
+            print("")
 
     if request.method == "POST":
         
