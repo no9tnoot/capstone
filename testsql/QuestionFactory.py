@@ -11,15 +11,27 @@ from .HardEnglishQuery import HardEnglishQuery
 from .Question import Question
 
 class QuestionFactory:
+    """
+    Factory for generating Question objects of varying difficulty. Generates the mySQL Query
+    string, and the accompanying English version of the query, and passes them to the generated 
+    question object.
+    """
     
     def __init__(self, database):
-        #self.question
+        """
+        Sets the database instance variable for the factory.
+        """
         self.database = database
         
     
     def getQuestion(self, difficulty):
+        """
+        Generates and returns a runnable Question of the given difficulty.
+        """
+        # Generate a query that runs without producing errors. This catches errors thrown by
+        # attributes with poor syntax (e.g. string values with reserved characters such as ' )
         finished = False
-        while not finished:
+        while not finished: 
             try:
                 match difficulty:
                     case 'easy':
@@ -42,14 +54,14 @@ class QuestionFactory:
         self.question = Question(sqlQuery.getSqlQuery(), engQuery.getEnglishQuery())
         return self.question
     
-# #testing
-if __name__ == "__main__":
-    from Session import Session
-    d = Session.loadDatabase()
-    factory = QuestionFactory(d)
-    q = factory.getQuestion('medium')
-    print(q.getSqlQuery())
-    print(q.getEnglishQuery())
+# # #testing
+# if __name__ == "__main__":
+#     from Session import Session
+#     d = Session.loadDatabase()
+#     factory = QuestionFactory(d)
+#     q = factory.getQuestion('medium')
+#     print(q.getSqlQuery())
+#     print(q.getEnglishQuery())
 
 
                 
