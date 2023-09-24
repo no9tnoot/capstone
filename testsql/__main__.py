@@ -6,7 +6,6 @@ from flask import Flask, render_template, request
 from .QuizSetup import QuizSetup
 from .Session import Session
 
-from .test_login import check_login_details #, get_eng
 app = Flask(__name__, template_folder="templates")
 
 def addNonDuplicate(questions, difficulty):
@@ -28,23 +27,6 @@ def genTestQs(numQs):
     
     questionList = list(questionSet)
     return questionList
-
-# Login page:
-@app.route("/login", methods=["GET", "POST"])
-def login():
-    #print(request.args)
-    #print(request.form.get("username"))
-    if request.method == "POST":
-        #print(request.form.get("username"))
-        # If the username and password are valid, return home page
-        if check_login_details(request.form.get("username"), request.form.get("password")):
-            return render_template("home_gui.html")
-        else:
-            return """
-                <h1>Invalid login details</h1>
-                <a href="/">back to login</a>
-                """
-    return render_template("login_gui.html")
 
 # Home page:
 @app.route("/", methods=["GET", "POST"])
@@ -145,15 +127,6 @@ def test():
             return render_template("markedTest_gui.html", mark = mark)
  
     return render_template("test_gui.html", questions = engQsList, numQs = numQs)
-
-# Statistics page:
-@app.route("/statistics", methods=["GET", "POST"])
-def stats():
-    return """
-    <h1>STATISTIC</h1>
-    """
-    print(request.form) 
-    return render_template("stats_gui.html")
 
 def main():
     global setup
