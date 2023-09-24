@@ -33,6 +33,7 @@ def genTestQs(numQs):
 def home():
     setup.question = setup.factory.getQuestion(setup.qLevel)
     setup.marked = False # Reset flag
+    setup.questionList = []
     return render_template("home_gui.html")
 
 # Practice quiz page:
@@ -84,8 +85,7 @@ def test():
     numQs = 20 # Must be divisible by 10
 
     # If the questions have not yet been generated
-    if not setup.questionList:
-
+    if setup.questionList == []:
         # Generate questions
         setup.questionList = genTestQs(numQs)
 
@@ -102,17 +102,13 @@ def test():
 
             for i in range(numQs):
                 name = "sql" + str(i+1)
-                print(name)
                 stuAns = request.form.get(name) 
-
-                print(stuAns)
 
                 if stuAns == None:
                     stuAns = ""
 
-                print(str(i))
                 modelAns = setup.questionList[i].getSqlQuery()
-                print(modelAns)
+
                 setup.result = Session.markQuery(setup.session, stuAns, modelAns) # Mark
 
                 # Store whether answer was correct or not
@@ -129,7 +125,7 @@ def test():
             mark = str(counter) + "/" + str(numQs)
             # Take to page with score and link to home
             return render_template("markedTest_gui.html", mark = mark)
- 
+    
     try:
         engQsList
     except NameError:
