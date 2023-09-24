@@ -26,14 +26,6 @@ class Marker:
         
         cursor = database.cursor()  # Create a cursor to interact with the database
         
-        # remove trailing semi-colons - important if passing both queries in a single query to sql server
-        studentQuery = self.removeSemiColon(studentQuery)
-        modalQuery = self.removeSemiColon(modalQuery)
-        
-        """The below is a place holder for until I figure out mysql which can't do MINUS or 
-        EXCEPT and gets angry if you put more than one column in a nested table and needs you to name every 
-        derived table and everyone on the internet has differently complicated ideas that don't work"""
-        
         try: 
             cursor.execute(studentQuery)
             studentAnswer = cursor.fetchall()
@@ -54,13 +46,3 @@ class Marker:
             return [True, "Your query produced the correct output.", headers + modalAnswer]
         
         return [False, validity, headers + modalAnswer] # output not the same 
-        
-
-    def removeSemiColon(self, query):
-        """
-        Remove the semi-colon from the end of the entered query if it has one.
-        This is to prevent problems with the marker syntax.
-        """
-        if query.endswith(';'):  # if it ends with a semi-colon, remove it
-            return query.rstrip(';') # 
-        return query # if it doesn't end with a semi-colon, just return the query
