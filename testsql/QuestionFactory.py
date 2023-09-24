@@ -48,7 +48,7 @@ class QuestionFactory:
                 case _:
                     print('Invalid difficulty')
             
-            validQuery  = self.database.queryRuns(sqlQuery.getQuery()) # check if query throws an error
+            validQuery  = self.database.validQuery(sqlQuery.getSqlQuery()) # check if query throws an error
                         
         self.question = Question(sqlQuery.getSqlQuery(), engQuery.getEnglishQuery())
         return self.question

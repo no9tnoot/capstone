@@ -31,6 +31,8 @@ def genTestQs(numQs):
 # Home page:
 @app.route("/", methods=["GET", "POST"])
 def home():
+    setup.question = setup.factory.getQuestion(setup.qLevel)
+    setup.marked = False # Reset flag
     return render_template("home_gui.html")
 
 # Practice quiz page:
