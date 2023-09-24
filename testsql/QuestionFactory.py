@@ -18,21 +18,26 @@ class QuestionFactory:
         
     
     def getQuestion(self, difficulty):
-        match difficulty:
-            case 'easy':
-                sqlQuery = EasySQLQuery(self.database)
-                engQuery = EasyEnglishQuery(sqlQuery.getDict())
-            
-            case 'medium':
-                sqlQuery = MediumSQLQuery(self.database)
-                engQuery = MediumEnglishQuery(sqlQuery.getDict())
-            
-            case 'hard':
-                sqlQuery = HardSQLQuery(self.database)
-                engQuery = HardEnglishQuery(sqlQuery.getDict())
+        finished = False
+        while not finished:
+            try:
+                match difficulty:
+                    case 'easy':
+                        sqlQuery = EasySQLQuery(self.database)
+                        engQuery = EasyEnglishQuery(sqlQuery.getDict())
+                    
+                    case 'medium':
+                        sqlQuery = MediumSQLQuery(self.database)
+                        engQuery = MediumEnglishQuery(sqlQuery.getDict())
+                    
+                    case 'hard':
+                        sqlQuery = HardSQLQuery(self.database)
+                        engQuery = HardEnglishQuery(sqlQuery.getDict())
 
-            case _:
-                print('Invalid difficulty')
+                    case _:
+                        print('Invalid difficulty')
+                finished = True
+            except: pass
             
         self.question = Question(sqlQuery.getSqlQuery(), engQuery.getEnglishQuery())
         return self.question
