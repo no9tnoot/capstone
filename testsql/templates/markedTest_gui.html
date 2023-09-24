@@ -14,12 +14,15 @@
 
     <h1 class="heading">Results</h1>
 
-    <p>Well done for completing your test.</p>
+    <div>
+        <p>Well done for completing your test.</p>
+        <p class="score">You scored {{ mark }}</p>
+    </div>
 
-    <p class="score">You scored {{ mark }}</p>
-
-    <a href="/" class="btn">home</a>
-    <a href="/test" class="btn">write another test</a>
+    <div class="buttons">
+        <a href="/" class="btn">home</a>
+        <a href="/test" class="btn">new test</a>
+    </div>
 
 </body>
 
