@@ -5,16 +5,19 @@
 from array import *
 import random
 
-import mysql.connector # python3 --version, and then # pip3.8 install mysql-connector-python
+import mysql.connector
 
 class Attribute:
     """
     Database attribute (column) with instance variables showing column name, 
-    data type, if there are any nulls in the column, and the key (prime attribute
-    or not)
+    data type, if there are any nulls in the column, and the key (whether it is
+    a prime attribute or not).
     """
     
     def __init__(self, name, dt='', null='', k='', groupBy = False):
+        """
+        Sets the instance variables of the Attribute.
+        """
         self.name=name
         if not isinstance(dt, str):
             dt=dt.decode()
@@ -27,11 +30,14 @@ class Attribute:
         self.groupBy = groupBy
     
     def isPrimary(self):
+        """
+        Returns true if the attribute is the primary key of the relation it is in.
+        """
         return (self.key == 'PRI')
 
     def isNumeric(self):
         """
-        Sets numeric to True if the attribute is numeric (not a string/date/time/boolean)
+        Sets numeric instance variable to True if the attribute is numeric (not a string/date/time/boolean)
         """
         
         isNum = False
@@ -98,6 +104,9 @@ class Relation:
     """
     
     def __init__(self, n, nrow):
+        """
+        Initialises the instance variables of the Relation.
+        """
         self.name = n
         self.attributes=[]
         self.numericAttributes=[]
@@ -235,6 +244,10 @@ class Database:
     to the mySQL server, getting the relevant relations and attribute information therefrom.
     """
     def __init__(self, host, user, pword, db_name):
+        """
+        Initialises the instance variables of the Database, and loads the relations and 
+        attributes into these instance arrays.
+        """
         
         self.relations = []  # initialise empty array of relations
         self.numericRelations = [] # initialise empty array of relations that contain at least 1 numeric attribute

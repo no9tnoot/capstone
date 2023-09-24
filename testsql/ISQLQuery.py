@@ -8,7 +8,10 @@ from . import Database
 
 class ISQLQuery(ABC):
     """
-    Interface for SQL query objects and construction.
+    Interface for SQL query objects and their generation and construction. Has 'condition' 
+    and 'relation' instance dictionaries, and 'attribute' and 'aggregate' instance arrays,
+    to store relevant query information. Produces and stores a runnable string SQL query in
+    the 'query' instance variable.
     """
     operators = ['=', '<', '>', '<=', '>=']
     nullOperators = ['is', 'is not']
@@ -424,8 +427,8 @@ class ISQLQuery(ABC):
     def easyBuilder(self, relation, attribute=None, aggOrCond = None, aggFn=None, condType = None):
         """
         Sets the query instance variables with values for an easy SQL query. Can create queries
-        of type 'aggregate' (i.e. selecting max(), avg(), etc. values), 'conditional' (i.e. doing a 
-        limit by, where clause, order by etc.) and a simple type, which just generates a plain select query.
+        of type 'aggregate' (i.e. selecting 'max()', 'avg()', etc. values), 'conditional' (i.e. doing a 
+        'limit by', 'where' clause, 'order by' etc.) and a simple type, which just generates a plain select query.
         """
         # Randomly select either an aggregate fn or condition or neither
         if aggOrCond is None: aggOrCond = random.choice(['agg', 'cond', ''])
@@ -520,22 +523,23 @@ class ISQLQuery(ABC):
     @abstractmethod
     def toQuery(self):
         """
-        Formats instance variable information into a string SQL command and returns it.
+        Formats instance variable information into a string SQL command and returns it. 
+        Implementation depends on the difficulty level of the query.
         """
         pass
     
     @abstractmethod
     def getSqlQuery(self):
         """
-        Returns the string SQL query.
+        Returns the runnable string of the SQL query object.
         """
         return self.query
     
     @abstractmethod
     def getDict(self):
         """
-        Places instance variable information into a dictionary and returns it. Dictionary is used 
-        to create the English queries.
+        Places ISQL queryobject's instance variable information into a dictionary and returns 
+        it. The dictionary is used to create the English queries.
         """
         dict = {'attributes': self.attrs, 
                 'aggregates': self.aggFns,
