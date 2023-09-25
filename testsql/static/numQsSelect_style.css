@@ -1,0 +1,80 @@
+/* Sian Wood */
+/* 13/09/2023 */
+/* Styling testSQL test page */
+
+
+/* Section styling */
+html {
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 10px;
+    --border-color: rgb(118, 118, 118);
+    --margin: 20px;
+    min-height: 100%;
+}
+
+body {
+    margin: 0 auto;
+    background-color: rgb(235, 238, 241);
+    font-size: 2rem;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+nav {
+    margin-top: 3rem;
+    display: flex;
+    justify-content: center;
+}
+
+.numQs {
+    margin: 2.3rem 1rem 0.5rem 0.5rem;
+    padding: 0.5rem;
+
+    /* padding: 25px; */
+}
+
+/* Text and Form styling */
+h1 {
+    margin-top: 8rem;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    font-size: 4rem;
+    text-align: center;
+    padding-bottom: 75px;
+    padding-top: 75px;
+    background-color: rgb(144, 165, 195);
+}
+
+p {
+    font-size: 2rem;
+    padding: 5px var(--margin);
+}
+
+/* Link styling (as button) */
+
+a:link,
+a:visited {
+    padding: 8px var(--margin);
+    background-color: rgb(184, 196, 214);
+    border: 2px solid rgb(186, 191, 197);
+    border-radius: 4px;
+    cursor: pointer;
+    color: black;
+    margin-top: 20px;
+    min-width: 140px;
+    text-align: center;
+
+}
+
+a:hover,
+a:active {
+    background-color: rgb(255, 255, 255);
+    color: black;
+}
+
+.buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 50px;
+}
