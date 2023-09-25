@@ -54,6 +54,12 @@ class EasySQLQuery(ISQLQuery):
     
     def insertPercentWildCard(self, value, ends_with_perc, num_char_to_remove, cond_details):
         super().insertPercentWildCard(self, value, ends_with_perc, num_char_to_remove, cond_details)
+        
+    def createRoundAgg(self, relation):
+        super().createRoundAgg(relation)
+    
+    def createOrCond(self, relation, string=False):
+        super().createOrCond(relation, string)
     
     def easyBuilder(self, relation, attribute = None, aggOrCond=None, aggFn = None, condType = None):
         super().easyBuilder(relation, attribute, aggOrCond, aggFn, condType)

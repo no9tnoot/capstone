@@ -56,6 +56,12 @@ class HardSQLQuery(ISQLQuery):
     
     def insertPercentWildCard(self, value, ends_with_perc, num_char_to_remove, cond_details):
         super().insertPercentWildCard(value, ends_with_perc, num_char_to_remove, cond_details)
+        
+    def createRoundAgg(self, relation):
+        super().createRoundAgg(relation)
+    
+    def createOrCond(self, relation, string=False):
+        super().createOrCond(relation, string)
     
     def createGroupBy(self):
         """

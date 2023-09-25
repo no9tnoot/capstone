@@ -421,6 +421,39 @@ class ISQLQuery(ABC):
                 value.append('%') # insert % at end
                 
         return value
+    
+    @abstractmethod
+    def createRoundAgg(self, relation):
+        """
+        Creates a 'round' aggregate function.
+        Selects a roundable (float or double) attribute to round, and selects a number of decimals
+        to round to.
+        """
+        self.aggFns.append('round(')
+        attr = relation.getAttribute(roundable=True) # select a random roundable attribute
+        self.attrs.append(attr)
+        self.roundTo = random.choice([',0',',1',',2']) # select the number of decimals to round to 
+    
+    @abstractmethod
+    def createOrCond(self, relation, string=False):
+        """
+        Creates the second part of an 'or' condition.
+        Creates either a 'like' or 'where' condition to go ofter the keyword or in a query. 
+        """
+        self.orCond=True
+        self.conds['or']={}
+        
+        like = random.choice([True, False]) # decide whether to do a like condition or a where condition
+        if string and like:
+            self.createLikeCond(relation, self.conds['or'])
+            while self.conds['val2']==self.conds['or']['val2']: # make sure the two conditions are not the same
+                self.createLikeCond(relation, self.conds['or'])
+        else:
+            self.createWhereCond(relation, self.conds['or'])
+            while self.conds['val2']==self.conds['or']['val2']: # make sure the two conditions are not the same
+                self.createWhereCond(relation, self.conds['or'])
+        
+        self.conds['or']['cond']='or'
 
 
     @abstractmethod
