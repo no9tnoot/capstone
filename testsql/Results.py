@@ -3,9 +3,13 @@
 # Results Class
 
 class Results:
-    """ Class that holds all results information which will be needed in main.py ."""
+    """ Class that holds all results information which will be needed in main.py.
+    """
     
     def __init__(self, correct, syntaxOrLogic, tableInfo):
+        """ Sets the correct, comment and tableInfo instance variables for an instance of the Results class.
+        Calls the getComment method if correct == True. 
+        """
         self.correct = correct
         if correct:
             self.comment = ""

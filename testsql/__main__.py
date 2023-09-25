@@ -9,13 +9,20 @@ from .Session import Session
 app = Flask(__name__, template_folder="templates")
 
 def addNonDuplicate(questions, difficulty):
+    """Adds questions of the specified difficulty level to the questions set. Sets do not allow the addition
+    of duplicate elements.
+    """
+
     length = len(questions)
-    while len(questions) == length:
+    while len(questions) == length: #While no questions have been added to the questions set
         questions.add(setup.factory.getQuestion(difficulty))
 
 def genTestQs(numQs):
+    """Creates a set, adds the correct proportion of easy, medium and hard questions to this set, and then 
+    converts the set to a list and returns it.
+    """
+
     questionSet = set()
-    # Check numQs multiple of 10
 
     # Generate 30% easy questions
     for i in range(int(0.3*numQs)):
@@ -31,6 +38,10 @@ def genTestQs(numQs):
 # Home page:
 @app.route("/", methods=["GET", "POST"])
 def home():
+    """Resets the question, marked and questionList variables of the current instance of QuizSetup, 
+    and then renders the home page html.
+    """
+
     setup.question = setup.factory.getQuestion(setup.qLevel)
     setup.marked = False # Reset flag
     setup.questionList = []
@@ -39,104 +50,91 @@ def home():
 # Practice quiz page:
 @app.route("/practice", methods=["GET", "POST"])
 def practice():
+    """Handles user interactions with the mark button, next button and with the difficulty selector, and 
+    renders the practice page html.
+    """
 
     global setup
-    # global result
-    setup.marked = False
-    print("Run practice: " + str(setup.marked))
+    setup.marked = False # The current question has not been marked
 
     if request.method == "POST":
         
         if "mark_button" in request.form:
-            # Mark the student's inputted SQL query
             modelSQL = setup.question.getSqlQuery()
             stuSQL = request.form.get("sql")
-            setup.result = Session.markQuery(setup.session, stuSQL, modelSQL) # Mark
-            # Change true to correct, false to incorrect
-
-            setup.marked = True # Set flag
-            # print("Press mark: " + str(setup.marked))
+            setup.result = Session.markQuery(setup.session, stuSQL, modelSQL)  # Mark the student's inputted SQL query
+            setup.marked = True                                                # The current question has been marked
 
         elif "next_button" in request.form:
-            # Store question and results
-            # Generate new question of selected difficulty level
-            setup.question = setup.factory.getQuestion(setup.qLevel)
-            setup.marked = False # Reset flag
-            print("Press next: " + str(setup.marked))
+            setup.question = setup.factory.getQuestion(setup.qLevel)           # Generate new question of selected difficulty level
+            setup.marked = False                                               # The current question has not been marked
 
         elif "difficulty_changed" in request.form:
-            setup.qLevel = request.form.get("difficulty") # Get the new difficulty set by user -> update qLevel
-            setup.question = setup.factory.getQuestion(setup.qLevel) # Generate question
-            setup.marked = False # Reset flag
-            return setup.question.getEnglishQuery() # Return Eng query of question
-
+            setup.qLevel = request.form.get("difficulty")                      # Get the new difficulty set by user, and update qLevel
+            setup.question = setup.factory.getQuestion(setup.qLevel)           # Generate new question of selected difficulty level
+            setup.marked = False                                               # The current question has not been marked
+            return setup.question.getEnglishQuery()                            # Return Eng query of question to javaScript in practice_gui.html
     
-    # Render a practice page which displays the generated English query
+    # If stuSQL has not been allocated a value, set it as an empty string
     try:
         stuSQL
     except NameError:
         stuSQL = ""
 
+    # Render a practice page which displays the generated English query
+    # If not marked, it should provide space for the user to input their SQL query
+    # If marked, the results should be displayed along with the expected SQL output
     return render_template("practice_gui.html", engQuestion=setup.question.getEnglishQuery(), correct = setup.result.correct, explanation = setup.result.comment, modelOutput = setup.result.tableInfo, showResult = setup.marked, difficulty = setup.qLevel, userQuery = stuSQL) 
 
 # Test quiz page:
 @app.route("/test", methods=["GET", "POST"])
 def test():
-    numQs = 100 # Must be divisible by 10
+    """Generates a list of questions if one does not currently exist, handles user interactions with the 
+    submit button, and renders the test page html.
+    """
 
-    # If the questions have not yet been generated
-    if setup.questionList == []:
-        # Generate questions
-        setup.questionList = genTestQs(numQs)
+    numQs = 100                               # Set the desired number of questions. Must be divisible by 10.
 
-        # Just pass English queries to test_gui.py
-        engQsList = []
+
+    if setup.questionList == []:              # If the questions have not yet been generated
+        setup.questionList = genTestQs(numQs) # Generate questions
+
+        engQsList = []                        # Pass only the English queries to test_gui.py
         for i in range(numQs):
             engQsList.append(setup.questionList[i].getEnglishQuery())
-            print(setup.questionList[i].getEnglishQuery())
-            print(setup.questionList[i].getSqlQuery())
-            print("")
 
     if request.method == "POST":
-        
-        if "mark_button" in request.form:
-            # Mark the student's inputted SQL query
+        if "mark_button" in request.form:     # Mark the student's inputted SQL query
             correctAns = []
 
-            for i in range(numQs):
-                name = "sql" + str(i+1)
-                stuAns = request.form.get(name) 
-
-                if stuAns == None:
-                    stuAns = ""
-
-                modelAns = setup.questionList[i].getSqlQuery()
-
+            for i in range(numQs):                                                # For each question
+                stuAns = request.form.get("sql" + str(i+1))                       # Get its model answer
+                modelAns = setup.questionList[i].getSqlQuery()                    # Get the student's answer
                 setup.result = Session.markQuery(setup.session, stuAns, modelAns) # Mark
-
-                # Store whether answer was correct or not
-                correctAns.append(setup.result.correct)
+                correctAns.append(setup.result.correct)                           # Store whether answer was correct or not
             
-            # Count number of questions answered correctly
-            counter = 0
+            counter = 0                      # Count number of questions answered correctly
             for i in correctAns:
                 if i == True:
                     counter += 1
             
-            # reset questionList
-            setup.questionList = []
-            mark = str(counter) + "/" + str(numQs)
-            # Take to page with score and link to home
-            return render_template("markedTest_gui.html", mark = mark)
+            setup.questionList = []          # Reset questionList
+            mark = str(counter) + "/" + str(numQs) 
+            # Render page with student's score, a link to home, and a link to another test
+            return render_template("markedTest_gui.html", mark = mark) 
     
+    # If engQsList has not been allocated a value, set it as an empty string
     try:
         engQsList
     except NameError:
         engQsList = ""
     
+    # Render a test page which displays the generated list of English questions
     return render_template("test_gui.html", questions = engQsList, numQs = numQs)
 
 def main():
+    """Initialises the QuizSetup instance and runs the app
+    """
     global setup
     setup = QuizSetup()
     app.run()
