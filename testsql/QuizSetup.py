@@ -25,6 +25,7 @@ class QuizSetup:
         self.marked = False # Flag to indicate whether results should be showing
         self.result = Results(True, "syn", "")
         self.questionList = []
+        self.numQs = 10
         
     def __new__(setup):
         """

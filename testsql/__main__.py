@@ -86,6 +86,19 @@ def practice():
     # If marked, the results should be displayed along with the expected SQL output
     return render_template("practice_gui.html", engQuestion=setup.question.getEnglishQuery(), correct = setup.result.correct, explanation = setup.result.comment, modelOutput = setup.result.tableInfo, showResult = setup.marked, difficulty = setup.qLevel, userQuery = stuSQL) 
 
+# Select number of test questions page:
+@app.route("/numQsSelect", methods=["GET", "POST"])
+def numQsSelect():
+    """Sets the number of questions to be generated for the test, and renders the numQsSelect page."""
+    
+    setup.numQs = 10 # Set to default
+
+    if request.method == "POST" and "numQs_changed" in request.form:
+            setup.numQs = int(request.form.get("numQs"))
+
+    return render_template("numQsSelect_gui.html")
+
+
 # Test quiz page:
 @app.route("/test", methods=["GET", "POST"])
 def test():
@@ -93,21 +106,18 @@ def test():
     submit button, and renders the test page html.
     """
 
-    numQs = 100                               # Set the desired number of questions. Must be divisible by 10.
-
-
     if setup.questionList == []:              # If the questions have not yet been generated
-        setup.questionList = genTestQs(numQs) # Generate questions
+        setup.questionList = genTestQs(setup.numQs) # Generate questions
 
         engQsList = []                        # Pass only the English queries to test_gui.py
-        for i in range(numQs):
+        for i in range(len(setup.questionList)):
             engQsList.append(setup.questionList[i].getEnglishQuery())
 
     if request.method == "POST":
         if "mark_button" in request.form:     # Mark the student's inputted SQL query
             correctAns = []
 
-            for i in range(numQs):                                                # For each question
+            for i in range(len(setup.questionList)):                                                # For each question
                 stuAns = request.form.get("sql" + str(i+1))                       # Get its model answer
                 modelAns = setup.questionList[i].getSqlQuery()                    # Get the student's answer
                 setup.result = Session.markQuery(setup.session, stuAns, modelAns) # Mark
@@ -119,7 +129,7 @@ def test():
                     counter += 1
             
             setup.questionList = []          # Reset questionList
-            mark = str(counter) + "/" + str(numQs) 
+            mark = str(counter) + "/" + str(setup.numQs) 
             # Render page with student's score, a link to home, and a link to another test
             return render_template("markedTest_gui.html", mark = mark) 
     
@@ -130,7 +140,7 @@ def test():
         engQsList = ""
     
     # Render a test page which displays the generated list of English questions
-    return render_template("test_gui.html", questions = engQsList, numQs = numQs)
+    return render_template("test_gui.html", questions = engQsList, numQs = setup.numQs)
 
 def main():
     """Initialises the QuizSetup instance and runs the app

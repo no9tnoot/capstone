@@ -19,20 +19,34 @@
 
         <form class="numQForm" id="numQForm" method="post">
             <select class="numQs" name="numQs" id="numQs">
-                <option value="ten">10</option>
-                <option value="twenty">20</option>
-                <option value="thirty">30</option>
-                <option value="forty">40</option>
-                <option value="fifty">50</option>
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="30">30</option>
+                <option value="40">40</option>
+                <option value="50">50</option>
             </select>
         </form>
     </nav>
 
     <div class="buttons">
-        <a href="/" class="btn">home</a>
         <a href="/test" class="btn">generate test</a>
+        <a href="/" class="btn">home</a>
     </div>
 
 </body>
+
+<script>
+    const select = document.querySelector("#numQs");
+    const numQForm = document.querySelector("#numQForm");
+
+    select.addEventListener("change", async function () {
+        const form_data = new FormData(numQForm);
+        form_data.append("numQs_changed", "");
+        const response = await fetch("/numQsSelect", {
+            method: "POST",
+            body: form_data,
+        });
+    })
+</script>
 
 </html>
