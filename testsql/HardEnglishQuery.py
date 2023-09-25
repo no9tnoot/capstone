@@ -59,12 +59,10 @@ class HardEnglishQuery(IEnglishQuery):
         """
         Translates group by queries into english.
         """
-        q = 'each ' + query['attributes'][1].name + ' in the ' + query['relation']['rel1'].name + ' table along with '
-        q += self.translateAgg(query['aggregates'][0]) + self.translateAttr(query['attributes'][0]) 
-        if query['attributes'][0].name == '*' or query['aggregates'][0] == 'count(':
-            q += ' that are associated with that ' + query['attributes'][1].name
-        else:
-            q += ' that is associated with that ' + query['attributes'][1].name
+
+        q = self.translateAgg(query['aggregates'][0]) + self.translateAttr(query['attributes'][0])
+        q += ' associated with each ' + query['attributes'][1].name + ' in the ' + query['relation']['rel1'].name + ' table'
+
         if query['condition'] and query['groupBy']['having']:
             q += self.translateCond(query['condition'])
             q += ' and only where ' + self.translateAttr(query['attributes'][0])
