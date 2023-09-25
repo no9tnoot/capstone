@@ -5,6 +5,10 @@
 from .IEnglishQuery import IEnglishQuery
 
 class EasyEnglishQuery(IEnglishQuery):
+    """
+    Translates simple mySQL queries into English questions. Implements the IEnglishQuery interface. Can handle basic select queries, 
+    aggregates such as 'MAX' and 'COUNT', and conditions such as 'WHERE' and 'ORDER BY'.
+    """
 
     def __init__(self, sqlQuery):
         super().__init__(sqlQuery)

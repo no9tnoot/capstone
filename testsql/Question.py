@@ -3,6 +3,9 @@
 # Question
 
 class Question():
+    """
+    Question object simply hold an SQL query and the corresponding English question.
+    """
 
     def __init__(self, sqlQuery, engQuery):
         self.sqlQuery = sqlQuery

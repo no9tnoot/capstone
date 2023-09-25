@@ -5,6 +5,10 @@
 from abc import ABC, abstractmethod
 
 class IEnglishQuery(ABC):
+    """
+    IEnglishQuery contains methods that are used in more than one type of question. 
+    Stores an English query in self.englishQuery.
+    """
 
     likePos = ['second','third','fourth','fifth','sixth']
 
@@ -71,9 +75,9 @@ class IEnglishQuery(ABC):
 
             case 'limit':
                 if condition['val2'] == 1:
-                    engCond += ' but only show 1 row'
+                    engCond += ' but only show the first'
                 else:
-                    engCond += ' but only show ' + condition['val2'] + ' records'
+                    engCond += ' but only show the first ' + condition['val2'] + ' records'
 
             case 'where':
                 engCond += ' but only for records where ' + condition['val1'].name + ' ' + self.translateOperator(condition) + ' ' + self.translateVal2(condition, nested)

@@ -7,6 +7,9 @@ from . import Database
 from . import Marker
 
 class Session:
+    """
+    Session is responsible for creating the Database and Marker instances that will be used by other classes.
+    """
 
     def __init__(self):
         self.details = []
