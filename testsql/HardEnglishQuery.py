@@ -6,7 +6,8 @@ from .IEnglishQuery import IEnglishQuery
 
 class HardEnglishQuery(IEnglishQuery):
     """
-    Handles complicated mySQL queries including nested queries, 'JOIN', and 'GROUP BY'/'HAVING'.
+    Handles complicated mySQL queries including nested queries, 'JOIN', and 'GROUP BY'/'HAVING'. 
+    Implements the IEnglishQuery interface.
     """
 
     def __init__(self, sqlQuery):

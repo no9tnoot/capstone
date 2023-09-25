@@ -7,7 +7,7 @@ from .IEnglishQuery import IEnglishQuery
 class MediumEnglishQuery(IEnglishQuery):
     """
     Handles slightly more complex mySQL queries including 'DISTINCT', 'ROUND', and various types of
-    'LIKE' conditions.
+    'LIKE' conditions. Implements the IEnglishQuery interface.
     """
 
     def __init__(self, sqlQuery):
